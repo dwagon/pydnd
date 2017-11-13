@@ -13,4 +13,17 @@ class Equipment(models.Model):
     def __str__(self):
         return self.name
 
+
+##############################################################################
+class Weapons(Equipment):
+    damage = models.CharField(max_length=10)
+    magic = models.IntegerField(default=0)
+
+
+##############################################################################
+class Armour(Equipment):
+    bonus = models.IntegerField()
+    magic = models.IntegerField(default=0)
+
+
 # EOF
