@@ -1,5 +1,6 @@
 from django.db import models
 import random
+from . import tables
 
 
 ##############################################################################
@@ -36,7 +37,8 @@ race_choices = (
         ('EL', 'Elf'),
         ('DW', 'Dwarf'),
         ('HE', 'Half Elven'),
-        ('HL', 'Halfling')
+        ('HL', 'Halfling'),
+        ('GN', 'Gnome')
         )
 status_choices = (
         ('OK', 'OK'),
@@ -61,7 +63,7 @@ class Character(models.Model):
     thaco = models.IntegerField(default=0)
     dmg = models.IntegerField(default=1)
     encumbrance = models.IntegerField(default=0)
-    movement = models.IntegerField(default=6)
+    movement = models.IntegerField(default=12)
     xp = models.IntegerField(default=0)
     align = models.CharField(max_length=2, choices=alignment_choices, default='N')
     level = models.IntegerField(default=1)
@@ -102,11 +104,21 @@ class Character(models.Model):
         if self.stat_str < 0:
             self.generate_stats()
         if self.max_hp == 0:
-            self.max_hp = dice(self.hitdie)
+            self.max_hp = self.calc_hp()
             self.hp = self.max_hp
-        self.encumbrance = self.calc_encumb()
-
+        # Need to save first to make M2M work on new objects
         super(Character, self).save(**kwargs)
+        self.encumbrance = self.calc_encumb()
+        self.movement = self.calc_movement()
+        self.thaco = self.calc_thaco()
+        super(Character, self).save(**kwargs)
+
+    def calc_movement(self):
+        # TODO: Encumbrance
+        return tables.race[self.race]['movement']
+
+    def calc_hp(self):
+        return dice(self.hitdie) + tables.con_hp_adjustment[self.stat_con][0]
 
     def calc_encumb(self):
         enc = sum(x.weight for x in self.gear.all())
@@ -123,6 +135,9 @@ class Character(models.Model):
 class Thief(Character):
     hitdie = 6
 
+    def calc_thaco(self):
+        return 20 - int((self.level - 1) / 2)
+
     class Meta:
         verbose_name_plural = "Thieves"
 
@@ -131,16 +146,28 @@ class Thief(Character):
 class Fighter(Character):
     hitdie = 10
 
+    def calc_thaco(self):
+        return 21 - self.level
+
+    def calc_hp(self):
+        return dice(self.hitdie) + tables.con_hp_adjustment[self.stat_con][1]
+
 
 ##############################################################################
 class Mage(Character):
-    spells = models.ManyToManyField(Spell)
+    spells = models.ManyToManyField(Spell, blank=True)
     hitdie = 4
+
+    def calc_thaco(self):
+        return 20 - int((self.level - 1) / 3)
 
 
 ##############################################################################
 class Cleric(Character):
     spells = models.ManyToManyField(Spell, blank=True)
-    hitdie = 6
+    hitdie = 8
+
+    def calc_thaco(self):
+        return 20 - int((self.level - 1) * 2 / 3)
 
 # EOF
