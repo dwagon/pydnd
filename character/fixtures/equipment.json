@@ -1,0 +1,6 @@
+[
+    {"model": "character.equipment", "pk": 1, "fields": {"name": "Long Sword", "cost": 1500, "weight": 4}},
+    {"model": "character.equipment", "pk": 2, "fields": {"name": "Short Sword", "cost": 1000, "weight": 3}},
+    {"model": "character.equipment", "pk": 3, "fields": {"name": "Chain Mail", "cost": 7500, "weight": 4}},
+    {"model": "character.equipment", "pk": 4, "fields": {"name": "Studded Leather", "cost": 2000, "weight": 25}}
+]
