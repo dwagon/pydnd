@@ -1,0 +1,7 @@
+[
+    {
+        "model": "monster.monster",
+        "pk": 1,
+        "fields": {"name": "Orc", "treasure": "L", "align": "LE", "numappearing": "3d10*10", "ac": 6, "movement": 9, "hitdie": "1", "thaco": 19, "numattacks": 1, "damage": "1d8", "xp": 15}
+    }
+]
