@@ -95,7 +95,8 @@ class Character(models.Model):
         return tables.race[self.race]['movement']
 
     def calc_hp(self):
-        return roll(self.hitdie) + tables.con_hp_adjustment[self.stat_con][0]
+        """ Calculate the HP for a level - try and make it not suck too much """
+        return max(roll(self.hitdie), roll(self.hitdie)) + tables.con_hp_adjustment[self.stat_con][0]
 
     def calc_encumb(self):
         enc = sum(x.weight for x in self.gear.all())
