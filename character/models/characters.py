@@ -27,11 +27,33 @@ gender_choices = (
         ('F', 'Female'),
         ('U', 'Unknown')
         )
+charclass_choices = (
+        ('F', 'Fighter'),
+        ('T', 'Thief'),
+        ('M', 'Mage'),
+        ('C', 'Cleric'),
+        )
+
+
+##############################################################################
+class EquipState(models.Model):
+    character = models.ForeignKey('Character', on_delete=models.CASCADE)
+    equipment = models.ForeignKey('Equipment', on_delete=models.CASCADE)
+    ready = models.BooleanField(default=False)
+
+
+##############################################################################
+class SpellState(models.Model):
+    character = models.ForeignKey('Character', on_delete=models.CASCADE)
+    spell = models.ForeignKey('Spell', on_delete=models.CASCADE)
+    memorized = models.BooleanField(default=False)
+    default = models.BooleanField(default=False)
 
 
 ##############################################################################
 class Character(models.Model):
     name = models.CharField(max_length=200)
+    charclass = models.CharField(max_length=5, choices=charclass_choices)
     race = models.CharField(max_length=2, choices=race_choices, default='HU')
     gender = models.CharField(max_length=1, choices=gender_choices, default='U')
     hp = models.IntegerField(default=0)
@@ -59,13 +81,11 @@ class Character(models.Model):
     silver = models.IntegerField(default=0)
     copper = models.IntegerField(default=0)
 
-    gear = models.ManyToManyField('Equipment', blank=True)
-
-    class Meta:
-        abstract = True
+    gear = models.ManyToManyField('Equipment', blank=True, through=EquipState)
+    spells = models.ManyToManyField('Spell', blank=True, through=SpellState)
 
     def __str__(self):
-        return "{} Level {} {}".format(self.name, self.level, self.__class__.__name__)
+        return "{} (Level {} {})".format(self.name, self.level, self.get_charclass_display())
 
     def generate_stats(self):
         self.stat_str = self.roll_stat()
@@ -96,7 +116,11 @@ class Character(models.Model):
 
     def calc_hp(self):
         """ Calculate the HP for a level - try and make it not suck too much """
-        return max(roll(self.hitdie), roll(self.hitdie)) + tables.con_hp_adjustment[self.stat_con][0]
+        if self.charclass == 'F':
+            index = 1
+        else:
+            index = 0
+        return max(roll(self.hitdie()), roll(self.hitdie())) + tables.con_hp_adjustment[self.stat_con][index]
 
     def calc_encumb(self):
         enc = sum(x.weight for x in self.gear.all())
@@ -108,44 +132,31 @@ class Character(models.Model):
         """
         return sum(sorted([roll('d6'), roll('d6'), roll('d6'), roll('d6')])[1:])
 
+    def equip(self, obj, ready=False):
+        e = EquipState(character=self, equipment=obj, ready=ready)
+        e.save()
 
-##############################################################################
-class Thief(Character):
-    hitdie = 'd6'
-
-    def calc_thaco(self):
-        return 20 - int((self.level - 1) / 2)
-
-    class Meta:
-        verbose_name_plural = "Thieves"
-
-
-##############################################################################
-class Fighter(Character):
-    hitdie = 'd10'
+    def attack(self, victim):
+        pass
 
     def calc_thaco(self):
-        return 21 - self.level
+        if self.charclass == 'T':
+            return 20 - int((self.level - 1) / 2)
+        elif self.charclass == 'F':
+            return 21 - self.level
+        elif self.charclass == 'M':
+            return 20 - int((self.level - 1) / 3)
+        elif self.charclass == 'C':
+            return 20 - int((self.level - 1) * 2 / 3)
 
-    def calc_hp(self):
-        return roll(self.hitdie) + tables.con_hp_adjustment[self.stat_con][1]
-
-
-##############################################################################
-class Mage(Character):
-    spells = models.ManyToManyField('Spell', blank=True)
-    hitdie = 'd4'
-
-    def calc_thaco(self):
-        return 20 - int((self.level - 1) / 3)
-
-
-##############################################################################
-class Cleric(Character):
-    spells = models.ManyToManyField('Spell', blank=True)
-    hitdie = 'd8'
-
-    def calc_thaco(self):
-        return 20 - int((self.level - 1) * 2 / 3)
+    def hitdie(self):
+        if self.charclass == 'T':
+            return 'd6'
+        elif self.charclass == 'F':
+            return 'd10'
+        elif self.charclass == 'M':
+            return 'd4'
+        elif self.charclass == 'C':
+            return 'd8'
 
 # EOF

@@ -1,26 +1,11 @@
 from django.contrib import admin
 
 from .models import Spell, Equipment
-from .models import Fighter, Cleric, Mage, Thief
+from .models import Character
 
 
-@admin.register(Fighter)
-class FighterAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(Cleric)
-class ClericAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(Mage)
-class MageAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(Thief)
-class ThiefAdmin(admin.ModelAdmin):
+@admin.register(Character)
+class CharacterAdmin(admin.ModelAdmin):
     pass
 
 
