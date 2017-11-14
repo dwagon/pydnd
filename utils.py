@@ -1,6 +1,9 @@
-import random
+import dice
 
-def dice(sides=6):
-    return random.randint(1, sides)
+
+def roll(dstr):
+    """ Convert something like 1d6+3 into an appropriate random number """
+    return sum(dice.roll(dstr))
+
 
 # EOF

@@ -1,7 +1,7 @@
 from django.db import models
 import random
 from . import tables
-from utils import dice
+from utils import roll
 
 
 alignment_choices = (
@@ -95,7 +95,7 @@ class Character(models.Model):
         return tables.race[self.race]['movement']
 
     def calc_hp(self):
-        return dice(self.hitdie) + tables.con_hp_adjustment[self.stat_con][0]
+        return roll(self.hitdie) + tables.con_hp_adjustment[self.stat_con][0]
 
     def calc_encumb(self):
         enc = sum(x.weight for x in self.gear.all())
@@ -105,12 +105,12 @@ class Character(models.Model):
         """ Roll 4d6 and return the sum of the top 3
         Method VI in the PHG
         """
-        return sum(sorted([dice(), dice(), dice(), dice()])[1:])
+        return sum(sorted([roll('d6'), roll('d6'), roll('d6'), roll('d6')])[1:])
 
 
 ##############################################################################
 class Thief(Character):
-    hitdie = 6
+    hitdie = 'd6'
 
     def calc_thaco(self):
         return 20 - int((self.level - 1) / 2)
@@ -121,19 +121,19 @@ class Thief(Character):
 
 ##############################################################################
 class Fighter(Character):
-    hitdie = 10
+    hitdie = 'd10'
 
     def calc_thaco(self):
         return 21 - self.level
 
     def calc_hp(self):
-        return dice(self.hitdie) + tables.con_hp_adjustment[self.stat_con][1]
+        return roll(self.hitdie) + tables.con_hp_adjustment[self.stat_con][1]
 
 
 ##############################################################################
 class Mage(Character):
     spells = models.ManyToManyField('Spell', blank=True)
-    hitdie = 4
+    hitdie = 'd4'
 
     def calc_thaco(self):
         return 20 - int((self.level - 1) / 3)
@@ -142,7 +142,7 @@ class Mage(Character):
 ##############################################################################
 class Cleric(Character):
     spells = models.ManyToManyField('Spell', blank=True)
-    hitdie = 8
+    hitdie = 'd8'
 
     def calc_thaco(self):
         return 20 - int((self.level - 1) * 2 / 3)
