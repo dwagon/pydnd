@@ -51,6 +51,26 @@ class SpellState(models.Model):
 
 
 ##############################################################################
+def Fighter(**kwargs):
+    return Character(charclass='F', **kwargs)
+
+
+##############################################################################
+def Thief(**kwargs):
+    return Character(charclass='T', **kwargs)
+
+
+##############################################################################
+def Mage(**kwargs):
+    return Character(charclass='M', **kwargs)
+
+
+##############################################################################
+def Cleric(**kwargs):
+    return Character(charclass='C', **kwargs)
+
+
+##############################################################################
 class Character(models.Model):
     name = models.CharField(max_length=200)
     charclass = models.CharField(max_length=5, choices=charclass_choices)

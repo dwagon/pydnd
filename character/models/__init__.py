@@ -1,3 +1,3 @@
 from .equipment import Equipment, Weapon, Armour
 from .spells import Spell
-from .characters import Character
+from .characters import Character, Fighter, Thief, Mage, Cleric
