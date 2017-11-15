@@ -42,13 +42,13 @@ class Monster(models.Model):
 
     def attack(self, victim):
         """ Attack something else """
-        for _ in range(self.numattacks):
+        dmgs = 0
+        for _ in range(0, self.numattacks):
             if self.hit(victim):
                 dmg = roll(self.damage)
-                print("{} hits {} for {}".format(self.name, victim.name, dmg))
                 victim.hurt(dmg)
-            else:
-                print("{} missed {}".format(self.name, victim.name))
+                dmgs += dmg
+        return dmgs
 
     def hit(self, victim):
         """ Try and hit something """
