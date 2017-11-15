@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from character.models import Equipment
+from character.models import Equipment, Weapon
 
 
 ##############################################################################
@@ -17,7 +17,7 @@ class test_Equipment(TestCase):
 ##############################################################################
 class test_Weapons(TestCase):
     def setUp(self):
-        self.sword = Equipment(name='long sword', damage='1d8', magic='+1')
+        self.sword = Weapon(name='long sword', damage='1d8', magic='+1')
         self.sword.save()
 
     def test_damage(self):

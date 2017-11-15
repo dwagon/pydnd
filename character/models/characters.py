@@ -1,6 +1,7 @@
 from django.db import models
 import random
 from . import tables
+from . import Equipment
 from utils import roll
 
 
@@ -40,6 +41,9 @@ class EquipState(models.Model):
     character = models.ForeignKey('Character', on_delete=models.CASCADE)
     equipment = models.ForeignKey('Equipment', on_delete=models.CASCADE)
     ready = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "{}'s {}".format(self.character.name, self.equipment.name)
 
 
 ##############################################################################
@@ -128,6 +132,7 @@ class Character(models.Model):
         self.encumbrance = self.calc_encumb()
         self.movement = self.calc_movement()
         self.thaco = self.calc_thaco()
+        self.ac = self.calc_ac()
         super(Character, self).save(**kwargs)
 
     def calc_movement(self):
@@ -155,6 +160,7 @@ class Character(models.Model):
     def equip(self, obj, ready=False):
         e = EquipState(character=self, equipment=obj, ready=ready)
         e.save()
+        self.save()
 
     def equipped_weapon(self):
         """ Return the equiped weapon """
@@ -163,6 +169,11 @@ class Character(models.Model):
             if _.get_category_display() == 'Weapon':
                 return _
         return None
+
+    def equipped_armour(self):
+        """ Return the equiped armour """
+        e = Equipment.objects.filter(equipstate__ready=True, character=self, category=Equipment.ARMOUR)
+        return e
 
     def hit(self, victim):
         hitroll = roll('d20')
@@ -193,6 +204,17 @@ class Character(models.Model):
             return False
         self.save()
         return True
+
+    def calc_ac(self):
+        armour = self.equipped_armour()
+        base = 10
+        mod = 0
+        dex = 0
+        if armour:
+            base = min([_.ac_base for _ in armour])
+            mod = sum([_.ac_modifier for _ in armour])
+        ac = base - mod - dex
+        return ac
 
     def calc_thaco(self):
         if self.charclass == 'T':

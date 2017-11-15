@@ -2,11 +2,6 @@ from django.db import models
 from utils import roll
 
 
-category_choices = (
-        ('I', 'Item'),
-        ('W', 'Weapon'),
-        ('A', 'Armour')
-        )
 
 
 ##############################################################################
@@ -21,8 +16,16 @@ def Armour(**kwargs):
 
 ##############################################################################
 class Equipment(models.Model):
+    ITEM = 'I'
+    WEAPON = 'W'
+    ARMOUR = 'A'
+    category_choices = (
+            (ITEM, 'Item'),
+            (WEAPON, 'Weapon'),
+            (ARMOUR, 'Armour')
+            )
     name = models.CharField(max_length=200)
-    category = models.CharField(max_length=1, choices=category_choices, default='I')
+    category = models.CharField(max_length=1, choices=category_choices, default=ITEM)
     cost = models.IntegerField(default=0)    # Cost in CP
     weight = models.IntegerField(default=0)
     magic = models.CharField(max_length=10, default='')
@@ -31,7 +34,7 @@ class Equipment(models.Model):
     damage = models.CharField(max_length=10, default='')
 
     # Armour stuff
-    ac_base = models.IntegerField(default=0)
+    ac_base = models.IntegerField(default=10)
     ac_modifier = models.IntegerField(default=0)
 
     class Meta:
