@@ -1,9 +1,15 @@
 from django.db import models
+from utils import roll
 
 alignment_choices = (
         ('LG', 'Lawful Good'), ('LN', 'Lawful Neutral'), ('LE', 'Lawful Evil'),
         ('NG', 'Neutral Good'), ('N', 'True Neutral'), ('NE', 'Neutral Evil'),
         ('CG', 'Chaotic Good'), ('CN', 'Chaotic Neutral'), ('CE', 'Chaotic Evil')
+        )
+status_choices = (
+        ('OK', 'OK'),
+        ('DE', 'Dead'),
+        ('UC', 'Unconscious')
         )
 
 
@@ -15,13 +21,51 @@ class Monster(models.Model):
     numappearing = models.CharField('Num Appearing', max_length=20)
     ac = models.IntegerField('AC')
     movement = models.IntegerField()
-    hitdie = models.CharField('Hit Die', max_length=5)
+    hitdie = models.CharField('Hit Die', max_length=5, default='1')
     thaco = models.IntegerField()
     numattacks = models.IntegerField('Num Attacks', default=1)
     damage = models.CharField(max_length=5)
     xp = models.IntegerField()
+    hp = models.IntegerField(default=-1)
+    max_hp = models.IntegerField(default=-1)
+    status = models.CharField(max_length=2, choices=status_choices, default='OK')
+
+    def save(self, **kwargs):
+        if self.max_hp < 0:
+            hits = roll('{}d8'.format(self.hitdie))
+            self.max_hp = hits
+            self.hp = hits
+        super(Monster, self).save(**kwargs)
 
     def __str__(self):
         return self.name
+
+    def attack(self, victim):
+        """ Attack something else """
+        for _ in range(self.numattacks):
+            if self.hit(victim):
+                dmg = roll(self.damage)
+                print("{} hits {} for {}".format(self.name, victim.name, dmg))
+                victim.hurt(dmg)
+            else:
+                print("{} missed {}".format(self.name, victim.name))
+
+    def hit(self, victim):
+        """ Try and hit something """
+        hitroll = roll('d20')
+        to_hit = self.thaco - victim.ac
+        if hitroll >= to_hit:
+            return True
+        else:
+            return False
+
+    def hurt(self, dmg):
+        """ Be hurt """
+        self.hp -= dmg
+        if self.hp <= 0:
+            self.status = 'DE'
+            self.save()
+            return False
+        return True
 
 # EOF

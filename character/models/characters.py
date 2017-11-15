@@ -136,8 +136,33 @@ class Character(models.Model):
         e = EquipState(character=self, equipment=obj, ready=ready)
         e.save()
 
+    def equipped_weapon(self):
+        """ Return the equiped weapon """
+        e = self.gear.filter(equipstate__ready=True)
+        for _ in e:
+            if _.get_category_display() == 'Weapon':
+                return _
+        return None
+
+    def hit(self, victim):
+        hitroll = roll('d20')
+        to_hit = self.thaco - victim.ac
+        print("hitroll={} to_hit={} thaco={} AC={}".format(hitroll, to_hit, self.thaco, victim.ac))
+        self.equipped_weapon()
+        if hitroll > to_hit:
+            return True
+        else:
+            return False
+
     def attack(self, victim):
-        pass
+        weap = self.equipped_weapon()
+        print("Weapon={}".format(weap))
+        if self.hit(victim):
+            print("hit!")
+            # Calc Damage
+            # victim.hurt(dmg)
+        else:
+            print("Missed")
 
     def calc_thaco(self):
         if self.charclass == 'T':

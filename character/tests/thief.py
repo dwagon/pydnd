@@ -1,15 +1,15 @@
 from django.test import TestCase
 
-from character.models import Thief
+from character.models import Character
 
 
 class test_Thief(TestCase):
     def setUp(self):
-        self.th = Thief(name='test')
+        self.th = Character(name='test', charclass='T')
         self.th.save()
 
     def test_hp(self):
-        self.assertEqual(self.th.hitdie, 'd6')
+        self.assertEqual(self.th.hitdie(), 'd6')
         self.assertGreaterEqual(self.th.hp, 1)
         self.assertLessEqual(self.th.hp, 6)
 
