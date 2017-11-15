@@ -147,7 +147,6 @@ class Character(models.Model):
     def hit(self, victim):
         hitroll = roll('d20')
         to_hit = self.thaco - victim.ac
-        print("hitroll={} to_hit={} thaco={} AC={}".format(hitroll, to_hit, self.thaco, victim.ac))
         self.equipped_weapon()
         if hitroll > to_hit:
             return True
@@ -156,13 +155,24 @@ class Character(models.Model):
 
     def attack(self, victim):
         weap = self.equipped_weapon()
-        print("Weapon={}".format(weap))
         if self.hit(victim):
-            print("hit!")
-            # Calc Damage
-            # victim.hurt(dmg)
+            dmg = weap.weapon_dmg()
+            victim.hurt(dmg)
+            return dmg
         else:
-            print("Missed")
+            return 0
+
+    def hurt(self, dmg):
+        """ Be hurt """
+        self.hp -= dmg
+        if self.hp <= 0:
+            self.status = 'UC'
+            if self.hp < -10:
+                self.status = 'DE'
+            self.save()
+            return False
+        self.save()
+        return True
 
     def calc_thaco(self):
         if self.charclass == 'T':
