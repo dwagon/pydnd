@@ -181,8 +181,10 @@ class Character(models.Model):
         self.save()
 
     def equipped_weapon(self):
-        """ Return the equiped weapon """
+        """ Return the equiped weapon - currently only one weapon can be readied """
         e = Equipment.objects.filter(equipstate__ready=True, character=self, category=Equipment.WEAPON)
+        if not e:
+            return None
         return e[0]
 
     def equipped_armour(self):

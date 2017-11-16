@@ -42,34 +42,6 @@ class test_Thief(TestCase):
         self.assertGreaterEqual(self.th.stat_dex, 3)
         self.assertLessEqual(self.th.stat_dex, 18)
 
-    def test_equip(self):
-        self.th.equip(self.sword, ready=True)
-        self.th.equip(self.mace)
-        self.th.equip(self.spikes)
-        self.assertEqual(self.th.encumbrance, 18)
-        self.th.equip(self.leather, ready=True)
-        w = self.th.equipped_weapon()
-        self.assertEqual(w.name, 'Long Sword')
-
-    def test_armour(self):
-        self.th.equip(self.leather, ready=True)
-        self.th.equip(self.helmet, ready=True)
-        self.th.equip(self.spikes)
-        a = self.th.equipped_armour()
-        self.assertEqual(sorted([_.name for _ in a]), sorted(['Leather', 'Helmet']))
-
-    def test_ac(self):
-        self.assertEqual(self.th.ac, 10)
-        self.th.equip(self.sword, ready=True)
-        self.th.equip(self.spikes)
-        self.assertEqual(self.th.ac, 10)
-        self.th.equip(self.leather, ready=True)
-        self.assertEqual(self.th.ac, 6)
-        self.th.equip(self.helmet, ready=True)
-        self.assertEqual(self.th.ac, 5)
-        self.th.equip(self.shield)
-        self.assertEqual(self.th.ac, 5)
-
     def test_hurt(self):
         """ Test being hurt - ouch """
         self.th.hp = 9
