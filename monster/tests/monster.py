@@ -1,5 +1,6 @@
 from django.test import TestCase
 from monster.models import Monster
+from character.models import Character, Armour
 
 
 class test_Monster(TestCase):
@@ -25,13 +26,21 @@ class test_Monster(TestCase):
         self.assertFalse(rc)
 
     def test_hit(self):
-        from character.models import Character
+        e = Armour(name='useless', ac_base=30)
+        e.save()
         c = Character(name='victim', charclass=Character.MAGE)
-        c.ac = 30   # Guarantee hit
         c.save()
+        c.equip(e, ready=True)
         hit = self.orc.hit(c)
         self.assertTrue(hit)
-        c.ac = -20    # Guarantee miss
+
+    def test_miss(self):
+        e = Armour(name='impervious', ac_base=-30)
+        e.save()
+        c = Character(name='victim', charclass=Character.MAGE)
+        c.save()
+        c.equip(e, ready=True)
+        c.ac = -30    # Guarantee miss
         c.save()
         hit = self.orc.hit(c)
         self.assertFalse(hit)

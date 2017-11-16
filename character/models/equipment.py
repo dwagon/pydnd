@@ -2,8 +2,6 @@ from django.db import models
 from utils import roll
 
 
-
-
 ##############################################################################
 def Weapon(**kwargs):
     return Equipment(category='W', **kwargs)

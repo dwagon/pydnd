@@ -205,7 +205,7 @@ class Character(models.Model):
             return 0
 
     def hurt(self, dmg):
-        """ Be hurt """
+        """ Be hurt. Return True if still ok """
         self.hp -= dmg
         if self.hp <= 0:
             self.status = self.UNCONSCIOUS
