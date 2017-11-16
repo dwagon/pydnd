@@ -100,6 +100,11 @@ class Character(models.Model):
         (GNOME, 'Gnome')
         )
 
+    # Target Categories
+    ENEMY = 'E'
+    FRIEND = 'F'
+    NONE = 'N'
+
     name = models.CharField(max_length=200)
     charclass = models.CharField(max_length=5, choices=charclass_choices)
     race = models.CharField(max_length=2, choices=race_choices, default=HUMAN)
@@ -132,9 +137,11 @@ class Character(models.Model):
     gear = models.ManyToManyField('Equipment', blank=True, through=EquipState)
     spells = models.ManyToManyField('Spell', blank=True, through=SpellState)
 
+    ##########################################################################
     def __str__(self):
         return "{} (Level {} {})".format(self.name, self.level, self.get_charclass_display())
 
+    ##########################################################################
     def generate_stats(self):
         self.stat_str = self.roll_stat()
         if self.stat_str == 18:
@@ -145,6 +152,7 @@ class Character(models.Model):
         self.stat_wis = self.roll_stat()
         self.stat_cha = self.roll_stat()
 
+    ##########################################################################
     def save(self, **kwargs):
         if self.stat_str < 0:
             self.generate_stats()
@@ -159,10 +167,12 @@ class Character(models.Model):
         self.ac = self.calc_ac()
         super(Character, self).save(**kwargs)
 
+    ##########################################################################
     def calc_movement(self):
         # TODO: Encumbrance
         return tables.race[self.race]['movement']
 
+    ##########################################################################
     def calc_hp(self):
         """ Calculate the HP for a level - try and make it not suck too much """
         if self.charclass == self.FIGHTER:
@@ -171,21 +181,25 @@ class Character(models.Model):
             index = 0
         return max(roll(self.hitdie()), roll(self.hitdie())) + tables.con_hp_adjustment[self.stat_con][index]
 
+    ##########################################################################
     def calc_encumb(self):
         enc = sum(x.weight for x in self.gear.all())
         return enc
 
+    ##########################################################################
     def roll_stat(self):
         """ Roll 4d6 and return the sum of the top 3
         Method VI in the PHG
         """
         return sum(sorted([roll('d6'), roll('d6'), roll('d6'), roll('d6')])[1:])
 
+    ##########################################################################
     def learnSpell(self, spell):
         s = SpellState(character=self, spell=spell, memorized=True)
         s.save()
         self.save()
 
+    ##########################################################################
     def castSpell(self, spell):
         ss = SpellState.objects.filter(memorized=True, spell=spell)
         if not ss:
@@ -194,15 +208,18 @@ class Character(models.Model):
         ss[0].memorized = False
         ss[0].save()
 
+    ##########################################################################
     def known_spells(self, level):
         s = Spell.objects.filter(spellstate__memorized=True, level=level)
         return s
 
+    ##########################################################################
     def equip(self, obj, ready=False):
         e = EquipState(character=self, equipment=obj, ready=ready)
         e.save()
         self.save()
 
+    ##########################################################################
     def equipped_weapon(self):
         """ Return the equiped weapon - currently only one weapon can be readied """
         e = Equipment.objects.filter(equipstate__ready=True, character=self, category=Equipment.WEAPON)
@@ -210,11 +227,13 @@ class Character(models.Model):
             return None
         return e[0]
 
+    ##########################################################################
     def equipped_armour(self):
         """ Return the equiped armour """
         e = Equipment.objects.filter(equipstate__ready=True, character=self, category=Equipment.ARMOUR)
         return e
 
+    ##########################################################################
     def hit(self, victim):
         hitroll = roll('d20')
         to_hit = self.thaco - victim.ac
@@ -224,6 +243,7 @@ class Character(models.Model):
         else:
             return False
 
+    ##########################################################################
     def attack(self, victim):
         weap = self.equipped_weapon()
         if self.hit(victim):
@@ -236,6 +256,7 @@ class Character(models.Model):
         else:
             return 0
 
+    ##########################################################################
     def heal(self, dmg):
         """ Heal self """
         if self.status == self.DEAD:
@@ -248,6 +269,7 @@ class Character(models.Model):
         self.save()
         return True
 
+    ##########################################################################
     def hurt(self, dmg):
         """ Be hurt. Return True if still ok """
         self.hp -= dmg
@@ -260,6 +282,7 @@ class Character(models.Model):
         self.save()
         return True
 
+    ##########################################################################
     def calc_ac(self):
         armour = self.equipped_armour()
         base = 10
@@ -271,6 +294,7 @@ class Character(models.Model):
         ac = base - mod - dex
         return ac
 
+    ##########################################################################
     def calc_thaco(self):
         if self.charclass == self.THIEF:
             return 20 - int((self.level - 1) / 2)
@@ -281,6 +305,11 @@ class Character(models.Model):
         elif self.charclass == self.CLERIC:
             return 20 - int((self.level - 1) * 2 / 3)
 
+    ##########################################################################
+    def select_target(self, categ=NONE):
+        pass
+
+    ##########################################################################
     def hitdie(self):
         hd_map = {
                 self.THIEF: 'd6',

@@ -1,3 +1,4 @@
 [
-    {"model": "character.spell", "pk": 1, "fields": {"name": "Cure Light Wounds", "level": 1, "charclass": "C", "spellfile": "cure_light_wounds"}}
+    {"model": "character.spell", "pk": 1, "fields": {"name": "Cure Light Wounds", "level": 1, "charclass": "C", "spellfile": "cure_light_wounds"}},
+    {"model": "character.spell", "pk": 2, "fields": {"name": "Magic Missile", "level": 1, "charclass": "M", "spellfile": "magic_missile"}}
 ]
