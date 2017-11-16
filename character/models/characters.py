@@ -236,6 +236,18 @@ class Character(models.Model):
         else:
             return 0
 
+    def heal(self, dmg):
+        """ Heal self """
+        if self.status == self.DEAD:
+            return False
+        self.hp += dmg
+        if self.hp > self.max_hp:
+            self.hp = self.max_hp
+        if self.status == self.UNCONSCIOUS and self.hp > 0:
+            self.status = self.OK
+        self.save()
+        return True
+
     def hurt(self, dmg):
         """ Be hurt. Return True if still ok """
         self.hp -= dmg

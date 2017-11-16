@@ -45,4 +45,17 @@ class test_Cleric(TestCase):
         known = self.cl.known_spells(level=1)
         self.assertEqual(len(known), 1)
 
+    def test_heal(self):
+        self.cl.learnSpell(self.sp)
+        self.cl.max_hp = 8
+        self.cl.hp = 5
+        self.cl.save()
+        self.cl.heal(5)
+        self.assertEqual(self.cl.hp, 8)
+        self.cl.hurt(9)
+        self.assertEqual(self.cl.status, self.cl.UNCONSCIOUS)
+        self.cl.heal(5)
+        self.assertEqual(self.cl.hp, 4)
+        self.assertEqual(self.cl.status, self.cl.OK)
+
 # EOF
