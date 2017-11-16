@@ -190,7 +190,7 @@ class Character(models.Model):
         ss = SpellState.objects.filter(memorized=True, spell=spell)
         if not ss:
             return False
-        spell.loadSpellFile()
+        spell.cast(caster=self)
         ss[0].memorized = False
         ss[0].save()
 

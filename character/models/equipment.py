@@ -26,7 +26,7 @@ class Equipment(models.Model):
     category = models.CharField(max_length=1, choices=category_choices, default=ITEM)
     cost = models.IntegerField(default=0)    # Cost in CP
     weight = models.IntegerField(default=0)
-    magic = models.CharField(max_length=10, default='')
+    magic = models.CharField(max_length=10, default='', blank=True)
 
     # Weapon stuff
     damage = models.CharField(max_length=10, default='')
