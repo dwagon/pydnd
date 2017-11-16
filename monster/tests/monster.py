@@ -26,7 +26,7 @@ class test_Monster(TestCase):
 
     def test_hit(self):
         from character.models import Character
-        c = Character(name='victim', charclass='M')
+        c = Character(name='victim', charclass=Character.MAGE)
         c.ac = 30   # Guarantee hit
         c.save()
         hit = self.orc.hit(c)

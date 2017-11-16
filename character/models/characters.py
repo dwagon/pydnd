@@ -28,12 +28,6 @@ gender_choices = (
         ('F', 'Female'),
         ('U', 'Unknown')
         )
-charclass_choices = (
-        ('F', 'Fighter'),
-        ('T', 'Thief'),
-        ('M', 'Mage'),
-        ('C', 'Cleric'),
-        )
 
 
 ##############################################################################
@@ -56,26 +50,36 @@ class SpellState(models.Model):
 
 ##############################################################################
 def Fighter(**kwargs):
-    return Character(charclass='F', **kwargs)
+    return Character(charclass=Character.FIGHTER, **kwargs)
 
 
 ##############################################################################
 def Thief(**kwargs):
-    return Character(charclass='T', **kwargs)
+    return Character(charclass=Character.THIEF, **kwargs)
 
 
 ##############################################################################
 def Mage(**kwargs):
-    return Character(charclass='M', **kwargs)
+    return Character(charclass=Character.MAGE, **kwargs)
 
 
 ##############################################################################
 def Cleric(**kwargs):
-    return Character(charclass='C', **kwargs)
+    return Character(charclass=Character.CLERIC, **kwargs)
 
 
 ##############################################################################
 class Character(models.Model):
+    FIGHTER = 'F'
+    THIEF = 'T'
+    MAGE = 'M'
+    CLERIC = 'C'
+    charclass_choices = (
+        (FIGHTER, 'Fighter'),
+        (THIEF, 'Thief'),
+        (MAGE, 'Mage'),
+        (CLERIC, 'Cleric'),
+        )
     name = models.CharField(max_length=200)
     charclass = models.CharField(max_length=5, choices=charclass_choices)
     race = models.CharField(max_length=2, choices=race_choices, default='HU')
@@ -141,7 +145,7 @@ class Character(models.Model):
 
     def calc_hp(self):
         """ Calculate the HP for a level - try and make it not suck too much """
-        if self.charclass == 'F':
+        if self.charclass == self.FIGHTER:
             index = 1
         else:
             index = 0
@@ -217,23 +221,22 @@ class Character(models.Model):
         return ac
 
     def calc_thaco(self):
-        if self.charclass == 'T':
+        if self.charclass == self.THIEF:
             return 20 - int((self.level - 1) / 2)
-        elif self.charclass == 'F':
+        elif self.charclass == self.FIGHTER:
             return 21 - self.level
-        elif self.charclass == 'M':
+        elif self.charclass == self.MAGE:
             return 20 - int((self.level - 1) / 3)
-        elif self.charclass == 'C':
+        elif self.charclass == self.CLERIC:
             return 20 - int((self.level - 1) * 2 / 3)
 
     def hitdie(self):
-        if self.charclass == 'T':
-            return 'd6'
-        elif self.charclass == 'F':
-            return 'd10'
-        elif self.charclass == 'M':
-            return 'd4'
-        elif self.charclass == 'C':
-            return 'd8'
+        hd_map = {
+                self.THIEF: 'd6',
+                self.FIGHTER: 'd10',
+                self.MAGE: 'd4',
+                self.CLERIC: 'd8',
+                }
+        return hd_map[self.charclass]
 
 # EOF
