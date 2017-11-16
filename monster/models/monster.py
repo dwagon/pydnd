@@ -6,15 +6,18 @@ alignment_choices = (
         ('NG', 'Neutral Good'), ('N', 'True Neutral'), ('NE', 'Neutral Evil'),
         ('CG', 'Chaotic Good'), ('CN', 'Chaotic Neutral'), ('CE', 'Chaotic Evil')
         )
-status_choices = (
-        ('OK', 'OK'),
-        ('DE', 'Dead'),
-        ('UC', 'Unconscious')
-        )
 
 
 ##############################################################################
 class Monster(models.Model):
+    OK = 'OK'
+    DEAD = 'DE'
+    UNCONSCIOUS = 'UC'
+    status_choices = (
+        (OK, 'OK'),
+        (DEAD, 'Dead'),
+        (UNCONSCIOUS, 'Unconscious')
+        )
     name = models.CharField(max_length=200)
     treasure = models.CharField(max_length=50)
     align = models.CharField(max_length=2, choices=alignment_choices, default='N')
@@ -28,7 +31,7 @@ class Monster(models.Model):
     xp = models.IntegerField()
     hp = models.IntegerField(default=-1)
     max_hp = models.IntegerField(default=-1)
-    status = models.CharField(max_length=2, choices=status_choices, default='OK')
+    status = models.CharField(max_length=2, choices=status_choices, default=OK)
 
     def save(self, **kwargs):
         if self.max_hp < 0:
@@ -63,7 +66,7 @@ class Monster(models.Model):
         """ Be hurt """
         self.hp -= dmg
         if self.hp <= 0:
-            self.status = 'DE'
+            self.status = Monster.DEAD
             self.save()
             return False
         return True

@@ -10,24 +10,6 @@ alignment_choices = (
         ('NG', 'Neutral Good'), ('N', 'True Neutral'), ('NE', 'Neutral Evil'),
         ('CG', 'Chaotic Good'), ('CN', 'Chaotic Neutral'), ('CE', 'Chaotic Evil')
         )
-race_choices = (
-        ('HU', 'Human'),
-        ('EL', 'Elf'),
-        ('DW', 'Dwarf'),
-        ('HE', 'Half Elven'),
-        ('HL', 'Halfling'),
-        ('GN', 'Gnome')
-        )
-status_choices = (
-        ('OK', 'OK'),
-        ('DE', 'Dead'),
-        ('UC', 'Unconscious')
-        )
-gender_choices = (
-        ('M', 'Male'),
-        ('F', 'Female'),
-        ('U', 'Unknown')
-        )
 
 
 ##############################################################################
@@ -80,10 +62,41 @@ class Character(models.Model):
         (MAGE, 'Mage'),
         (CLERIC, 'Cleric'),
         )
+    OK = 'OK'
+    DEAD = 'DE'
+    UNCONSCIOUS = 'UC'
+    status_choices = (
+        (OK, 'OK'),
+        (DEAD, 'Dead'),
+        (UNCONSCIOUS, 'Unconscious')
+        )
+    MALE = 'M'
+    FEMALE = 'F'
+    UNKNOWN = 'U'
+    gender_choices = (
+        (MALE, 'Male'),
+        (FEMALE, 'Female'),
+        (UNKNOWN, 'Unknown')
+        )
+    HUMAN = 'HU'
+    ELF = 'EL'
+    DWARF = 'DW'
+    HALFELF = 'HE'
+    HALFLING = 'HL'
+    GNOME = 'GN'
+    race_choices = (
+        (HUMAN, 'Human'),
+        (ELF, 'Elf'),
+        (DWARF, 'Dwarf'),
+        (HALFELF, 'Half Elven'),
+        (HALFLING, 'Halfling'),
+        (GNOME, 'Gnome')
+        )
+
     name = models.CharField(max_length=200)
     charclass = models.CharField(max_length=5, choices=charclass_choices)
-    race = models.CharField(max_length=2, choices=race_choices, default='HU')
-    gender = models.CharField(max_length=1, choices=gender_choices, default='U')
+    race = models.CharField(max_length=2, choices=race_choices, default=HUMAN)
+    gender = models.CharField(max_length=1, choices=gender_choices, default=UNKNOWN)
     hp = models.IntegerField(default=0)
     max_hp = models.IntegerField(default=0)
     ac = models.IntegerField(default=10)
@@ -94,7 +107,7 @@ class Character(models.Model):
     xp = models.IntegerField(default=0)
     align = models.CharField(max_length=2, choices=alignment_choices, default='N')
     level = models.IntegerField(default=1)
-    status = models.CharField(max_length=2, choices=status_choices, default='OK')
+    status = models.CharField(max_length=2, choices=status_choices, default=OK)
 
     stat_str = models.IntegerField(default=-1)
     bonus_str = models.IntegerField(default=-1)
@@ -201,9 +214,9 @@ class Character(models.Model):
         """ Be hurt """
         self.hp -= dmg
         if self.hp <= 0:
-            self.status = 'UC'
+            self.status = self.UNCONSCIOUS
             if self.hp < -10:
-                self.status = 'DE'
+                self.status = self.DEAD
             self.save()
             return False
         self.save()
