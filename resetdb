@@ -1,0 +1,8 @@
+#!/bin/bash
+
+dropdb pydnd
+createdb pydnd
+./manage.py migrate
+./manage.py loaddata */fixtures/*.json
+# ./manage.py createsuperuser --username admin --email maybe@yes.no
+
