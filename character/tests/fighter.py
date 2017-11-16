@@ -79,13 +79,13 @@ class test_Fighter(TestCase):
     def test_hit(self):
         o = Monster(name='weak_orc', movement=3, ac=20, thaco=20, xp=3)
         o.save()
-        rc = self.fg.hit(o)
+        rc = self.fg.attack(o)
         self.assertTrue(rc)
 
     def test_miss(self):
         o = Monster(name='strong_orc', movement=3, ac=-20, thaco=20, xp=6)
         o.save()
-        rc = self.fg.hit(o)
+        rc = self.fg.attack(o)
         self.assertFalse(rc)
 
 # EOF

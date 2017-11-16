@@ -204,7 +204,10 @@ class Character(models.Model):
     def attack(self, victim):
         weap = self.equipped_weapon()
         if self.hit(victim):
-            dmg = weap.weapon_dmg()
+            if not weap:
+                dmg = 1
+            else:
+                dmg = weap.weapon_dmg()
             victim.hurt(dmg)
             return dmg
         else:
