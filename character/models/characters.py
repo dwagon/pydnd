@@ -3,13 +3,7 @@ import random
 from . import tables
 from . import Equipment
 from utils import roll
-
-
-alignment_choices = (
-        ('LG', 'Lawful Good'), ('LN', 'Lawful Neutral'), ('LE', 'Lawful Evil'),
-        ('NG', 'Neutral Good'), ('N', 'True Neutral'), ('NE', 'Neutral Evil'),
-        ('CG', 'Chaotic Good'), ('CN', 'Chaotic Neutral'), ('CE', 'Chaotic Evil')
-        )
+from constants import alignment_choices
 
 
 ##############################################################################
