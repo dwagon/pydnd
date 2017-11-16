@@ -7,7 +7,7 @@ class test_Cleric(TestCase):
     def setUp(self):
         self.cl = Cleric(name='test')
         self.cl.save()
-        self.sp = Spell(name='Cure Light Wounds', level=1)
+        self.sp = Spell(name='Cure Light Wounds', level=1, charclass=Spell.CLERIC)
         self.sp.save()
 
     def cleanUp(self):
