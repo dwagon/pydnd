@@ -1,7 +1,7 @@
 from django.db import models
 import random
 from . import tables
-from . import Equipment
+from . import Equipment, Spell
 from utils import roll
 from constants import alignment_choices
 
@@ -19,9 +19,15 @@ class EquipState(models.Model):
 ##############################################################################
 class SpellState(models.Model):
     character = models.ForeignKey('Character', on_delete=models.CASCADE)
-    spell = models.ForeignKey('Spell', on_delete=models.CASCADE)
+    spell = models.ForeignKey(Spell, on_delete=models.CASCADE)
     memorized = models.BooleanField(default=False)
     default = models.BooleanField(default=False)
+
+    def __str__(self):
+        memstr = ""
+        if self.memorized:
+            memstr = "memorized "
+        return "{}'s {}{}".format(self.character.name, memstr, self.spell.name)
 
 
 ##############################################################################
@@ -174,6 +180,22 @@ class Character(models.Model):
         Method VI in the PHG
         """
         return sum(sorted([roll('d6'), roll('d6'), roll('d6'), roll('d6')])[1:])
+
+    def learnSpell(self, spell):
+        s = SpellState(character=self, spell=spell, memorized=True)
+        s.save()
+        self.save()
+
+    def castSpell(self, spell):
+        ss = SpellState.objects.filter(memorized=True, spell=spell)
+        if not ss:
+            return False
+        ss[0].memorized = False
+        ss[0].save()
+
+    def known_spells(self, level):
+        s = Spell.objects.filter(spellstate__memorized=True, level=level)
+        return s
 
     def equip(self, obj, ready=False):
         e = EquipState(character=self, equipment=obj, ready=ready)
