@@ -46,6 +46,7 @@ def Cleric(**kwargs):
 
 ##############################################################################
 class Character(models.Model):
+    # Character Class Choices
     FIGHTER = 'F'
     THIEF = 'T'
     MAGE = 'M'
@@ -56,6 +57,8 @@ class Character(models.Model):
         (MAGE, 'Mage'),
         (CLERIC, 'Cleric'),
         )
+
+    # Status Choices
     OK = 'OK'
     DEAD = 'DE'
     UNCONSCIOUS = 'UC'
@@ -64,6 +67,8 @@ class Character(models.Model):
         (DEAD, 'Dead'),
         (UNCONSCIOUS, 'Unconscious')
         )
+
+    # Gender Choices
     MALE = 'M'
     FEMALE = 'F'
     UNKNOWN = 'U'
@@ -72,6 +77,8 @@ class Character(models.Model):
         (FEMALE, 'Female'),
         (UNKNOWN, 'Unknown')
         )
+
+    # Race Choices
     HUMAN = 'HU'
     ELF = 'EL'
     DWARF = 'DW'
@@ -175,11 +182,8 @@ class Character(models.Model):
 
     def equipped_weapon(self):
         """ Return the equiped weapon """
-        e = self.gear.filter(equipstate__ready=True)
-        for _ in e:
-            if _.get_category_display() == 'Weapon':
-                return _
-        return None
+        e = Equipment.objects.filter(equipstate__ready=True, character=self, category=Equipment.WEAPON)
+        return e[0]
 
     def equipped_armour(self):
         """ Return the equiped armour """
