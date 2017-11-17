@@ -2,6 +2,7 @@ from django.db import models
 import random
 from . import tables
 from . import Equipment, Spell
+from world.models import World
 from utils import roll
 from constants import alignment_choices
 
@@ -106,6 +107,7 @@ class Character(models.Model):
     NONE = 'N'
 
     name = models.CharField(max_length=200)
+    world = models.ForeignKey(World)
     charclass = models.CharField(max_length=5, choices=charclass_choices)
     race = models.CharField(max_length=2, choices=race_choices, default=HUMAN)
     gender = models.CharField(max_length=1, choices=gender_choices, default=UNKNOWN)
@@ -139,7 +141,7 @@ class Character(models.Model):
 
     ##########################################################################
     def __str__(self):
-        return "{} (Level {} {})".format(self.name, self.level, self.get_charclass_display())
+        return "{} {} ({}/{}) (Level {} {})".format(self.name, self.get_status_display(), self.hp, self.max_hp, self.level, self.get_charclass_display())
 
     ##########################################################################
     def generate_stats(self):

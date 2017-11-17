@@ -4,16 +4,49 @@ from constants import alignment_choices
 
 
 ##############################################################################
-class Monster(models.Model):
+class MonsterState(models.Model):
     OK = 'OK'
     DEAD = 'DE'
     UNCONSCIOUS = 'UC'
+    UNDEF = 'XX'
     status_choices = (
         (OK, 'OK'),
         (DEAD, 'Dead'),
         (UNCONSCIOUS, 'Unconscious')
         )
-    name = models.CharField(max_length=200)
+
+    monster = models.ForeignKey('Monster', on_delete=models.CASCADE)
+    hp = models.IntegerField(default=-1)
+    max_hp = models.IntegerField(default=-1)
+    status = models.CharField(max_length=2, choices=status_choices, default=UNDEF)
+
+    def save(self, **kwargs):
+        if self.status == self.UNDEF:
+            self.status = self.OK
+            hits = roll('{}d8'.format(self.monster.hitdie))
+            self.max_hp = hits
+            self.hp = hits
+        super(MonsterState, self).save(**kwargs)
+
+    def __str__(self):
+        return "{} {} (HP:{}/{})".format(self.monster.name, self.get_status_display(), self.hp, self.max_hp)
+
+    def hurt(self, dmg):
+        """ Be hurt """
+        self.hp -= dmg
+        if self.hp <= 0:
+            self.status = self.DEAD
+            self.save()
+            return False
+        return True
+
+    def __getattr__(self, name):
+        return getattr(self.monster, name)
+
+
+##############################################################################
+class Monster(models.Model):
+    name = models.CharField(max_length=200, unique=True)
     treasure = models.CharField(max_length=50)
     align = models.CharField(max_length=2, choices=alignment_choices, default='N')
     numappearing = models.CharField('Num Appearing', max_length=20)
@@ -24,16 +57,6 @@ class Monster(models.Model):
     numattacks = models.IntegerField('Num Attacks', default=1)
     damage = models.CharField(max_length=5)
     xp = models.IntegerField()
-    hp = models.IntegerField(default=-1)
-    max_hp = models.IntegerField(default=-1)
-    status = models.CharField(max_length=2, choices=status_choices, default=OK)
-
-    def save(self, **kwargs):
-        if self.max_hp < 0:
-            hits = roll('{}d8'.format(self.hitdie))
-            self.max_hp = hits
-            self.hp = hits
-        super(Monster, self).save(**kwargs)
 
     def __str__(self):
         return self.name
@@ -56,14 +79,5 @@ class Monster(models.Model):
             return True
         else:
             return False
-
-    def hurt(self, dmg):
-        """ Be hurt """
-        self.hp -= dmg
-        if self.hp <= 0:
-            self.status = Monster.DEAD
-            self.save()
-            return False
-        return True
 
 # EOF
