@@ -26,8 +26,8 @@ class Spell(models.Model):
 
     def loadSpellKlass(self):
         fname = 'spells/{}/level_{}/{}.py'.format(self.get_charclass_display(), self.level, self.spellfile)
-        fname = fname.replace('.py', '').replace('/', '.')
-        print("cwd={}".format(os.getcwd()))
+        fname = fname.replace('.py', '')
+        print("cwd={} fname={}".format(os.getcwd(), fname))
         fp, pathname, desc = imp.find_module(fname, ['.'])
         mod = imp.load_module(fname, fp, pathname, desc)
         classes = dir(mod)
