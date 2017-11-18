@@ -26,6 +26,8 @@ class Spell(models.Model):
 
     def loadSpellKlass(self):
         print("cwd={}".format(os.getcwd()))
+        print("listdir={}".format(os.listdir('spells')))
+        print("listdir={}".format(os.listdir('spells/{}'.format(self.get_charclass_display()))))
         print("listdir={}".format(os.listdir('spells/{}/level_{}'.format(self.get_charclass_display(), self.level))))
         fname = 'spells/{}/level_{}/{}.py'.format(self.get_charclass_display(), self.level, self.spellfile)
         spec = importlib.util.spec_from_file_location('spell', fname)
