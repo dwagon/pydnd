@@ -1,11 +1,14 @@
 from django.test import TestCase
 
 from character.models import Thief, Weapon, Equipment, Armour, Character
+from world.models import World
 
 
 class test_Thief(TestCase):
     def setUp(self):
-        self.th = Thief(name='test')
+        self.w = World()
+        self.w.save()
+        self.th = Thief(name='test', world=self.w)
         self.th.save()
         self.sword = Weapon(name='Long Sword', weight=5)
         self.sword.save()
@@ -26,6 +29,7 @@ class test_Thief(TestCase):
         self.leather.delete()
         self.helmet.delete()
         self.th.delete()
+        self.w.delete()
 
     def test_hp(self):
         self.assertEqual(self.th.hitdie(), 'd6')

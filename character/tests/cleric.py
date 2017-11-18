@@ -1,11 +1,14 @@
 from django.test import TestCase
 
 from character.models import Cleric, Spell
+from world.models import World
 
 
 class test_Cleric(TestCase):
     def setUp(self):
-        self.cl = Cleric(name='test')
+        self.w = World()
+        self.w.save()
+        self.cl = Cleric(name='test', world=self.w)
         self.cl.save()
         self.sp = Spell(name='Cure Light Wounds', level=1, charclass=Spell.CLERIC, spellfile='cure_light_wounds')
         self.sp.save()
@@ -13,6 +16,7 @@ class test_Cleric(TestCase):
     def cleanUp(self):
         self.sp.delete()
         self.cl.delete()
+        self.w.save()
 
     def test_hp(self):
         self.assertEqual(self.cl.hitdie(), 'd8')

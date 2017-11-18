@@ -1,12 +1,15 @@
 from django.test import TestCase
 
 from character.models import Fighter, Weapon, Equipment, Armour
-from monster.models import Monster
+from monster.models import Monster, MonsterState
+from world.models import World
 
 
 class test_Fighter(TestCase):
     def setUp(self):
-        self.fg = Fighter(name='test')
+        self.w = World()
+        self.w.save()
+        self.fg = Fighter(name='test', world=self.w)
         self.fg.save()
         self.sword = Weapon(name='Long Sword', weight=5)
         self.sword.save()
@@ -27,6 +30,7 @@ class test_Fighter(TestCase):
         self.leather.delete()
         self.helmet.delete()
         self.fg.delete()
+        self.w.delete()
 
     def test_hp(self):
         self.assertEqual(self.fg.hitdie(), 'd10')
@@ -79,13 +83,22 @@ class test_Fighter(TestCase):
     def test_hit(self):
         o = Monster(name='weak_orc', movement=3, ac=20, thaco=20, xp=3)
         o.save()
-        rc = self.fg.attack(o)
+        oi = MonsterState(monster=o)
+        oi.save()
+        rc = self.fg.attack(oi)
         self.assertTrue(rc)
+        oi.delete()
+        o.delete()
 
     def test_miss(self):
         o = Monster(name='strong_orc', movement=3, ac=-20, thaco=20, xp=6)
         o.save()
-        rc = self.fg.attack(o)
+        oi = MonsterState(monster=o)
+        oi.save()
+        rc = self.fg.attack(oi)
         self.assertFalse(rc)
+        oi.delete()
+        o.delete()
+
 
 # EOF

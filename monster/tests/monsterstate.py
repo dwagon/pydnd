@@ -1,32 +1,25 @@
 from django.test import TestCase
-from monster.models import Monster
+from monster.models import Monster, MonsterState
 from character.models import Armour, Mage
 from world.models import World
 
 
-class test_Monster(TestCase):
+class test_MonsterState(TestCase):
     def setUp(self):
-        self.orc = Monster(name='orc', movement=3, ac=3, thaco=19, xp=3, damage='1d4')
+        self.orc = Monster(name='orc', movement=3, ac=3, thaco=19, xp=3)
         self.orc.save()
+        self.ms = MonsterState(self.orc)
+        self.ms.save()
         self.world = World()
         self.world.save()
 
     def tearDown(self):
+        self.ms.delete()
+        self.orc.delete()
         self.world.delete()
 
     def test_movement(self):
         self.assertEqual(self.orc.movement, 3)
-
-    def test_attack(self):
-        e = Armour(name='useless', ac_base=30)
-        e.save()
-        c = Mage(name='victim', world=self.world, max_hp=10, hp=10)
-        c.save()
-        c.equip(e, ready=True)
-        dmg = self.orc.attack(c)
-        self.assertGreaterEqual(dmg, 1)
-        self.assertLessEqual(dmg, 4)
-        self.assertEqual(c.hp, 10 - dmg)
 
     def test_hit(self):
         e = Armour(name='useless', ac_base=30)
@@ -34,7 +27,7 @@ class test_Monster(TestCase):
         c = Mage(name='victim', world=self.world)
         c.save()
         c.equip(e, ready=True)
-        hit = self.orc.hit(c)
+        hit = self.ms.hit(c)
         self.assertTrue(hit)
 
     def test_miss(self):
@@ -45,7 +38,7 @@ class test_Monster(TestCase):
         c.equip(e, ready=True)
         c.ac = -30    # Guarantee miss
         c.save()
-        hit = self.orc.hit(c)
+        hit = self.ms.hit(c)
         self.assertFalse(hit)
 
 # EOF

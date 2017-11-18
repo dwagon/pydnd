@@ -11,6 +11,7 @@ class Encounter(object):
         self.round = 0
         self.monsters = []
         self.m = Monster.objects.get(name=monstername)
+        self.pcs = Character.objects.filter(world=self.world)
         if 'number' in kwargs:
             num = kwargs['number']
         else:
@@ -21,24 +22,31 @@ class Encounter(object):
             self.monsters.append(m)
 
     def status(self):
-        pcs = Character.objects.filter(world=self.world)
-        for pc in pcs:
+        for pc in self.pcs:
             print(pc)
         for mon in self.monsters:
             print(mon)
 
+    def close(self):
+        xp = 0
+        for monster in self.monsters[:]:
+            xp + monster.xp
+            monster.delete()
+        survivors = [_ for _ in self.pcs if _.status != Character.DEAD]
+        for surv in survivors:
+            surv.earnXp(xp / len(survivors))
+
     def combat_round(self):
         self.round += 1
         print("\nRound {}".format(self.round))
-        pcs = Character.objects.filter(world=self.world)
         m_targets = [_ for _ in self.monsters if _.status == MonsterState.OK]
         if not m_targets:
             return False
-        pc_targets = [_ for _ in pcs if _.status == Character.OK]
+        pc_targets = [_ for _ in self.pcs if _.status == Character.OK]
         if not pc_targets:
             return False
         # TODO: Initiative
-        for pc in pcs:
+        for pc in self.pcs:
             if pc.status != Character.OK:
                 continue
             targ = random.choice(m_targets)
