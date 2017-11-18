@@ -3,12 +3,9 @@ env:
   - DB=mysql
   - DB=postgresql
 python:
-  - "2.7"
   - "3.5"
 install:
-  - pip install .
   - pip install -r requirements.txt
-  - pip install -r requirements-dev.txt
 services:
     - mysql
     - postgresql
@@ -24,6 +21,6 @@ before_script:
 
   - python pydnd/manage.py makemigrations --noinput
   - python pydnd/manage.py migrate --noinput
-script: cd pydnd ; ./runtests 
+script: ./runtests
 after_success:
     coveralls --data_file .coverage
