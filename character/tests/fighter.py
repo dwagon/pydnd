@@ -9,7 +9,7 @@ class test_Fighter(TestCase):
     def setUp(self):
         self.w = World()
         self.w.save()
-        self.fg = Fighter(name='test', world=self.w)
+        self.fg = Fighter(name='test', world=self.w, stat_con=9)
         self.fg.save()
         self.sword = Weapon(name='Long Sword', weight=5)
         self.sword.save()
