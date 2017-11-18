@@ -8,7 +8,7 @@ class test_Cleric(TestCase):
     def setUp(self):
         self.w = World()
         self.w.save()
-        self.cl = Cleric(name='test', world=self.w)
+        self.cl = Cleric(name='test', world=self.w, stat_con=9)
         self.cl.save()
         self.sp = Spell(name='Cure Light Wounds', level=1, charclass=Spell.CLERIC, spellfile='cure_light_wounds')
         self.sp.save()

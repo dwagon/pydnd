@@ -8,7 +8,7 @@ class test_Thief(TestCase):
     def setUp(self):
         self.w = World()
         self.w.save()
-        self.th = Thief(name='test', world=self.w)
+        self.th = Thief(name='test', world=self.w, stat_con=9)
         self.th.save()
         self.sword = Weapon(name='Long Sword', weight=5)
         self.sword.save()
