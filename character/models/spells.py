@@ -1,7 +1,6 @@
 from django.db import models
-import imp
+import importlib.util
 import sys
-import os
 
 
 ##############################################################################
@@ -26,10 +25,9 @@ class Spell(models.Model):
 
     def loadSpellKlass(self):
         fname = 'spells/{}/level_{}/{}.py'.format(self.get_charclass_display(), self.level, self.spellfile)
-        fname = fname.replace('.py', '')
-        print("cwd={} fname={}".format(os.getcwd(), fname))
-        fp, pathname, desc = imp.find_module(fname, ['.'])
-        mod = imp.load_module(fname, fp, pathname, desc)
+        spec = importlib.util.spec_from_file_location('spell', fname)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
         classes = dir(mod)
         for c in classes:
             if c.startswith('Spell_'):
