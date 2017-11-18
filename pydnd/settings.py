@@ -86,6 +86,28 @@ DATABASES = {
     }
 }
 
+if 'TRAVIS' in os.environ:  # pragma: no cover
+    if os.environ['DB'] == 'mysql':
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'NAME': 'pydnd',
+                'USER': 'pydnd',
+                'PASSWORD': 'pydnd',
+                'HOST': '127.0.0.1',
+            }
+        }
+    elif os.environ['DB'] == 'postgresql':
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': 'pydnd',
+                'USER': 'pydnd',
+                'PASSWORD': '',
+                'HOST': '127.0.0.1',
+            }
+        }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
