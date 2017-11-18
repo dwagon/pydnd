@@ -41,6 +41,8 @@ class MonsterState(models.Model):
         return True
 
     def __getattr__(self, name):
+        if name.startswith('_'):
+            raise AttributeError("AttrError on {}".format(name))
         return getattr(self.monster, name)
 
 
