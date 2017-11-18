@@ -145,13 +145,19 @@ class Character(models.Model):
 
     ##########################################################################
     def generate_stats(self):
+        if self.stat_str < 0:
         self.stat_str = self.roll_stat()
         if self.stat_str == 18:
             self.bonus_str = random.randint(1, 100)
+        if self.stat_dex < 0:
         self.stat_dex = self.roll_stat()
+        if self.stat_int < 0:
         self.stat_int = self.roll_stat()
+        if self.stat_con < 0:
         self.stat_con = self.roll_stat()
+        if self.stat_wis < 0:
         self.stat_wis = self.roll_stat()
+        if self.stat_cha < 0:
         self.stat_cha = self.roll_stat()
 
     ##########################################################################
