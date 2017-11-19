@@ -145,18 +145,27 @@ class Character(models.Model):
 
     ##########################################################################
     def generate_stats(self):
+        """ Generate any missing stats while ensuring class minimums """
         if self.stat_str < 0:
             self.stat_str = self.roll_stat()
             if self.stat_str == 18:
                 self.bonus_str = random.randint(1, 100)
+            if self.charclass == self.FIGHTER:
+                self.stat_str = max(9, self.stat_str)
         if self.stat_dex < 0:
             self.stat_dex = self.roll_stat()
+            if self.charclass == self.THIEF:
+                self.stat_dex = max(9, self.stat_dex)
         if self.stat_int < 0:
             self.stat_int = self.roll_stat()
+            if self.charclass == self.MAGE:
+                self.stat_int = max(9, self.stat_int)
         if self.stat_con < 0:
             self.stat_con = self.roll_stat()
         if self.stat_wis < 0:
             self.stat_wis = self.roll_stat()
+            if self.charclass == self.CLERIC:
+                self.stat_wis = max(9, self.stat_wis)
         if self.stat_cha < 0:
             self.stat_cha = self.roll_stat()
 
