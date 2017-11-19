@@ -192,7 +192,7 @@ class Character(models.Model):
         """ Calculate the HP for a level - try and make it not suck too much """
         hp = max(roll(self.hitdie()), roll(self.hitdie()))
         hp += self.stat_bonus('hp_adj')
-        hp = min(1, hp)
+        hp = max(1, hp)
         return hp
 
     ##########################################################################
