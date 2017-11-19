@@ -8,7 +8,7 @@ from character.models import Equipment, Weapon, Fighter
 
 w = World()
 w.save()
-e = Encounter(w, 'Orc', number=10)
+e = Encounter(w, 'Orc', number=10, arenasize=20)
 ls = Weapon(name='Long Sword', damage='1d8')
 ls.save()
 sp = Equipment(name='Iron Spikes')
@@ -21,10 +21,14 @@ for i in range(10):
 
     f.equip(sp)
     f.equip(ls, ready=True)
+e.place_pcs()
+e.place_monsters()
+e.print_arena()
 
 while True:
     if not e.combat_round():
         break
+    e.print_arena()
 
 e.status()
 e.close()
