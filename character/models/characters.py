@@ -162,8 +162,7 @@ class Character(models.Model):
 
     ##########################################################################
     def save(self, **kwargs):
-        if self.stat_str < 0:
-            self.generate_stats()
+        self.generate_stats()
         if self.max_hp == 0:
             self.max_hp = self.calc_hp()
             self.hp = self.max_hp
@@ -244,6 +243,7 @@ class Character(models.Model):
     ##########################################################################
     def hit(self, victim):
         hitroll = roll('d20')
+        hitroll += tables.str_mods[self.stat_str]['hitprob']
         to_hit = self.thaco - victim.ac
         self.equipped_weapon()
         if hitroll > to_hit:
@@ -259,6 +259,7 @@ class Character(models.Model):
                 dmg = 1
             else:
                 dmg = weap.weapon_dmg()
+            dmg += tables.str_mods[self.stat_str]['dmgadj']
             victim.hurt(dmg)
             return dmg
         else:

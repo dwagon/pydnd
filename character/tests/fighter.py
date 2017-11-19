@@ -100,5 +100,22 @@ class test_Fighter(TestCase):
         oi.delete()
         o.delete()
 
+    def test_strength(self):
+        fg = Fighter(name='test', world=self.w, stat_str=18)
+        fg.save()
+        ss = Weapon(name='Short Sword', weight=1, damage='1')
+        ss.save()
+        fg.equip(ss, ready=True)
+        o = Monster(name='weak_orc', movement=3, ac=20, thaco=20, xp=3)
+        o.save()
+        oi = MonsterState(monster=o)
+        oi.save()
+        dmg = fg.attack(oi)
+        self.assertEqual(dmg, 3)
+        oi.delete()
+        o.delete()
+        ss.delete()
+        fg.delete()
+
 
 # EOF
