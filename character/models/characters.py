@@ -123,6 +123,9 @@ class Character(models.Model):
     level = models.IntegerField(default=1)
     status = models.CharField(max_length=2, choices=status_choices, default=OK)
 
+    x = models.IntegerField(default=-1)
+    y = models.IntegerField(default=-1)
+
     stat_str = models.IntegerField(default=-1)
     bonus_str = models.IntegerField(default=-1)
     stat_int = models.IntegerField(default=-1)

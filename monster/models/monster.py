@@ -19,6 +19,8 @@ class MonsterState(models.Model):
     hp = models.IntegerField(default=-1)
     max_hp = models.IntegerField(default=-1)
     status = models.CharField(max_length=2, choices=status_choices, default=UNDEF)
+    x = models.IntegerField(default=-1)
+    y = models.IntegerField(default=-1)
 
     def save(self, **kwargs):
         if self.status == self.UNDEF:
