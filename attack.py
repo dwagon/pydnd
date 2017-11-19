@@ -16,6 +16,7 @@ sp.save()
 
 for i in range(10):
     f = Fighter(name='Bob{}'.format(i), world=w)
+    f.generate_stats()
     f.save()
 
     f.equip(sp)

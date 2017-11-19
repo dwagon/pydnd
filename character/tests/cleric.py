@@ -9,6 +9,7 @@ class test_Cleric(TestCase):
         self.w = World()
         self.w.save()
         self.cl = Cleric(name='test', world=self.w, stat_con=9)
+        self.cl.generate_stats()
         self.cl.save()
         self.sp = Spell(name='Cure Light Wounds', level=1, charclass=Spell.CLERIC, spellfile='cure_light_wounds')
         self.sp.save()

@@ -25,6 +25,7 @@ class test_MonsterState(TestCase):
         e = Armour(name='useless', ac_base=30)
         e.save()
         c = Mage(name='victim', world=self.world)
+        c.generate_stats()
         c.save()
         c.equip(e, ready=True)
         hit = self.ms.hit(c)
@@ -34,6 +35,7 @@ class test_MonsterState(TestCase):
         e = Armour(name='impervious', ac_base=-30)
         e.save()
         c = Mage(name='victim', world=self.world)
+        c.generate_stats()
         c.save()
         c.equip(e, ready=True)
         c.ac = -30    # Guarantee miss

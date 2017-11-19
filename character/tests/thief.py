@@ -9,6 +9,7 @@ class test_Thief(TestCase):
         self.w = World()
         self.w.save()
         self.th = Thief(name='test', world=self.w, stat_con=9)
+        self.th.generate_stats()
         self.th.save()
         self.sword = Weapon(name='Long Sword', weight=5)
         self.sword.save()

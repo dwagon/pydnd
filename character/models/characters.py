@@ -171,7 +171,6 @@ class Character(models.Model):
 
     ##########################################################################
     def save(self, **kwargs):
-        self.generate_stats()
         if self.max_hp == 0:
             self.max_hp = self.calc_hp()
             self.hp = self.max_hp

@@ -10,6 +10,7 @@ class test_Fighter(TestCase):
         self.w = World()
         self.w.save()
         self.fg = Fighter(name='test', world=self.w, stat_con=9)
+        self.fg.generate_stats()
         self.fg.save()
         self.sword = Weapon(name='Long Sword', weight=5)
         self.sword.save()
@@ -102,6 +103,7 @@ class test_Fighter(TestCase):
 
     def test_strength(self):
         fg = Fighter(name='test', world=self.w, stat_str=18)
+        fg.generate_stats()
         fg.save()
         ss = Weapon(name='Short Sword', weight=1, damage='1')
         ss.save()
