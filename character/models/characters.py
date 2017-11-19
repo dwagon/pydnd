@@ -279,12 +279,14 @@ class Character(models.Model):
                     mod = tables.bonus_str_mods[100][bonus]
             else:
                 mod = tables.str_mods[self.stat_str][bonus]
-        if bonus in ('hp_adj'):
+        if bonus in ('hp_adj',):
             if self.charclass == self.FIGHTER:
                 index = 1
             else:
                 index = 0
             mod = tables.con_mods[self.stat_con][bonus][index]
+        if bonus in ('missattack', 'defadj'):
+            mod = tables.dex_mods[self.stat_dex][bonus]
         return mod
 
     ##########################################################################
@@ -318,11 +320,11 @@ class Character(models.Model):
         armour = self.equipped_armour()
         base = 10
         mod = 0
-        dex = 0
+        dex = self.stat_bonus('defadj')
         if armour:
             base = min([_.ac_base for _ in armour])
             mod = sum([_.ac_modifier for _ in armour])
-        ac = base - mod - dex
+        ac = base - mod + dex
         return ac
 
     ##########################################################################
