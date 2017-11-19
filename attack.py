@@ -33,7 +33,8 @@ while True:
 e.status()
 e.close()
 
-f.delete()
+for f in e.pcs:
+    f.delete()
 sp.delete()
 ls.delete()
 w.delete()
