@@ -191,6 +191,8 @@ class Encounter(object):
     ##########################################################################
     def move(self, obj):
         ne = self.nearest_enemy(obj)
+        if not ne:
+            return
         targx = obj.x
         targy = obj.y
         if ne.x < obj.x:
