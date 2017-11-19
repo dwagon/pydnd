@@ -2,3 +2,4 @@ Django
 dice
 psycopg2
 coverage
+coveralls
