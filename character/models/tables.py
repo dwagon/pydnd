@@ -44,6 +44,25 @@ bonus_str_mods = {
         100: {'hitprob': 3, 'dmgadj': 6, 'weight': 335},
         }
 
+dex_mods = {
+        3: {'missattack': -3, 'defadj': 4},
+        4: {'missattack': -2, 'defadj': 3},
+        5: {'missattack': -1, 'defadj': 2},
+        6: {'missattack': 0, 'defadj': 1},
+        7: {'missattack': 0, 'defadj': 0},
+        8: {'missattack': 0, 'defadj': 0},
+        9: {'missattack': 0, 'defadj': 0},
+        10: {'missattack': 0, 'defadj': 0},
+        11: {'missattack': 0, 'defadj': 0},
+        12: {'missattack': 0, 'defadj': 0},
+        13: {'missattack': 0, 'defadj': 0},
+        14: {'missattack': 0, 'defadj': 0},
+        15: {'missattack': 0, 'defadj': -1},
+        16: {'missattack': 1, 'defadj': -2},
+        17: {'missattack': 2, 'defadj': -3},
+        18: {'missattack': 2, 'defadj': -4},
+        }
+
 race = {
         'HU': {'movement': 12},
         'EL': {'movement': 12},
