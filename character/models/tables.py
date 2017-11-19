@@ -1,20 +1,20 @@
-con_hp_adjustment = {
-        3: (-2, -2),
-        4: (-1, -1),
-        5: (-1, -1),
-        6: (-1, -1),
-        7: (0, 0),
-        8: (0, 0),
-        9: (0, 0),
-        10: (0, 0),
-        11: (0, 0),
-        12: (0, 0),
-        13: (0, 0),
-        14: (0, 0),
-        15: (1, 1),
-        16: (2, 2),
-        17: (2, 3),
-        18: (2, 4)
+con_mods = {
+        3: {'hp_adj': (-2, -2)},
+        4: {'hp_adj': (-1, -1)},
+        5: {'hp_adj': (-1, -1)},
+        6: {'hp_adj': (-1, -1)},
+        7: {'hp_adj': (0, 0)},
+        8: {'hp_adj': (0, 0)},
+        9: {'hp_adj': (0, 0)},
+        10: {'hp_adj': (0, 0)},
+        11: {'hp_adj': (0, 0)},
+        12: {'hp_adj': (0, 0)},
+        13: {'hp_adj': (0, 0)},
+        14: {'hp_adj': (0, 0)},
+        15: {'hp_adj': (1, 1)},
+        16: {'hp_adj': (2, 2)},
+        17: {'hp_adj': (2, 3)},
+        18: {'hp_adj': (2, 4)}
         }
 
 str_mods = {
@@ -37,11 +37,11 @@ str_mods = {
         }
 
 bonus_str_mods = {
-        '50': {'hitprob': 1, 'dmgadj': 3, 'weight': 135},
-        '75': {'hitprob': 2, 'dmgadj': 3, 'weight': 160},
-        '90': {'hitprob': 2, 'dmgadj': 4, 'weight': 185},
-        '99': {'hitprob': 2, 'dmgadj': 5, 'weight': 235},
-        '100': {'hitprob': 3, 'dmgadj': 6, 'weight': 335},
+        50: {'hitprob': 1, 'dmgadj': 3, 'weight': 135},
+        75: {'hitprob': 2, 'dmgadj': 3, 'weight': 160},
+        90: {'hitprob': 2, 'dmgadj': 4, 'weight': 185},
+        99: {'hitprob': 2, 'dmgadj': 5, 'weight': 235},
+        100: {'hitprob': 3, 'dmgadj': 6, 'weight': 335},
         }
 
 race = {
