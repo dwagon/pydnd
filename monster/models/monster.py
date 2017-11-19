@@ -23,7 +23,7 @@ class MonsterState(models.Model):
     def save(self, **kwargs):
         if self.status == self.UNDEF:
             self.status = self.OK
-            hits = roll('{}d8'.format(self.monster.hitdie))
+            hits = roll(self.monster.hitdie)
             self.max_hp = hits
             self.hp = hits
         super(MonsterState, self).save(**kwargs)
