@@ -182,11 +182,9 @@ class Character(models.Model):
     ##########################################################################
     def calc_hp(self):
         """ Calculate the HP for a level - try and make it not suck too much """
-        if self.charclass == self.FIGHTER:
-            index = 1
-        else:
-            index = 0
-        return max(roll(self.hitdie()), roll(self.hitdie())) + tables.con_hp_adjustment[self.stat_con][index]
+        hp = max(roll(self.hitdie()), roll(self.hitdie()))
+        hp += self.stat_bonus('hp_adj')
+        return hp
 
     ##########################################################################
     def calc_encumb(self):
@@ -243,7 +241,7 @@ class Character(models.Model):
     ##########################################################################
     def hit(self, victim):
         hitroll = roll('d20')
-        hitroll += tables.str_mods[self.stat_str]['hitprob']
+        hitroll += self.stat_bonus('hitprob')
         to_hit = self.thaco - victim.ac
         self.equipped_weapon()
         if hitroll > to_hit:
@@ -259,11 +257,35 @@ class Character(models.Model):
                 dmg = 1
             else:
                 dmg = weap.weapon_dmg()
-            dmg += tables.str_mods[self.stat_str]['dmgadj']
+            dmg += self.stat_bonus('dmgadj')
             victim.hurt(dmg)
             return dmg
         else:
             return 0
+
+    ##########################################################################
+    def stat_bonus(self, bonus):
+        if bonus in ('dmgadj', 'hitprob', 'weight'):
+            if self.bonus_str >= 0:
+                if self.bonus_str <= 50:
+                    mod = tables.bonus_str_mods[50][bonus]
+                elif self.bonus_str <= 75:
+                    mod = tables.bonus_str_mods[75][bonus]
+                elif self.bonus_str <= 90:
+                    mod = tables.bonus_str_mods[90][bonus]
+                elif self.bonus_str <= 99:
+                    mod = tables.bonus_str_mods[99][bonus]
+                else:
+                    mod = tables.bonus_str_mods[100][bonus]
+            else:
+                mod = tables.str_mods[self.stat_str][bonus]
+        if bonus in ('hp_adj'):
+            if self.charclass == self.FIGHTER:
+                index = 1
+            else:
+                index = 0
+            mod = tables.con_mods[self.stat_con][bonus][index]
+        return mod
 
     ##########################################################################
     def heal(self, dmg):
