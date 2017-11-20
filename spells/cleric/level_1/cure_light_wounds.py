@@ -8,7 +8,6 @@ class Spell_CLW(BaseSpell):
         BaseSpell.__init__(self)
 
     def cast(self, caster):
-        print("Cast by {}".format(caster))
         # TODO select someone else
         caster.heal(roll('d6'))
 

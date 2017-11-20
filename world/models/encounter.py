@@ -40,6 +40,7 @@ class Encounter(object):
             pc.x = x
             pc.y = y
             pc.save()
+            print("pc={}: {}, {}".format(pc, pc.x, pc.y))
 
     ##########################################################################
     def place_monsters(self):
