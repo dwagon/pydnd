@@ -1,7 +1,7 @@
 from django.test import TestCase
 from world.models import World, Encounter
 from monster.models import Monster, MonsterState
-from character.models import Cleric, Fighter
+from character.models import Cleric, Fighter, Character
 
 
 class test_Encounter(TestCase):
@@ -24,8 +24,10 @@ class test_Encounter(TestCase):
         self.assertEqual(len(e.pcs), 1)
         self.assertEqual(e.pcs[0], figgy)
         e.place_pcs()
-        self.assertEqual(figgy.x, 10)
-        self.assertEqual(figgy.y, 10)
+        self.assertEqual(e.pcs[0], figgy)
+        figster = Character.objects.get(world=self.w, name='Figgy')
+        self.assertEqual(figster.x, 10)
+        self.assertEqual(figster.y, 10)
 
     def test_objtype(self):
         e = Encounter(world=self.w, monstername='TestOrc')

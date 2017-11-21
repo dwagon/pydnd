@@ -40,7 +40,6 @@ class Encounter(object):
             pc.x = x
             pc.y = y
             pc.save()
-            print("pc={}: {}, {}".format(pc, pc.x, pc.y))
 
     ##########################################################################
     def place_monsters(self):
@@ -156,12 +155,18 @@ class Encounter(object):
     ##########################################################################
     def pc_attack(self):
         for pc in self.pcs:
+            moves = pc.movement
             if pc.status != Character.OK:
                 continue
-            targ_list = self.enemy_neighbours(pc)
-            if not targ_list:
-                self.move(pc)
-                continue
+            for move in range(moves):
+                targ_list = self.enemy_neighbours(pc)
+                if not targ_list:
+                    self.move(pc)
+                    continue
+                else:
+                    break
+            else:
+                return
             targ = random.choice(targ_list)
             dmg = pc.attack(targ)
             if dmg:
@@ -174,12 +179,18 @@ class Encounter(object):
     ##########################################################################
     def monster_attack(self):
         for monster in self.monsters:
+            moves = monster.movement
             if monster.status != MonsterState.OK:
                 continue
-            targ_list = self.enemy_neighbours(monster)
-            if not targ_list:
-                self.move(monster)
-                continue
+            for move in range(moves):
+                targ_list = self.enemy_neighbours(monster)
+                if not targ_list:
+                    self.move(monster)
+                    continue
+                else:
+                    break
+            else:
+                return
             targ = random.choice(targ_list)
             dmg = monster.attack(targ)
             if dmg:
@@ -190,23 +201,45 @@ class Encounter(object):
                 print("{} missed {}".format(monster.name, targ.name))
 
     ##########################################################################
+    def dir_to_move(self, obj):
+        ne = self.nearest_enemy(obj)
+        if not ne:
+            return
+        if ne.x < obj.x:
+            return 'W'
+        if ne.x > obj.x:
+            return 'E'
+        if ne.y < obj.y:
+            return 'S'
+        if ne.y > obj.y:
+            return 'N'
+
+    ##########################################################################
     def move(self, obj):
         ne = self.nearest_enemy(obj)
         if not ne:
             return
-        targx = obj.x
-        targy = obj.y
-        if ne.x < obj.x:
-            targx -= 1
-        elif ne.x > obj.x:
-            targx += 1
-        if ne.y < obj.y:
-            targy -= 1
-        elif ne.y > obj.y:
-            targy += 1
-        if (targx, targy) in self.arena:
+        d = self.dir_to_move(obj)
+        for delta in [0, 1, -1]:
+            if d == 'N':
+                targy = obj.y + 1
+                targx = obj.x + delta
+            elif d == 'S':
+                targy = obj.y - 1
+                targx = obj.x + delta
+            elif d == 'E':
+                targy = obj.x + 1
+                targx = obj.y + delta
+            elif d == 'W':
+                targy = obj.x - 1
+                targx = obj.y + delta
+            if (targx, targy) in self.arena:
+                continue
+            break
+        else:
             print("{} Movement toward {} blocked by {}".format(obj.name, ne.name, self.arena[(targx, targy)]))
             return
+
         del self.arena[(obj.x, obj.y)]
         obj.x = targx
         obj.y = targy
