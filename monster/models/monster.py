@@ -59,7 +59,7 @@ class Monster(models.Model):
     hitdie = models.CharField('Hit Die', max_length=5, default='1d8')
     thaco = models.IntegerField()
     numattacks = models.IntegerField('Num Attacks', default=1)
-    damage = models.CharField(max_length=5)
+    damage = models.CharField(max_length=50)
     xp = models.IntegerField()
 
     def __str__(self):
