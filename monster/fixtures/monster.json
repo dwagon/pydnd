@@ -7,7 +7,7 @@
     {
         "model": "monster.monster",
         "pk": 2,
-        "fields": {"name": "Ghoul", "treasure": "B, T", "align": "CE", "numappearing": "2d12 "ac": 6, "movement": 9, "hitdie": "2d8", "thaco": 19, "numattacks": 3, "damage": "1d3/1d3/1d6", "xp": 175}
+        "fields": {"name": "Ghoul", "treasure": "B, T", "align": "CE", "numappearing": "2d12", "ac": 6, "movement": 9, "hitdie": "2d8", "thaco": 19, "numattacks": 3, "damage": "1d3/1d3/1d6", "xp": 175}
     },
     {
         "model": "monster.monster",
