@@ -153,52 +153,44 @@ class Encounter(object):
         return True
 
     ##########################################################################
+    def obj_dead(self, obj):
+        """ Object is no longer part of the living or unliving """
+        print("{} has died".format(obj.name))
+        del self.arena[(obj.x, obj.y)]
+
+    ##########################################################################
+    def obj_attack(self, obj):
+        """ Move towards an enemy until one is range and then attack them """
+        moves = obj.movement
+        for _ in range(moves):
+            targ_list = self.enemy_neighbours(obj)
+            if not targ_list:
+                self.move(obj)
+                continue
+            else:
+                break
+        else:
+            return
+        targ = random.choice(targ_list)
+        dmg = obj.attack(targ)
+        if dmg:
+            print("{} hit {} for {} -> {}".format(obj.name, targ.name, dmg, targ.get_status_display()))
+            if targ.status == MonsterState.DEAD:
+                self.obj_dead(targ)
+        else:
+            print("{} missed {}".format(obj.name, targ.name))
+
+    ##########################################################################
     def pc_attack(self):
         for pc in self.pcs:
-            moves = pc.movement
-            if pc.status != Character.OK:
-                continue
-            for move in range(moves):
-                targ_list = self.enemy_neighbours(pc)
-                if not targ_list:
-                    self.move(pc)
-                    continue
-                else:
-                    break
-            else:
-                return
-            targ = random.choice(targ_list)
-            dmg = pc.attack(targ)
-            if dmg:
-                print("{} hit {} for {} -> {}".format(pc.name, targ.name, dmg, targ.get_status_display()))
-                if targ.status == MonsterState.DEAD:
-                    del self.arena[(targ.x, targ.y)]
-            else:
-                print("{} missed {}".format(pc.name, targ.name))
+            if pc.status == Character.OK:
+                self.obj_attack(pc)
 
     ##########################################################################
     def monster_attack(self):
         for monster in self.monsters:
-            moves = monster.movement
-            if monster.status != MonsterState.OK:
-                continue
-            for move in range(moves):
-                targ_list = self.enemy_neighbours(monster)
-                if not targ_list:
-                    self.move(monster)
-                    continue
-                else:
-                    break
-            else:
-                return
-            targ = random.choice(targ_list)
-            dmg = monster.attack(targ)
-            if dmg:
-                print("{} hit {} for {} -> {}".format(monster.name, targ.name, dmg, targ.get_status_display()))
-                if targ.status == Character.DEAD:
-                    del self.arena[(targ.x, targ.y)]
-            else:
-                print("{} missed {}".format(monster.name, targ.name))
+            if monster.status == MonsterState.OK:
+                self.obj_attack(monster)
 
     ##########################################################################
     def dir_to_move(self, obj):
