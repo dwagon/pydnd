@@ -8,13 +8,13 @@ from character.models import Equipment, Weapon, Fighter
 
 w = World()
 w.save()
-e = Encounter(w, 'Orc', number=10, arenasize=20)
+e = Encounter(w, 'Orc', number=5, arenasize=20)
 ls = Weapon(name='Long Sword', damage='1d8')
 ls.save()
 sp = Equipment(name='Iron Spikes')
 sp.save()
 
-for i in range(10):
+for i in range(4):
     f = Fighter(name='Bob{}'.format(i), world=w)
     f.generate_stats()
     f.save()

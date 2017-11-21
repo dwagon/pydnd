@@ -44,8 +44,8 @@ class Encounter(object):
     ##########################################################################
     def place_monsters(self):
         for monster in self.monsters:
-            x = random.randint(0, self.arenasize)
-            y = random.randint(0, self.arenasize)
+            x = random.randint(0, self.arenasize-1)
+            y = random.randint(0, self.arenasize-1)
             while (x, y) in self.arena:
                 xdelta = random.choice([-1, 0, 1])
                 ydelta = random.choice([-1, 0, 1])
@@ -61,9 +61,9 @@ class Encounter(object):
         for x in range(self.arenasize):
             for y in range(self.arenasize):
                 if (x, y) in self.arena:
-                    out.write("{:5}".format(self.arena[(x, y)].name[:5]))
+                    out.write("{:4} ".format(self.arena[(x, y)].name[:5]))
                 else:
-                    out.write("{:5}".format(". "))
+                    out.write("{:4} ".format("_"))
             out.write("\n")
         out.write("\n")
 
@@ -164,11 +164,10 @@ class Encounter(object):
         moves = obj.movement
         for _ in range(moves):
             targ_list = self.enemy_neighbours(obj)
-            if not targ_list:
-                self.move(obj)
-                continue
-            else:
+            if targ_list:
                 break
+            else:
+                self.move(obj)
         else:
             return
         targ = random.choice(targ_list)
@@ -197,14 +196,16 @@ class Encounter(object):
         ne = self.nearest_enemy(obj)
         if not ne:
             return
-        if ne.x < obj.x:
-            return 'W'
-        if ne.x > obj.x:
-            return 'E'
-        if ne.y < obj.y:
-            return 'S'
-        if ne.y > obj.y:
-            return 'N'
+        if pow(ne.x - obj.x, 2) > pow(ne.y - obj.y, 2):
+            if ne.x > obj.x:
+                return 'S'
+            if ne.x < obj.x:
+                return 'N'
+        else:
+            if ne.y > obj.y:
+                return 'E'
+            if ne.y < obj.y:
+                return 'W'
 
     ##########################################################################
     def move(self, obj):
@@ -214,17 +215,17 @@ class Encounter(object):
         d = self.dir_to_move(obj)
         for delta in [0, 1, -1]:
             if d == 'N':
-                targy = obj.y + 1
-                targx = obj.x + delta
+                targx = obj.x - 1
+                targy = obj.y + delta
             elif d == 'S':
-                targy = obj.y - 1
-                targx = obj.x + delta
+                targx = obj.x + 1
+                targy = obj.y + delta
             elif d == 'E':
-                targy = obj.x + 1
-                targx = obj.y + delta
+                targx = obj.x + delta
+                targy = obj.y + 1
             elif d == 'W':
-                targy = obj.x - 1
-                targx = obj.y + delta
+                targx = obj.x + delta
+                targy = obj.y - 1
             if (targx, targy) in self.arena:
                 continue
             break
@@ -232,11 +233,11 @@ class Encounter(object):
             print("{} Movement toward {} blocked by {}".format(obj.name, ne.name, self.arena[(targx, targy)]))
             return
 
+        print("{} moved from {},{} {} to {}, {} (Target {} @ {},{})".format(obj.name, obj.x, obj.y, d, targx, targy, ne.name, ne.x, ne.y))
         del self.arena[(obj.x, obj.y)]
         obj.x = targx
         obj.y = targy
         obj.save()
-        print("{} moved to {}, {}".format(obj.name, targx, targy))
         self.arena[(targx, targy)] = obj
 
 # EOF
