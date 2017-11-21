@@ -18,7 +18,6 @@ class Encounter(object):
         self.arena = {}
         self.monsters = []
         self.m = Monster.objects.get(name=monstername)
-        self.pcs = Character.objects.filter(world=self.world)
         num = kwargs['number'] if 'number' in kwargs else roll(self.m.numappearing)
         for _ in range(num):
             m = MonsterState(monster=self.m)
@@ -28,7 +27,7 @@ class Encounter(object):
 
     ##########################################################################
     def place_pcs(self):
-        for pc in self.pcs:
+        for pc in Character.objects.filter(world=self.world):
             x = int(self.arenasize / 2)
             y = int(self.arenasize / 2)
             while (x, y) in self.arena:
@@ -104,7 +103,8 @@ class Encounter(object):
         min_dist = 99999
         min_obj = None
         if enemy == self.PC:
-            targets = [_ for _ in self.pcs if _.status == Character.OK]
+            pcs = Character.objects.filter(world=self.world)
+            targets = [_ for _ in pcs if _.status == Character.OK]
         else:
             targets = [_ for _ in self.monsters if _.status == MonsterState.OK]
         for t in targets:
@@ -121,7 +121,7 @@ class Encounter(object):
 
     ##########################################################################
     def status(self):
-        for pc in self.pcs:
+        for pc in Character.objects.filter(world=self.world):
             print(pc)
         for mon in self.monsters:
             print(mon)
@@ -132,7 +132,8 @@ class Encounter(object):
         for monster in self.monsters[:]:
             xp + monster.xp
             monster.delete()
-        survivors = [_ for _ in self.pcs if _.status != Character.DEAD]
+        pcs = Character.objects.filter(world=self.world)
+        survivors = [_ for _ in pcs if _.status != Character.DEAD]
         for surv in survivors:
             surv.earnXp(xp / len(survivors))
 
@@ -143,7 +144,8 @@ class Encounter(object):
         m_targets = [_ for _ in self.monsters if _.status == MonsterState.OK]
         if not m_targets:
             return False
-        pc_targets = [_ for _ in self.pcs if _.status == Character.OK]
+        pcs = Character.objects.filter(world=self.world)
+        pc_targets = [_ for _ in pcs if _.status == Character.OK]
         if not pc_targets:
             return False
         # TODO: Initiative
@@ -181,7 +183,7 @@ class Encounter(object):
 
     ##########################################################################
     def pc_attack(self):
-        for pc in self.pcs:
+        for pc in Character.objects.filter(world=self.world):
             if pc.status == Character.OK:
                 self.obj_attack(pc)
 
