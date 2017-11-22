@@ -11,6 +11,7 @@ class Encounter(object):
     MONSTER = 'M'
     PC = 'P'
 
+    ##########################################################################
     def __init__(self, world, monstername, **kwargs):
         self.world = world
         self.round = 0
@@ -91,9 +92,9 @@ class Encounter(object):
         ns = self.neighbours(obj)
         badns = []
         for n in ns:
-            if self.objtype(n) == self.PC and enemy == self.PC and n.status != Character.DEAD:
+            if self.objtype(n) == self.PC and enemy == self.PC and n.status == Character.OK:
                 badns.append(n)
-            if self.objtype(n) == self.MONSTER and enemy == self.MONSTER and n.status != MonsterState.DEAD:
+            if self.objtype(n) == self.MONSTER and enemy == self.MONSTER and n.status == MonsterState.OK:
                 badns.append(n)
         return badns
 
@@ -186,12 +187,16 @@ class Encounter(object):
         for pc in Character.objects.filter(world=self.world):
             if pc.status == Character.OK:
                 self.obj_attack(pc)
+            else:
+                print("{} is {}".format(pc.name, pc.get_status_display()))
 
     ##########################################################################
     def monster_attack(self):
         for monster in self.monsters:
             if monster.status == MonsterState.OK:
                 self.obj_attack(monster)
+            else:
+                print("{} is {}".format(monster.name, monster.get_status_display()))
 
     ##########################################################################
     def dir_to_move(self, obj):
