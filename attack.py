@@ -4,7 +4,7 @@ import django
 django.setup()
 
 from world.models import World, Encounter
-from character.models import Equipment, Weapon, Fighter
+from character.models import Equipment, Weapon, Fighter, Character
 
 w = World()
 w.save()
@@ -33,7 +33,7 @@ while True:
 e.status()
 e.close()
 
-for f in e.pcs:
+for f in Character.objects.filter(world=w):
     f.delete()
 sp.delete()
 ls.delete()
