@@ -4,23 +4,27 @@ import django
 django.setup()
 
 from world.models import World, Encounter
-from character.models import Equipment, Weapon, Fighter, Character
+from character.models import Weapon, Fighter, Character, Thief
 
 w = World()
 w.save()
-e = Encounter(w, 'Orc', number=5, arenasize=20)
+e = Encounter(w, 'Orc', number=9, arenasize=20)
 ls = Weapon(name='Long Sword', damage='1d8')
 ls.save()
-sp = Equipment(name='Iron Spikes')
-sp.save()
+lb = Weapon(name='Long Bow', damage='1d6', reach=20)
+lb.save()
 
 for i in range(4):
     f = Fighter(name='Bob{}'.format(i), world=w)
     f.generate_stats()
     f.save()
-
-    f.equip(sp)
     f.equip(ls, ready=True)
+for i in range(4):
+    f = Thief(name='Tom{}'.format(i), world=w, stat_dex=18)
+    f.generate_stats()
+    f.save()
+    f.equip(lb, ready=True)
+
 e.place_pcs()
 e.place_monsters()
 e.print_arena()
@@ -35,6 +39,5 @@ e.close()
 
 for f in Character.objects.filter(world=w):
     f.delete()
-sp.delete()
 ls.delete()
 w.delete()
