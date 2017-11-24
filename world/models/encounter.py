@@ -28,6 +28,7 @@ class Encounter(object):
 
     ##########################################################################
     def place_pcs(self):
+        """ Put PCs in the arena clustered around the middle """
         for pc in Character.objects.filter(world=self.world):
             x = int(self.arenasize / 2)
             y = int(self.arenasize / 2)
@@ -99,6 +100,21 @@ class Encounter(object):
         return badns
 
     ##########################################################################
+    def enemy_in_reach(self, obj, reach):
+        enemy = self.PC if self.objtype(obj) == self.MONSTER else self.MONSTER
+        in_reach = set()
+        if enemy == self.PC:
+            pcs = Character.objects.filter(world=self.world)
+            targets = [_ for _ in pcs if _.status == Character.OK]
+        else:
+            targets = [_ for _ in self.monsters if _.status == MonsterState.OK]
+        for t in targets:
+            d = self.distance(obj, t)
+            if d < reach:
+                in_reach.add(t)
+        return list(in_reach)
+
+    ##########################################################################
     def nearest_enemy(self, obj):
         enemy = self.PC if self.objtype(obj) == self.MONSTER else self.MONSTER
         min_dist = 99999
@@ -166,7 +182,11 @@ class Encounter(object):
         """ Move towards an enemy until one is range and then attack them """
         moves = obj.movement
         for _ in range(moves):
-            targ_list = self.enemy_neighbours(obj)
+            reach = obj.get_reach()
+            if reach:
+                targ_list = self.enemy_in_reach(obj, reach)
+            else:
+                targ_list = self.enemy_neighbours(obj)
             if targ_list:
                 break
             else:
@@ -176,7 +196,10 @@ class Encounter(object):
         targ = random.choice(targ_list)
         dmg = obj.attack(targ)
         if dmg:
-            print("{} hit {} for {} -> {}".format(obj.name, targ.name, dmg, targ.get_status_display()))
+            weap = ""
+            if hasattr(obj, 'equipped_weapon'):
+                weap = "with {} ".format(obj.equipped_weapon().name)
+            print("{} hit {} {}for {} -> {}".format(obj.name, targ.name, weap, dmg, targ.get_status_display()))
             if targ.status == MonsterState.DEAD:
                 self.obj_dead(targ)
         else:

@@ -2,17 +2,18 @@ from django.test import TestCase
 
 from character.models import Thief, Weapon, Equipment, Armour, Character
 from world.models import World
+from monster.models import Monster, MonsterState
 
 
 class test_Thief(TestCase):
     def setUp(self):
         self.w = World()
         self.w.save()
-        self.th = Thief(name='test', world=self.w, stat_con=9)
+        self.th = Thief(name='test', world=self.w, stat_con=9, stat_dex=18)
         self.th.generate_stats()
         self.th.save()
-        self.sword = Weapon(name='Long Sword', weight=5)
-        self.sword.save()
+        self.bow = Weapon(name='Short Bow', weight=5, reach=20, damage='3')
+        self.bow.save()
         self.mace = Weapon(name='Mace', weight=7)
         self.mace.save()
         self.spikes = Equipment(name='Iron Spikes', weight=6)
@@ -26,7 +27,7 @@ class test_Thief(TestCase):
 
     def cleanUp(self):
         self.spikes.delete()
-        self.sword.delete()
+        self.bow.delete()
         self.leather.delete()
         self.helmet.delete()
         self.th.delete()
@@ -40,12 +41,28 @@ class test_Thief(TestCase):
     def test_thaco(self):
         self.assertEqual(self.th.thaco, 20)
 
+    def test_ac_dexmod(self):
+        self.assertEqual(self.th.ac, 6)
+
     def test_encumb(self):
         self.assertEqual(self.th.encumbrance, 0)
 
     def test_stats(self):
-        self.assertGreaterEqual(self.th.stat_dex, 3)
-        self.assertLessEqual(self.th.stat_dex, 18)
+        self.assertGreaterEqual(self.th.stat_wis, 3)
+        self.assertLessEqual(self.th.stat_wis, 18)
+        self.assertEqual(self.th.stat_dex, 18)
+
+    def test_ranged(self):
+        """ Test ranged combat """
+        self.th.equip(self.bow, ready=True)
+        self.assertEqual(self.th.get_reach(), 20)
+        self.assertEqual(self.th.stat_bonus('missattack'), 2)
+        o = Monster(name='weak_orc', movement=3, ac=20, thaco=20, xp=3)
+        o.save()
+        oi = MonsterState(monster=o)
+        oi.save()
+        dmg = self.th.ranged_attack(self.th.equipped_weapon(), oi)
+        self.assertEqual(dmg, 5)    # 3dmg + 2 missattack
 
     def test_hurt(self):
         """ Test being hurt - ouch """

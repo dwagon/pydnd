@@ -258,9 +258,9 @@ class Character(models.Model):
         return e
 
     ##########################################################################
-    def hit(self, victim):
+    def hit(self, victim, mod=0):
         hitroll = roll('d20')
-        hitroll += self.stat_bonus('hitprob')
+        hitroll += mod
         to_hit = self.thaco - victim.ac
         self.equipped_weapon()
         if hitroll > to_hit:
@@ -271,7 +271,26 @@ class Character(models.Model):
     ##########################################################################
     def attack(self, victim):
         weap = self.equipped_weapon()
-        if self.hit(victim):
+        if not weap or weap.reach == 0:
+            return self.melee_attack(weap, victim)
+        else:
+            return self.ranged_attack(weap, victim)
+
+    ##########################################################################
+    def ranged_attack(self, weap, victim):
+        mod = self.stat_bonus('missattack')
+        if self.hit(victim, mod):
+            dmg = weap.weapon_dmg()
+            dmg += self.stat_bonus('missattack')
+            victim.hurt(dmg)
+            return dmg
+        else:
+            return 0
+
+    ##########################################################################
+    def melee_attack(self, weap, victim):
+        mod = self.stat_bonus('hitprob')
+        if self.hit(victim, mod):
             if not weap:
                 dmg = 1
             else:
