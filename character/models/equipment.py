@@ -31,6 +31,9 @@ class Equipment(models.Model):
     # Weapon stuff
     damage = models.CharField(max_length=10, default='')
 
+    # Ranged weapon stuff
+    reach = models.IntegerField(default=0)
+
     # Armour stuff
     ac_base = models.IntegerField(default=10)
     ac_modifier = models.IntegerField(default=0)

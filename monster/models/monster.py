@@ -47,6 +47,9 @@ class MonsterState(models.Model):
             raise AttributeError("AttrError on {}".format(name))
         return getattr(self.monster, name)
 
+    def get_reach(self):
+        return self.reach
+
 
 ##############################################################################
 class Monster(models.Model):
@@ -61,6 +64,7 @@ class Monster(models.Model):
     numattacks = models.IntegerField('Num Attacks', default=1)
     damage = models.CharField(max_length=50)
     xp = models.IntegerField()
+    reach = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name

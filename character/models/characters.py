@@ -191,6 +191,13 @@ class Character(models.Model):
         return tables.race[self.race]['movement']
 
     ##########################################################################
+    def get_reach(self):
+        weap = self.equipped_weapon()
+        if not weap:
+            return 0
+        return weap.reach
+
+    ##########################################################################
     def calc_hp(self):
         """ Calculate the HP for a level - try and make it not suck too much """
         hp = max(roll(self.hitdie()), roll(self.hitdie()))
