@@ -77,6 +77,7 @@ class Encounter(object):
             for y in [objy-1, objy, objy+1]:
                 if (x, y) in self.arena:
                     n.append(self.arena[(x, y)])
+        n.remove(obj)
         return n
 
     ##########################################################################
@@ -196,9 +197,10 @@ class Encounter(object):
         targ = random.choice(targ_list)
         dmg = obj.attack(targ)
         if dmg:
-            weap = ""
             if hasattr(obj, 'equipped_weapon'):
                 weap = "with {} ".format(obj.equipped_weapon().name)
+            else:
+                weap = ""
             print("{} hit {} {}for {} -> {}".format(obj.name, targ.name, weap, dmg, targ.get_status_display()))
             if targ.status == MonsterState.DEAD:
                 self.obj_dead(targ)

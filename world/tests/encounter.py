@@ -60,4 +60,19 @@ class test_Encounter(TestCase):
         m_locs = [(_.x, _.y) for _ in e.monsters]
         self.assertEquals(sorted(used_locs), sorted(m_locs))
 
+    def test_neighbours(self):
+        m = Monster(name='TestSingleOrc', ac=19, xp=5, thaco=19, movement=3, numappearing='1')
+        m.save()
+        e = Encounter(world=self.w, monstername='TestSingleOrc', arenasize=10)
+        f = Fighter(name='F', world=self.w)
+        f.generate_stats()
+        f.x = 5
+        f.y = 5
+        f.save()
+        e.arena[(5, 5)] = f
+        e.arena[(6, 5)] = e.monsters[0]
+        n = e.neighbours(f)
+        self.assertEqual(n, e.monsters)
+
+
 # EOF
