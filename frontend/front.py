@@ -7,7 +7,6 @@ Much of this code originated from http://qq.readthedocs.io/en/latest/
 
 """
 
-import configparser
 import requests
 import tempfile
 
@@ -222,8 +221,6 @@ class Level(object):
         """Load the level from specified file."""
 
         mapdetails = self.get_map(level)
-        parser = configparser.ConfigParser()
-        parser.read("level.map")
         self.tileset = mapdetails['tileset']
         self.map = mapdetails["map"]
         tileset_details = self.get_tileset(self.tileset)
@@ -332,10 +329,11 @@ class Game(object):
         self.screen = pygame.display.get_surface()
         self.pressed_key = None
         self.game_over = False
+        self.player = None
         self.shadows = pygame.sprite.RenderUpdates()
         self.sprites = SortedUpdates()
         self.overlays = pygame.sprite.RenderUpdates()
-        self.use_level(Level())
+        self.use_level(Level("2"))
 
     ##########################################################################
     def use_level(self, level):
@@ -406,7 +404,7 @@ class Game(object):
             self.sprites.clear(self.screen, self.background)
             self.sprites.update()
             # If the player's animation is finished, check for keypresses
-            if self.player.animation is None:
+            if self.player and self.player.animation is None:
                 self.control()
                 self.player.update()
             self.shadows.update()
@@ -436,7 +434,7 @@ if __name__ == "__main__":
     MAP_CACHE = TileCache(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)
     TILE_CACHE = TileCache(32, 32)
     pygame.init()
-    pygame.display.set_mode((424, 320))
+    pygame.display.set_mode((640, 320))
     Game().main()
 
 # EOF
