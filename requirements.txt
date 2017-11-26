@@ -3,3 +3,5 @@ dice
 psycopg2
 coverage
 coveralls
+pygame
+requests
