@@ -9,6 +9,7 @@ Much of this code originated from http://qq.readthedocs.io/en/latest/
 
 import configparser
 import requests
+import tempfile
 
 import pygame
 import pygame.locals as pg
@@ -46,10 +47,20 @@ class TileCache(object):
             return tile_table
 
     ##########################################################################
+    def get_tile(self, tilename):
+        with tempfile.NamedTemporaryFile(suffix='png') as f:
+            r = requests.get('{}/world/tile/{}'.format(pydndurl, tilename))
+            f.write(r.content)
+            f.flush()
+            f.seek(0)
+            img = pygame.image.load(f.name).convert()
+        return img
+
+    ##########################################################################
     def _load_tile_table(self, filename, width, height):
         """Load an image and split it into tiles."""
 
-        image = pygame.image.load(filename).convert()
+        image = self.get_tile(filename)
         image_width, image_height = image.get_size()
         tile_table = []
         for tile_x in range(0, image_width // width):
@@ -77,7 +88,7 @@ class Shadow(pygame.sprite.Sprite):
 
     def __init__(self, owner):
         pygame.sprite.Sprite.__init__(self)
-        self.image = SPRITE_CACHE["shadow.png"][0][0]
+        self.image = SPRITE_CACHE["shadow"][0][0]
         self.image.set_alpha(64)
         self.rect = self.image.get_rect()
         self.owner = owner
@@ -152,7 +163,7 @@ class Player(Sprite):
     is_player = True
 
     def __init__(self, pos=(1, 1)):
-        self.frames = SPRITE_CACHE["player.png"]
+        self.frames = SPRITE_CACHE["player"]
         Sprite.__init__(self, pos)
         self.direction = 2
         self.animation = None
@@ -187,33 +198,37 @@ class Player(Sprite):
 class Level(object):
     """Load and store the map of the level, together with all the items."""
 
-    def __init__(self, filename="level.map"):
+    def __init__(self, level="1"):
         self.tileset = ''
         self.map = []
         self.items = {}
         self.key = {}
         self.width = 0
         self.height = 0
-        self.load_file(filename)
+        self.load_file(level)
 
     ##########################################################################
-    def get_map(self):
-        r = requests('{}/map/1'.format(pydndurl))
+    def get_map(self, level):
+        r = requests.get('{}/world/map/{}'.format(pydndurl, level))
         return r.json()
 
     ##########################################################################
-    def load_file(self, filename="level.map"):
+    def get_tileset(self, tileset):
+        r = requests.get('{}/world/tileset/{}'.format(pydndurl, tileset))
+        return r.json()
+
+    ##########################################################################
+    def load_file(self, level):
         """Load the level from specified file."""
 
-        levelmap = self.get_map()
+        mapdetails = self.get_map(level)
         parser = configparser.ConfigParser()
-        parser.read(filename)
-        self.tileset = parser.get("level", "tileset")
-        self.map = parser.get("level", "map").split("\n")
-        for section in parser.sections():
-            if len(section) == 1:
-                desc = dict(parser.items(section))
-                self.key[section] = desc
+        parser.read("level.map")
+        self.tileset = mapdetails['tileset']
+        self.map = mapdetails["map"]
+        tileset_details = self.get_tileset(self.tileset)
+        for section in tileset_details:
+            self.key[section] = tileset_details[section]
         self.width = len(self.map[0])
         self.height = len(self.map)
         for y, line in enumerate(self.map):
