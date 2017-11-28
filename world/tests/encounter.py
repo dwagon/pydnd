@@ -77,15 +77,15 @@ class test_Encounter(TestCase):
         e = Encounter(world=self.w, arena_x=10, arena_y=10)
         e.save()
         e.add_monster_type('TestSingleOrc')
-        f = Fighter(name='F', world=self.w)
+        f = Fighter(name='F', world=self.w, x=5, y=5)
         f.generate_stats()
-        f.x = 5
-        f.y = 5
         f.save()
-        e.arena[(5, 5)] = f
-        e.arena[(6, 5)] = e.monsters[0]
+        l = Location(arena=e, x=5, y=5, content_object=f)
+        l.save()
+        l2 = Location(arena=e, x=6, y=5, content_object=e.monsters.all()[0])
+        l2.save()
         n = e.neighbours(f)
-        self.assertEqual(n, e.monsters)
+        self.assertEqual(n, list(e.monsters.all()))
 
 
 # EOF
