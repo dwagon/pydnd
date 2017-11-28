@@ -2,6 +2,7 @@
 
 dropdb pydnd
 createdb pydnd
+./manage.py makemigrations
 ./manage.py migrate
 ./manage.py loaddata */fixtures/*.json
 # ./manage.py createsuperuser --username admin --email maybe@yes.no
