@@ -68,8 +68,7 @@ class Encounter(models.Model):
                 ydelta = random.choice([-1, 0, 1])
                 x += xdelta
                 y += ydelta
-            l = Location(arena=self, x=x, y=y, content_object=pc)
-            l.save()
+            self.set_location(pc, x, y)
             pc.x = x
             pc.y = y
             pc.save()
@@ -84,8 +83,7 @@ class Encounter(models.Model):
                 ydelta = random.choice([-1, 0, 1])
                 x += xdelta
                 y += ydelta
-            l = Location(arena=self, x=x, y=y, content_object=monster)
-            l.save()
+            self.set_location(monster, x, y)
             monster.x = x
             monster.y = y
             monster.save()
@@ -106,6 +104,8 @@ class Encounter(models.Model):
 
     ##########################################################################
     def neighbours(self, obj):
+        assert obj.x >= 0
+        assert obj.y >= 0
         arena = {}
         for i in Location.objects.filter(arena=self):
             arena[(i.x, i.y)] = i.content_object
@@ -125,6 +125,14 @@ class Encounter(models.Model):
             return self.PC
         else:
             return self.MONSTER
+
+    ##########################################################################
+    def set_location(self, obj, x, y):
+        obj.x = x
+        obj.y = y
+        obj.save()
+        l = Location(arena=self, x=x, y=y, content_object=obj)
+        l.save()
 
     ##########################################################################
     def enemy_neighbours(self, obj):
