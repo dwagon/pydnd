@@ -8,7 +8,9 @@ from character.models import Weapon, Fighter, Character, Thief
 
 w = World()
 w.save()
-e = Encounter(w, 'Orc', number=9, arenasize=20)
+e = Encounter(world=w, arena_x=20, arena_y=20)
+e.save()
+e.add_monster_type('Orc', number=9)
 ls = Weapon(name='Long Sword', damage='1d8')
 ls.save()
 lb = Weapon(name='Long Bow', damage='1d6', reach=20)
