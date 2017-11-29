@@ -138,12 +138,16 @@ class test_Encounter(TestCase):
         e = Encounter(world=self.w, arena_x=10, arena_y=10)
         e.save()
         e.add_monster_type('TestDualOrc')
+        e.place_pcs()
         m1, m2 = e.monsters.all()
+        e.set_location(self.fighter, 0, 0)
         e.set_location(self.thief, 5, 0)
         e.set_location(m1, 5, 5)    # In Reach
         e.set_location(m2, 5, 9)    # Not in reach
         n = e.enemy_in_reach(self.thief, 7)
         self.assertEqual(n, [m1])
+        n = e.enemy_in_reach(m1, 7)
+        self.assertEqual(n, [self.thief])
 
     ##########################################################################
     def test_nearest_enemy(self):
@@ -151,11 +155,15 @@ class test_Encounter(TestCase):
         e = Encounter(world=self.w, arena_x=10, arena_y=10)
         e.save()
         e.add_monster_type('TestDualOrc')
+        e.place_pcs()
         m1, m2 = e.monsters.all()
         e.set_location(self.thief, 5, 0)
+        e.set_location(self.fighter, 0, 0)
         e.set_location(m1, 5, 5)
         e.set_location(m2, 5, 9)
         n = e.nearest_enemy(self.thief)
         self.assertEqual(n, m1)
+        n = e.nearest_enemy(m1)
+        self.assertEqual(n, self.thief)
 
 # EOF

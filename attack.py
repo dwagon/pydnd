@@ -17,7 +17,7 @@ lb = Weapon(name='Long Bow', damage='1d6', reach=20)
 lb.save()
 
 for i in range(4):
-    f = Fighter(name='Bob{}'.format(i), world=w)
+    f = Fighter(name='Bob{}'.format(i), world=w, stat_str=18)
     f.generate_stats()
     f.save()
     f.equip(ls, ready=True)

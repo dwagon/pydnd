@@ -59,7 +59,7 @@ class Encounter(models.Model):
 
     ##########################################################################
     def place_pcs(self):
-        """ Put PCs in the arena clustered around the middle """
+        """ Put all PCs in this world in the arena clustered around the middle """
         for pc in Character.objects.filter(world=self.world):
             x = int(self.arena_x / 2)
             y = int(self.arena_y / 2)
@@ -72,6 +72,7 @@ class Encounter(models.Model):
             pc.x = x
             pc.y = y
             pc.save()
+            self.pcs.add(pc)
 
     ##########################################################################
     def place_monsters(self):
@@ -184,7 +185,7 @@ class Encounter(models.Model):
 
     ##########################################################################
     def status(self):
-        for pc in Character.objects.filter(world=self.world):
+        for pc in self.pcs.all():
             print(pc)
         for mon in self.monsters.all():
             print(mon)
@@ -195,8 +196,7 @@ class Encounter(models.Model):
         for monster in self.monsters.all():
             xp + monster.xp
             monster.delete()
-        pcs = Character.objects.filter(world=self.world)
-        survivors = [_ for _ in pcs if _.status != Character.DEAD]
+        survivors = [_ for _ in self.pcs.exclude(status=Character.DEAD)]
         for surv in survivors:
             surv.earnXp(xp / len(survivors))
 
@@ -207,7 +207,7 @@ class Encounter(models.Model):
         m_targets = [_ for _ in self.monsters.all() if _.status == MonsterState.OK]
         if not m_targets:
             return False
-        pcs = Character.objects.filter(world=self.world)
+        pcs = self.pcs.all()
         pc_targets = [_ for _ in pcs if _.status == Character.OK]
         if not pc_targets:
             return False
