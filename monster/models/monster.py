@@ -1,30 +1,21 @@
 from django.db import models
 from utils import roll
 from constants import alignment_choices
+import status
 
 
 ##############################################################################
 class MonsterState(models.Model):
-    OK = 'OK'
-    DEAD = 'DE'
-    UNCONSCIOUS = 'UC'
-    UNDEF = 'XX'
-    status_choices = (
-        (OK, 'OK'),
-        (DEAD, 'Dead'),
-        (UNCONSCIOUS, 'Unconscious')
-        )
-
     monster = models.ForeignKey('Monster', on_delete=models.CASCADE)
     hp = models.IntegerField(default=-1)
     max_hp = models.IntegerField(default=-1)
-    status = models.CharField(max_length=2, choices=status_choices, default=UNDEF)
+    status = models.CharField(max_length=2, choices=status.status_choices, default=status.UNDEF)
     x = models.IntegerField(default=-1)
     y = models.IntegerField(default=-1)
 
     def save(self, **kwargs):
-        if self.status == self.UNDEF:
-            self.status = self.OK
+        if self.status == status.UNDEF:
+            self.status = status.OK
             hits = roll(self.monster.hitdie)
             self.max_hp = hits
             self.hp = hits
@@ -37,7 +28,7 @@ class MonsterState(models.Model):
         """ Be hurt """
         self.hp -= dmg
         if self.hp <= 0:
-            self.status = self.DEAD
+            self.status = status.DEAD
             self.save()
             return False
         return True

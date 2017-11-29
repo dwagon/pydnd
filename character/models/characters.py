@@ -5,6 +5,7 @@ from . import Equipment, Spell
 from world.models import World
 from utils import roll
 from constants import alignment_choices
+import status
 
 
 ##############################################################################
@@ -65,16 +66,6 @@ class Character(models.Model):
         (CLERIC, 'Cleric'),
         )
 
-    # Status Choices
-    OK = 'OK'
-    DEAD = 'DE'
-    UNCONSCIOUS = 'UC'
-    status_choices = (
-        (OK, 'OK'),
-        (DEAD, 'Dead'),
-        (UNCONSCIOUS, 'Unconscious')
-        )
-
     # Gender Choices
     MALE = 'M'
     FEMALE = 'F'
@@ -121,7 +112,7 @@ class Character(models.Model):
     xp = models.IntegerField(default=0)
     align = models.CharField(max_length=2, choices=alignment_choices, default='N')
     level = models.IntegerField(default=1)
-    status = models.CharField(max_length=2, choices=status_choices, default=OK)
+    status = models.CharField(max_length=2, choices=status.status_choices, default=status.UNDEF)
 
     x = models.IntegerField(default=-1)
     y = models.IntegerField(default=-1)
@@ -178,9 +169,12 @@ class Character(models.Model):
 
     ##########################################################################
     def save(self, **kwargs):
-        if self.max_hp == 0:
-            self.max_hp = self.calc_hp()
-            self.hp = self.max_hp
+        if self.status == status.UNDEF:
+            self.generate_stats()
+            if self.max_hp == 0:
+                self.max_hp = self.calc_hp()
+                self.hp = self.max_hp
+            self.status = status.OK
         # Need to save first to make M2M work on new objects
         super(Character, self).save(**kwargs)
         self.encumbrance = self.calc_encumb()
@@ -334,13 +328,13 @@ class Character(models.Model):
     ##########################################################################
     def heal(self, dmg):
         """ Heal self """
-        if self.status == self.DEAD:
+        if self.status == status.DEAD:
             return False
         self.hp += dmg
         if self.hp > self.max_hp:
             self.hp = self.max_hp
-        if self.status == self.UNCONSCIOUS and self.hp > 0:
-            self.status = self.OK
+        if self.status == status.UNCONSCIOUS and self.hp > 0:
+            self.status = status.OK
         self.save()
         return True
 
@@ -349,9 +343,9 @@ class Character(models.Model):
         """ Be hurt. Return True if still ok """
         self.hp -= dmg
         if self.hp <= 0:
-            self.status = self.UNCONSCIOUS
+            self.status = status.UNCONSCIOUS
             if self.hp < -10:
-                self.status = self.DEAD
+                self.status = status.DEAD
             self.save()
             return False
         self.save()

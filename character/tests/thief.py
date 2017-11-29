@@ -1,8 +1,9 @@
 from django.test import TestCase
 
-from character.models import Thief, Weapon, Equipment, Armour, Character
+from character.models import Thief, Weapon, Equipment, Armour
 from world.models import World
 from monster.models import Monster, MonsterState
+import status
 
 
 class test_Thief(TestCase):
@@ -10,7 +11,6 @@ class test_Thief(TestCase):
         self.w = World()
         self.w.save()
         self.th = Thief(name='test', world=self.w, stat_con=9, stat_dex=18)
-        self.th.generate_stats()
         self.th.save()
         self.bow = Weapon(name='Short Bow', weight=5, reach=20, damage='3')
         self.bow.save()
@@ -69,13 +69,13 @@ class test_Thief(TestCase):
         self.th.hp = 9
         self.th.save()
         rc = self.th.hurt(1)
-        self.assertEqual(self.th.status, Character.OK)
+        self.assertEqual(self.th.status, status.OK)
         self.assertTrue(rc)
         rc = self.th.hurt(10)
-        self.assertEqual(self.th.status, Character.UNCONSCIOUS)
+        self.assertEqual(self.th.status, status.UNCONSCIOUS)
         self.assertFalse(rc)
         rc = self.th.hurt(10)
-        self.assertEqual(self.th.status, Character.DEAD)
+        self.assertEqual(self.th.status, status.DEAD)
         self.assertFalse(rc)
 
 

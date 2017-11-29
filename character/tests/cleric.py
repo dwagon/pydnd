@@ -2,6 +2,7 @@ from django.test import TestCase
 
 from character.models import Cleric, Spell
 from world.models import World
+import status
 
 
 class test_Cleric(TestCase):
@@ -9,7 +10,6 @@ class test_Cleric(TestCase):
         self.w = World()
         self.w.save()
         self.cl = Cleric(name='test', world=self.w, stat_con=9)
-        self.cl.generate_stats()
         self.cl.save()
         self.sp = Spell(name='Cure Light Wounds', level=1, charclass=Spell.CLERIC, spellfile='cure_light_wounds')
         self.sp.save()
@@ -58,9 +58,9 @@ class test_Cleric(TestCase):
         self.cl.heal(5)
         self.assertEqual(self.cl.hp, 8)
         self.cl.hurt(9)
-        self.assertEqual(self.cl.status, self.cl.UNCONSCIOUS)
+        self.assertEqual(self.cl.status, status.UNCONSCIOUS)
         self.cl.heal(5)
         self.assertEqual(self.cl.hp, 4)
-        self.assertEqual(self.cl.status, self.cl.OK)
+        self.assertEqual(self.cl.status, status.OK)
 
 # EOF

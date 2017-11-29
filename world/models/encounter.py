@@ -6,6 +6,7 @@ from character.models import Character
 from . import World
 from .map_bits import Wall
 from utils import roll
+import status
 import math
 import random
 import sys
@@ -174,9 +175,9 @@ class Encounter(models.Model):
         ns = self.neighbours(obj)
         badns = []
         for n in ns:
-            if self.objtype(n) == self.PC and enemy == self.PC and n.status == Character.OK:
+            if self.objtype(n) == self.PC and enemy == self.PC and n.status == status.OK:
                 badns.append(n)
-            if self.objtype(n) == self.MONSTER and enemy == self.MONSTER and n.status == MonsterState.OK:
+            if self.objtype(n) == self.MONSTER and enemy == self.MONSTER and n.status == status.OK:
                 badns.append(n)
         return badns
 
@@ -185,9 +186,9 @@ class Encounter(models.Model):
         enemy = self.PC if self.objtype(obj) == self.MONSTER else self.MONSTER
         in_reach = set()
         if enemy == self.PC:
-            targets = [_ for _ in self.pcs.all() if _.status == Character.OK]
+            targets = [_ for _ in self.pcs.all() if _.status == status.OK]
         else:
-            targets = [_ for _ in self.monsters.all() if _.status == MonsterState.OK]
+            targets = [_ for _ in self.monsters.all() if _.status == status.OK]
         for t in targets:
             d = self.distance(obj, t)
             if d < reach:
@@ -200,9 +201,9 @@ class Encounter(models.Model):
         min_dist = 99999
         min_obj = None
         if enemy == self.PC:
-            targets = [_ for _ in self.pcs.all() if _.status == Character.OK]
+            targets = [_ for _ in self.pcs.all() if _.status == status.OK]
         else:
-            targets = [_ for _ in self.monsters.all() if _.status == MonsterState.OK]
+            targets = [_ for _ in self.monsters.all() if _.status == status.OK]
         for t in targets:
             d = self.distance(obj, t)
             if d < min_dist:
@@ -228,7 +229,7 @@ class Encounter(models.Model):
         for monster in self.monsters.all():
             xp + monster.xp
             monster.delete()
-        survivors = [_ for _ in self.pcs.exclude(status=Character.DEAD)]
+        survivors = [_ for _ in self.pcs.exclude(status=status.DEAD)]
         for surv in survivors:
             surv.earnXp(xp / len(survivors))
 
@@ -236,11 +237,11 @@ class Encounter(models.Model):
     def combat_round(self):
         self.turn += 1
         print("\nTurn {}".format(self.turn))
-        m_targets = [_ for _ in self.monsters.all() if _.status == MonsterState.OK]
+        m_targets = [_ for _ in self.monsters.all() if _.status == status.OK]
         if not m_targets:
             return False
         pcs = self.pcs.all()
-        pc_targets = [_ for _ in pcs if _.status == Character.OK]
+        pc_targets = [_ for _ in pcs if _.status == status.OK]
         if not pc_targets:
             return False
         # TODO: Initiative
@@ -280,7 +281,7 @@ class Encounter(models.Model):
             else:
                 weap = ""
             print("{} hit {} {}for {} -> {}".format(obj.name, targ.name, weap, dmg, targ.get_status_display()))
-            if targ.status == MonsterState.DEAD:
+            if targ.status == status.DEAD:
                 self.obj_dead(targ)
         else:
             print("{} missed {}".format(obj.name, targ.name))
@@ -288,7 +289,7 @@ class Encounter(models.Model):
     ##########################################################################
     def pc_attack(self):
         for pc in Character.objects.filter(world=self.world):
-            if pc.status == Character.OK:
+            if pc.status == status.OK:
                 self.obj_attack(pc)
             else:
                 print("{} is {}".format(pc.name, pc.get_status_display()))
@@ -296,7 +297,7 @@ class Encounter(models.Model):
     ##########################################################################
     def monster_attack(self):
         for monster in self.monsters.all():
-            if monster.status == MonsterState.OK:
+            if monster.status == status.OK:
                 self.obj_attack(monster)
             else:
                 print("{} is {}".format(monster.name, monster.get_status_display()))

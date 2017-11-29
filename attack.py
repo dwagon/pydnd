@@ -18,12 +18,10 @@ lb.save()
 
 for i in range(4):
     f = Fighter(name='Bob{}'.format(i), world=w, stat_str=18)
-    f.generate_stats()
     f.save()
     f.equip(ls, ready=True)
 for i in range(4):
     f = Thief(name='Tom{}'.format(i), world=w, stat_dex=18)
-    f.generate_stats()
     f.save()
     f.equip(lb, ready=True)
 

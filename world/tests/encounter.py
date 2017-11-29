@@ -15,10 +15,8 @@ class test_Encounter(TestCase):
         self.dualorc = Monster(name='TestDualOrc', ac=19, xp=5, thaco=19, movement=3, numappearing='2')
         self.dualorc.save()
         self.fighter = Fighter(name='Fig', world=self.w)
-        self.fighter.generate_stats()
         self.fighter.save()
         self.thief = Thief(name='Thf', world=self.w)
-        self.thief.generate_stats()
         self.thief.save()
 
     ##########################################################################
@@ -53,7 +51,6 @@ class test_Encounter(TestCase):
         e = Encounter(world=self.w)
         e.save()
         c = Cleric(name='Clarence', world=self.w)
-        c.generate_stats()
         c.save()
         ans = e.objtype(c)
         self.assertEqual(ans, Encounter.PC)
@@ -66,7 +63,6 @@ class test_Encounter(TestCase):
         """ Test PC placement in arena """
         for i in range(10):
             f = Fighter(name='F{}'.format(i), world=self.w)
-            f.generate_stats()
             f.save()
         e = Encounter(world=self.w, arena_x=20, arena_y=20)
         e.save()

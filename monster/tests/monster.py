@@ -21,7 +21,6 @@ class test_Monster(TestCase):
         e = Armour(name='useless', ac_base=30)
         e.save()
         c = Mage(name='victim', world=self.world, max_hp=10, hp=10)
-        c.generate_stats()
         c.save()
         c.equip(e, ready=True)
         dmg = self.orc.attack(c)
@@ -33,7 +32,6 @@ class test_Monster(TestCase):
         e = Armour(name='useless', ac_base=30)
         e.save()
         c = Mage(name='victim', world=self.world)
-        c.generate_stats()
         c.save()
         c.equip(e, ready=True)
         hit = self.orc.hit(c)
@@ -43,7 +41,6 @@ class test_Monster(TestCase):
         e = Armour(name='impervious', ac_base=-30)
         e.save()
         c = Mage(name='victim', world=self.world)
-        c.generate_stats()
         c.save()
         c.equip(e, ready=True)
         c.ac = -30    # Guarantee miss
