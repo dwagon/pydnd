@@ -209,7 +209,7 @@ class Level(object):
     ##########################################################################
     def get_map(self, level):
         r = requests.get('{}/world/map/{}'.format(pydndurl, level))
-        return r.json()
+        return r.json()['map']
 
     ##########################################################################
     def get_tileset(self, tileset):
