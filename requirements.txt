@@ -2,4 +2,5 @@ Django
 dice
 psycopg2
 coverage
-coveralls
+python_coveralls
+
