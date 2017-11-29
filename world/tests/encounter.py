@@ -10,17 +10,24 @@ class test_Encounter(TestCase):
     def setUp(self):
         self.w = World()
         self.w.save()
-        self.m = Monster(name='TestOrc', ac=19, xp=5, thaco=19, movement=3, numappearing='1')
-        self.m.save()
+        self.orc = Monster(name='TestOrc', ac=19, xp=5, thaco=19, movement=3, numappearing='1')
+        self.orc.save()
+        self.dualorc = Monster(name='TestDualOrc', ac=19, xp=5, thaco=19, movement=3, numappearing='2')
+        self.dualorc.save()
         self.fighter = Fighter(name='Fig', world=self.w)
         self.fighter.generate_stats()
         self.fighter.save()
+        self.thief = Thief(name='Thf', world=self.w)
+        self.thief.generate_stats()
+        self.thief.save()
 
     ##########################################################################
     def tearDown(self):
-        self.m.delete()
+        self.orc.delete()
         self.w.delete()
+        self.dualorc.delete()
         self.fighter.delete()
+        self.thief.delete()
 
     ##########################################################################
     def test_arena(self):
@@ -45,7 +52,7 @@ class test_Encounter(TestCase):
         c.save()
         ans = e.objtype(c)
         self.assertEqual(ans, Encounter.PC)
-        mi = MonsterState(self.m)
+        mi = MonsterState(self.orc)
         ans = e.objtype(mi)
         self.assertEqual(ans, Encounter.MONSTER)
 
@@ -94,36 +101,43 @@ class test_Encounter(TestCase):
 
     ##########################################################################
     def test_neighbours(self):
-        m = Monster(name='TestDualOrc', ac=19, xp=5, thaco=19, movement=3, numappearing='2')
-        m.save()
         e = Encounter(world=self.w, arena_x=10, arena_y=10)
         e.save()
         e.add_monster_type('TestDualOrc')
         m1, m2 = e.monsters.all()
         e.set_location(self.fighter, 5, 5)
-        e.set_location(m1, 6, 5)
+        e.set_location(m1, 6, 5)    # Neighbour
+        e.set_location(m2, 9, 9)    # Not neighbour
         n = e.neighbours(self.fighter)
         self.assertEqual(n, [m1])
 
     ##########################################################################
     def test_enemy_neighbours(self):
         """ Test 'enemy_neighbours' function """
-        m = Monster(name='TestSingleOrc', ac=19, xp=5, thaco=19, movement=3, numappearing='1')
-        m.save()
         e = Encounter(world=self.w, arena_x=10, arena_y=10)
         e.save()
-        e.add_monster_type('TestSingleOrc')
-        monster = e.monsters.all()[0]
-        t = Thief(name='T', world=self.w)
-        t.generate_stats()
-        t.save()
+        e.add_monster_type('TestDualOrc')
+        m1, m2 = e.monsters.all()
         e.set_location(self.fighter, 5, 5)
-        e.set_location(monster, 6, 5)
-        e.set_location(t, 5, 6)
+        e.set_location(self.thief, 5, 6)
+        e.set_location(m1, 6, 5)    # Neighbour
+        e.set_location(m2, 9, 9)    # Not neighbour
         n = e.enemy_neighbours(self.fighter)
-        self.assertEqual(n, list(e.monsters.all()))
-        n = e.enemy_neighbours(e.monsters.all()[0])
-        self.assertEqual(sorted(n), sorted([self.fighter, t]))
-        t.delete()
+        self.assertEqual(n, [m1])
+        n = e.enemy_neighbours(m1)
+        self.assertEqual(sorted(n), sorted([self.fighter, self.thief]))
+
+    ##########################################################################
+    def test_enemy_in_reach(self):
+        """ Test 'enemy_in_reach' function """
+        e = Encounter(world=self.w, arena_x=10, arena_y=10)
+        e.save()
+        e.add_monster_type('TestDualOrc')
+        m1, m2 = e.monsters.all()
+        e.set_location(self.thief, 5, 0)
+        e.set_location(m1, 5, 5)    # In Reach
+        e.set_location(m2, 5, 9)    # Not in reach
+        n = e.enemy_in_reach(self.thief, 7)
+        self.assertEqual(n, [m1])
 
 # EOF
