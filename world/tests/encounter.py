@@ -30,18 +30,23 @@ class test_Encounter(TestCase):
         self.thief.delete()
 
     ##########################################################################
-    def test_arena(self):
-        figgy = Fighter(name='Figgy', world=self.w)
-        figgy.generate_stats()
-        figgy.save()
+    def test_place_single_pc(self):
+        """ Test placing a single character that it goes in the middle """
+        # Put thief in another world to stop interfering with placement
+        nw = World()
+        nw.save()
+        self.thief.world = nw
+        self.thief.save()
         e = Encounter(world=self.w, arena_x=20, arena_y=20)
         e.save()
         e.place_pcs()
-        figster = Character.objects.get(world=self.w, name='Figgy')
+        self.thief.save()
+        figster = Character.objects.get(world=self.w, name='Fig')
         self.assertEqual(figster.x, 10)
         self.assertEqual(figster.y, 10)
         l = Location.objects.get(arena=e, x=10, y=10)
         self.assertEqual(l.content_object, figster)
+        nw.delete()
 
     ##########################################################################
     def test_objtype(self):
