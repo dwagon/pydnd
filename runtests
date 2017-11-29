@@ -2,6 +2,6 @@
   
 export PYTHONPATH=pydnd
 TEST="./manage.py test --settings pydnd.settings"
-coverage run --include 'character/*,monster/*,world/*' ${TEST} && coverage report -m
+coverage run --include 'lib/*,character/*,monster/*,world/*' ${TEST} && coverage report -m
 
 #EOF
