@@ -245,8 +245,8 @@ class Encounter(models.Model):
         if not pc_targets:
             return False
         # TODO: Initiative
-        self.pc_attack()
-        self.monster_attack()
+        self.pc_action()
+        self.monster_action()
 
         return True
 
@@ -258,7 +258,7 @@ class Encounter(models.Model):
         l.delete()
 
     ##########################################################################
-    def obj_attack(self, obj):
+    def obj_action(self, obj):
         """ Move towards an enemy until one is range and then attack them """
         moves = obj.movement
         for _ in range(moves):
@@ -287,18 +287,18 @@ class Encounter(models.Model):
             print("{} missed {}".format(obj.name, targ.name))
 
     ##########################################################################
-    def pc_attack(self):
+    def pc_action(self):
         for pc in Character.objects.filter(world=self.world):
             if pc.status == status.OK:
-                self.obj_attack(pc)
+                self.obj_action(pc)
             else:
                 print("{} is {}".format(pc.name, pc.get_status_display()))
 
     ##########################################################################
-    def monster_attack(self):
+    def monster_action(self):
         for monster in self.monsters.all():
             if monster.status == status.OK:
-                self.obj_attack(monster)
+                self.obj_action(monster)
             else:
                 print("{} is {}".format(monster.name, monster.get_status_display()))
 
