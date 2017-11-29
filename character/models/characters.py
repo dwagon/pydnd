@@ -143,6 +143,10 @@ class Character(models.Model):
     spells = models.ManyToManyField('Spell', blank=True, through=SpellState)
 
     ##########################################################################
+    def __lt__(self, a):
+        return self.name < a.name
+
+    ##########################################################################
     def __str__(self):
         return "{} {} ({}/{}) (Level {} {})".format(self.name, self.get_status_display(), self.hp, self.max_hp, self.level, self.get_charclass_display())
 

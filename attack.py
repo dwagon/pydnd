@@ -8,14 +8,16 @@ from character.models import Weapon, Fighter, Character, Thief
 
 w = World()
 w.save()
-e = Encounter(w, 'Orc', number=9, arenasize=20)
+e = Encounter(world=w, arena_x=20, arena_y=20)
+e.save()
+e.add_monster_type('Orc', number=9)
 ls = Weapon(name='Long Sword', damage='1d8')
 ls.save()
 lb = Weapon(name='Long Bow', damage='1d6', reach=20)
 lb.save()
 
 for i in range(4):
-    f = Fighter(name='Bob{}'.format(i), world=w)
+    f = Fighter(name='Bob{}'.format(i), world=w, stat_str=18)
     f.generate_stats()
     f.save()
     f.equip(ls, ready=True)
