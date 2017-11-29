@@ -3,4 +3,5 @@ dice
 psycopg2
 coverage
 python_coveralls
-
+pygame
+requests

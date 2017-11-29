@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from monster.models import Monster, MonsterState
 from character.models import Character
 from . import World
+from .map_bits import Wall
 from utils import roll
 import math
 import random
@@ -13,14 +14,17 @@ import sys
 ##############################################################################
 class Location(models.Model):
     arena = models.ForeignKey('Encounter', blank=True)
-    x = models.IntegerField(default=0)
-    y = models.IntegerField(default=0)
+    x = models.IntegerField(default=-1)
+    y = models.IntegerField(default=-1)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
 
     def __str__(self):
-        return "{} at {}, {}".format(self.content_object.name, self.x, self.y)
+        try:
+            return "{} at {}, {}".format(self.content_object.name, self.x, self.y)
+        except AttributeError:
+            return "Unknown at {}, {}".format(self.x, self.y)
 
 
 ##############################################################################
@@ -43,6 +47,34 @@ class Encounter(models.Model):
             mons.append("{}".format(m.name))
 
         return "Encounter with {}".format(", ".join(mons))
+
+    ##########################################################################
+    def make_map(self):
+        for x in range(self.arena_x):
+            self.set_location(Wall(), x, 0)
+            self.set_location(Wall(), x, self.arena_y-1)
+        for y in range(self.arena_y):
+            self.set_location(Wall(), 0, y)
+            self.set_location(Wall(), self.arena_x, y)
+        self.save()
+
+    ##########################################################################
+    def map_repr(self):
+        m = []
+        for x in range(0, self.arena_x):
+            ycol = []
+            for y in range(0, self.arena_y):
+                l = Location.objects.filter(arena=self, x=x, y=y)
+                if not l:
+                    ycol.append('.')
+                    continue
+                elif isinstance(l[0].content_object, Wall):
+                    ycol.append('X')
+                else:
+                    sys.stderr.write("{}, {} = {}".format(x, y, type(l[0].content_object)))
+                    ycol.append('?')
+            m.append("".join(ycol))
+        return m
 
     ##########################################################################
     def add_monster_type(self, monstername, number=0):
