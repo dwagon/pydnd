@@ -2,7 +2,6 @@ from django.db import models
 import random
 from . import tables
 from . import Equipment, Spell
-from world.models import World
 from utils import roll
 from constants import alignment_choices
 import status
@@ -98,7 +97,6 @@ class Character(models.Model):
     NONE = 'N'
 
     name = models.CharField(max_length=200)
-    world = models.ForeignKey(World)
     charclass = models.CharField(max_length=5, choices=charclass_choices)
     race = models.CharField(max_length=2, choices=race_choices, default=HUMAN)
     gender = models.CharField(max_length=1, choices=gender_choices, default=UNKNOWN)
@@ -382,6 +380,11 @@ class Character(models.Model):
 
     ##########################################################################
     def select_target(self, categ=NONE):
+        pass
+
+    ##########################################################################
+    def move(self, dirn):
+        # self.world.move(self, dirn)
         pass
 
     ##########################################################################

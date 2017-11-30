@@ -1,7 +1,6 @@
 from django.db import models
 from monster.models import Monster, MonsterState
 from character.models import Character
-from .world import World
 from .arena import Arena
 from utils import roll
 import status
@@ -14,7 +13,6 @@ class Encounter(models.Model):
     MONSTER = 'M'
     PC = 'P'
 
-    world = models.ForeignKey(World)
     arena = models.OneToOneField(Arena, on_delete=models.CASCADE)
     turn = models.IntegerField(default=0)
     monsters = models.ManyToManyField(MonsterState, blank=True)
@@ -25,6 +23,12 @@ class Encounter(models.Model):
     @classmethod
     def create(cls, *args, **kwargs):
         ar_kwargs = {}
+        if 'place_pcs' in kwargs:
+            place_pcs = kwargs['place_pcs']
+            del kwargs['place_pcs']
+        else:
+            place_pcs = True
+
         if 'arena_x' in kwargs:
             arena_x = kwargs['arena_x']
             del kwargs['arena_x']
@@ -33,11 +37,14 @@ class Encounter(models.Model):
             arena_y = kwargs['arena_y']
             del kwargs['arena_y']
             ar_kwargs['arena_y'] = arena_y
+
         enc = cls(*args, **kwargs)
-        ar_kwargs['world'] = enc.world
         ar = Arena(**ar_kwargs)
         ar.save()
         enc.arena = ar
+        enc.save()
+        if place_pcs:
+            enc.place_pcs()
         return enc
 
     ##########################################################################
@@ -72,7 +79,7 @@ class Encounter(models.Model):
     ##########################################################################
     def place_pcs(self):
         """ Put all PCs in this world in the arena clustered around the middle """
-        for pc in Character.objects.filter(world=self.world):
+        for pc in Character.objects.all():
             x = int(self.arena.arena_x / 2)
             y = int(self.arena.arena_y / 2)
             while self.arena[(x, y)]:
@@ -214,6 +221,10 @@ class Encounter(models.Model):
         self.arena.delete(obj.x, obj.y)
 
     ##########################################################################
+    def move(self, obj, dirn):
+        return self.arena.move(obj, dirn)
+
+    ##########################################################################
     def obj_action(self, obj):
         """ Move towards an enemy until one is range and then attack them """
         moves = obj.movement
@@ -277,24 +288,5 @@ class Encounter(models.Model):
                 return 'E'
             if ne.y < obj.y:
                 return 'W'
-
-    ##########################################################################
-    def move(self, obj, drn):
-        dirmap = {
-                'N': (-1, 0),
-                'S': (1, 0),
-                'E': (0, 1),
-                'W': (0, -1)
-                }
-        targx = obj.x + dirmap[drn][0]
-        targy = obj.y + dirmap[drn][1]
-        if self.arena[(targx, targy)]:
-            print("{} Movement blocked by {}".format(obj.name, self.arena[(targx, targy)].name))
-            return
-
-        print("{} moved from {},{} {} to {}, {}".format(obj.name, obj.x, obj.y, drn, targx, targy))
-        self.arena.move(obj.x, obj.y, targx, targy)
-        obj.x, obj.y = targx, targy
-        obj.save()
 
 # EOF

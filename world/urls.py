@@ -6,6 +6,5 @@ urlpatterns = [
     url(r'^tileset/(?P<tiles>\S+)', views.tileset),
     url(r'^tile/(?P<tilename>\S+)', views.tile),
     url(r'^encounter/', views.encounter),
-    url(r'^world/', views.world),
     url(r'get_pcs', views.get_pcs)
 ]

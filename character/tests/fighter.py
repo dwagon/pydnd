@@ -2,14 +2,11 @@ from django.test import TestCase
 
 from character.models import Fighter, Weapon, Equipment, Armour
 from monster.models import Monster, MonsterState
-from world.models import World
 
 
 class test_Fighter(TestCase):
     def setUp(self):
-        self.w = World()
-        self.w.save()
-        self.fg = Fighter(name='test', world=self.w, stat_con=9, stat_dex=9)
+        self.fg = Fighter(name='test', stat_con=9, stat_dex=9)
         self.fg.save()
         self.sword = Weapon(name='Long Sword', weight=5)
         self.sword.save()
@@ -101,7 +98,7 @@ class test_Fighter(TestCase):
         o.delete()
 
     def test_strength(self):
-        fg = Fighter(name='test', world=self.w, stat_str=18)
+        fg = Fighter(name='test', stat_str=18)
         fg.save()
         ss = Weapon(name='Short Sword', weight=1, damage='1')
         ss.save()

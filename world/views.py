@@ -1,6 +1,6 @@
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import Encounter, World
+from .models import Encounter
 import os
 import json
 
@@ -36,21 +36,11 @@ def tile(request, tilename):
 @csrf_exempt
 def encounter(request):
     if request.method == "POST":
-        w = World.objects.all()[0]
-        e = Encounter(world=w, arena_x=20, arena_y=20)
+        e = Encounter(arena_x=20, arena_y=20)
         e.save()
         e.make_map()
         mp = {'map': e.map_repr()}
         return JsonResponse(mp)
-
-
-##############################################################################
-@csrf_exempt
-def world(request):
-    if request.method == "POST":
-        w = World()
-        w.save()
-        return JsonResponse({})
 
 
 ##############################################################################

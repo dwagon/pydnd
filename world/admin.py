@@ -1,13 +1,7 @@
 from django.contrib import admin
 
-from .models import World
 from .models import Location, Encounter
 from .models import Wall, Arena
-
-
-@admin.register(World)
-class WorldAdmin(admin.ModelAdmin):
-    pass
 
 
 @admin.register(Location)

@@ -1,5 +1,5 @@
 from django.test import TestCase
-from world.models import World, Encounter
+from world.models import Encounter
 from monster.models import Monster, MonsterState
 from character.models import Cleric, Fighter, Character, Thief
 
@@ -8,21 +8,18 @@ from character.models import Cleric, Fighter, Character, Thief
 ##############################################################################
 class test_Encounter(TestCase):
     def setUp(self):
-        self.w = World()
-        self.w.save()
         self.orc = Monster(name='TestOrc', ac=19, xp=5, thaco=19, movement=3, numappearing='1')
         self.orc.save()
         self.dualorc = Monster(name='TestDualOrc', ac=19, xp=5, thaco=19, movement=3, numappearing='2')
         self.dualorc.save()
-        self.fighter = Fighter(name='Fig', world=self.w)
+        self.fighter = Fighter(name='Fig')
         self.fighter.save()
-        self.thief = Thief(name='Thf', world=self.w)
+        self.thief = Thief(name='Thf')
         self.thief.save()
 
     ##########################################################################
     def tearDown(self):
         self.orc.delete()
-        self.w.delete()
         self.dualorc.delete()
         self.fighter.delete()
         self.thief.delete()
@@ -30,27 +27,22 @@ class test_Encounter(TestCase):
     ##########################################################################
     def test_place_single_pc(self):
         """ Test placing a single character that it goes in the middle """
-        # Put thief in another world to stop interfering with placement
-        nw = World()
-        nw.save()
-        self.thief.world = nw
-        self.thief.save()
-        e = Encounter.create(world=self.w, arena_x=20, arena_y=20)
+        self.thief.delete()
+        e = Encounter.create(arena_x=20, arena_y=20)
         e.save()
         e.place_pcs()
         self.thief.save()
-        figster = Character.objects.get(world=self.w, name='Fig')
+        figster = Character.objects.get(name='Fig')
         self.assertEqual(figster.x, 10)
         self.assertEqual(figster.y, 10)
         l = e.arena[(10, 10)]
         self.assertEqual(l, figster)
-        nw.delete()
 
     ##########################################################################
     def test_objtype(self):
-        e = Encounter.create(world=self.w)
+        e = Encounter.create()
         e.save()
-        c = Cleric(name='Clarence', world=self.w)
+        c = Cleric(name='Clarence')
         c.save()
         ans = e.objtype(c)
         self.assertEqual(ans, Encounter.PC)
@@ -62,15 +54,15 @@ class test_Encounter(TestCase):
     def test_place_pcs(self):
         """ Test PC placement in arena """
         for i in range(10):
-            f = Fighter(name='F{}'.format(i), world=self.w)
+            f = Fighter(name='F{}'.format(i))
             f.save()
-        e = Encounter.create(world=self.w, arena_x=20, arena_y=20)
+        e = Encounter.create(arena_x=20, arena_y=20)
         e.save()
         e.place_pcs()
         used_locs = set()
         for i in e.arena.all_animate():
             used_locs.add((i.x, i.y))
-        pc_locs = set([(_.x, _.y) for _ in Character.objects.filter(world=self.w)])
+        pc_locs = set([(_.x, _.y) for _ in Character.objects.all()])
         self.assertEquals(used_locs, pc_locs)
 
     ##########################################################################
@@ -78,7 +70,7 @@ class test_Encounter(TestCase):
         """ Test Monster placement in arena """
         m = Monster(name='TestManyOrc', ac=19, xp=5, thaco=19, movement=3, numappearing='25')
         m.save()
-        e = Encounter.create(world=self.w, arena_x=10, arena_y=10)
+        e = Encounter.create(arena_x=10, arena_y=10)
         e.save()
         e.add_monster_type('TestManyOrc')
         e.place_monsters()
@@ -90,7 +82,7 @@ class test_Encounter(TestCase):
 
     ##########################################################################
     def test_set_location(self):
-        e = Encounter.create(world=self.w, arena_x=10, arena_y=10)
+        e = Encounter.create(arena_x=10, arena_y=10)
         e.save()
         e.set_location(self.fighter, 3, 7)
         self.assertEqual(self.fighter.x, 3)
@@ -100,7 +92,7 @@ class test_Encounter(TestCase):
 
     ##########################################################################
     def test_neighbours(self):
-        e = Encounter.create(world=self.w, arena_x=10, arena_y=10)
+        e = Encounter.create(arena_x=10, arena_y=10)
         e.save()
         e.add_monster_type('TestDualOrc')
         m1, m2 = e.monsters.all()
@@ -113,7 +105,7 @@ class test_Encounter(TestCase):
     ##########################################################################
     def test_enemy_neighbours(self):
         """ Test 'enemy_neighbours' function """
-        e = Encounter.create(world=self.w, arena_x=10, arena_y=10)
+        e = Encounter.create(arena_x=10, arena_y=10)
         e.save()
         e.add_monster_type('TestDualOrc')
         m1, m2 = e.monsters.all()
@@ -129,7 +121,7 @@ class test_Encounter(TestCase):
     ##########################################################################
     def test_enemy_in_reach(self):
         """ Test 'enemy_in_reach' function """
-        e = Encounter.create(world=self.w, arena_x=10, arena_y=10)
+        e = Encounter.create(arena_x=10, arena_y=10)
         e.save()
         e.add_monster_type('TestDualOrc')
         e.place_pcs()
@@ -146,7 +138,7 @@ class test_Encounter(TestCase):
     ##########################################################################
     def test_nearest_enemy(self):
         """ Test 'nearest_enemy' function """
-        e = Encounter.create(world=self.w, arena_x=10, arena_y=10)
+        e = Encounter.create(arena_x=10, arena_y=10)
         e.save()
         e.add_monster_type('TestDualOrc')
         e.place_pcs()

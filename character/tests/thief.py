@@ -1,16 +1,13 @@
 from django.test import TestCase
 
 from character.models import Thief, Weapon, Equipment, Armour
-from world.models import World
 from monster.models import Monster, MonsterState
 import status
 
 
 class test_Thief(TestCase):
     def setUp(self):
-        self.w = World()
-        self.w.save()
-        self.th = Thief(name='test', world=self.w, stat_con=9, stat_dex=18)
+        self.th = Thief(name='test', stat_con=9, stat_dex=18)
         self.th.save()
         self.bow = Weapon(name='Short Bow', weight=5, reach=20, damage='3')
         self.bow.save()
