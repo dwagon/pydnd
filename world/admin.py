@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from .models import World
 from .models import Location, Encounter
-from .models import Wall
+from .models import Wall, Arena
 
 
 @admin.register(World)
@@ -17,6 +17,11 @@ class LocationAdmin(admin.ModelAdmin):
 
 @admin.register(Encounter)
 class EncounterAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Arena)
+class WallArena(admin.ModelAdmin):
     pass
 
 

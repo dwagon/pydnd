@@ -133,6 +133,8 @@ class Character(models.Model):
     gear = models.ManyToManyField('Equipment', blank=True, through=EquipState)
     spells = models.ManyToManyField('Spell', blank=True, through=SpellState)
 
+    animate = True
+
     ##########################################################################
     def __lt__(self, a):
         return self.name < a.name

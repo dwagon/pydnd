@@ -1,31 +1,12 @@
 from django.db import models
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from monster.models import Monster, MonsterState
 from character.models import Character
-from . import World
-from .map_bits import Wall
+from .world import World
+from .arena import Arena
 from utils import roll
 import status
 import math
 import random
-import sys
-
-
-##############################################################################
-class Location(models.Model):
-    arena = models.ForeignKey('Encounter', blank=True)
-    x = models.IntegerField(default=-1)
-    y = models.IntegerField(default=-1)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
-
-    def __str__(self):
-        try:
-            return "{} at {}, {}".format(self.content_object.name, self.x, self.y)
-        except AttributeError:
-            return "Unknown at {}, {}".format(self.x, self.y)
 
 
 ##############################################################################
@@ -34,12 +15,38 @@ class Encounter(models.Model):
     PC = 'P'
 
     world = models.ForeignKey(World)
+    arena = models.OneToOneField(Arena, on_delete=models.CASCADE)
     turn = models.IntegerField(default=0)
-    arena_x = models.IntegerField(default=0)
-    arena_y = models.IntegerField(default=0)
     monsters = models.ManyToManyField(MonsterState, blank=True)
     pcs = models.ManyToManyField(Character, blank=True)
     monster_types = models.ManyToManyField(Monster, blank=True)
+
+    ##########################################################################
+    @classmethod
+    def create(cls, *args, **kwargs):
+        ar_kwargs = {}
+        if 'arena_x' in kwargs:
+            arena_x = kwargs['arena_x']
+            del kwargs['arena_x']
+            ar_kwargs['arena_x'] = arena_x
+        if 'arena_y' in kwargs:
+            arena_y = kwargs['arena_y']
+            del kwargs['arena_y']
+            ar_kwargs['arena_y'] = arena_y
+        enc = cls(*args, **kwargs)
+        ar_kwargs['world'] = enc.world
+        ar = Arena(**ar_kwargs)
+        ar.save()
+        enc.arena = ar
+        return enc
+
+    ##########################################################################
+    def print_arena(self):
+        return self.arena.print_arena()
+
+    ##########################################################################
+    def set_location(self, obj, x, y):
+        return self.arena.set_location(obj, x, y)
 
     ##########################################################################
     def __str__(self):
@@ -48,34 +55,6 @@ class Encounter(models.Model):
             mons.append("{}".format(m.name))
 
         return "Encounter with {}".format(", ".join(mons))
-
-    ##########################################################################
-    def make_map(self):
-        for x in range(self.arena_x):
-            self.set_location(Wall(), x, 0)
-            self.set_location(Wall(), x, self.arena_y-1)
-        for y in range(self.arena_y):
-            self.set_location(Wall(), 0, y)
-            self.set_location(Wall(), self.arena_x, y)
-        self.save()
-
-    ##########################################################################
-    def map_repr(self):
-        m = []
-        for x in range(0, self.arena_x):
-            ycol = []
-            for y in range(0, self.arena_y):
-                l = Location.objects.filter(arena=self, x=x, y=y)
-                if not l:
-                    ycol.append('.')
-                    continue
-                elif isinstance(l[0].content_object, Wall):
-                    ycol.append('X')
-                else:
-                    sys.stderr.write("{}, {} = {}".format(x, y, type(l[0].content_object)))
-                    ycol.append('?')
-            m.append("".join(ycol))
-        return m
 
     ##########################################################################
     def add_monster_type(self, monstername, number=0):
@@ -94,14 +73,14 @@ class Encounter(models.Model):
     def place_pcs(self):
         """ Put all PCs in this world in the arena clustered around the middle """
         for pc in Character.objects.filter(world=self.world):
-            x = int(self.arena_x / 2)
-            y = int(self.arena_y / 2)
-            while Location.objects.filter(arena=self, x=x, y=y):
+            x = int(self.arena.arena_x / 2)
+            y = int(self.arena.arena_y / 2)
+            while self.arena[(x, y)]:
                 xdelta = random.choice([-1, 0, 1])
                 ydelta = random.choice([-1, 0, 1])
                 x += xdelta
                 y += ydelta
-            self.set_location(pc, x, y)
+            self.arena.set_location(pc, x, y)
             pc.x = x
             pc.y = y
             pc.save()
@@ -110,39 +89,25 @@ class Encounter(models.Model):
     ##########################################################################
     def place_monsters(self):
         for monster in self.monsters.all():
-            x = random.randint(0, self.arena_x-1)
-            y = random.randint(0, self.arena_y-1)
-            while Location.objects.filter(arena=self, x=x, y=y):
+            x = random.randint(0, self.arena.arena_x-1)
+            y = random.randint(0, self.arena.arena_y-1)
+            while self.arena[(x, y)]:
                 xdelta = random.choice([-1, 0, 1])
                 ydelta = random.choice([-1, 0, 1])
                 x += xdelta
                 y += ydelta
-            self.set_location(monster, x, y)
+            self.arena.set_location(monster, x, y)
             monster.x = x
             monster.y = y
             monster.save()
-
-    ##########################################################################
-    def print_arena(self, out=sys.stdout):
-        arena = {}
-        for i in Location.objects.filter(arena=self):
-            arena[(i.x, i.y)] = i.content_object
-        for x in range(self.arena_x):
-            for y in range(self.arena_y):
-                if (x, y) in arena:
-                    out.write("{:4} ".format(arena[(x, y)].name[:5]))
-                else:
-                    out.write("{:4} ".format("_"))
-            out.write("\n")
-        out.write("\n")
 
     ##########################################################################
     def neighbours(self, obj):
         assert obj.x >= 0
         assert obj.y >= 0
         arena = {}
-        for i in Location.objects.filter(arena=self):
-            arena[(i.x, i.y)] = i.content_object
+        for i in self.arena.all_animate():
+            arena[(i.x, i.y)] = i
         n = []
         objx = obj.x
         objy = obj.y
@@ -159,14 +124,6 @@ class Encounter(models.Model):
             return self.PC
         else:
             return self.MONSTER
-
-    ##########################################################################
-    def set_location(self, obj, x, y):
-        obj.x = x
-        obj.y = y
-        obj.save()
-        l = Location(arena=self, x=x, y=y, content_object=obj)
-        l.save()
 
     ##########################################################################
     def enemy_neighbours(self, obj):
@@ -254,8 +211,7 @@ class Encounter(models.Model):
     def obj_dead(self, obj):
         """ Object is no longer part of the living or unliving """
         print("{} has died".format(obj.name))
-        l = Location.objects.filter(arena=self, x=obj.x, y=obj.y)
-        l.delete()
+        self.arena.delete(obj.x, obj.y)
 
     ##########################################################################
     def obj_action(self, obj):
@@ -270,7 +226,11 @@ class Encounter(models.Model):
             if targ_list:
                 break
             else:
-                self.move(obj)
+                ne = self.nearest_enemy(obj)
+                if not ne:
+                    return
+                dirn = self.dir_to_move(obj)
+                self.move(obj, dirn)
         else:
             return
         targ = random.choice(targ_list)
@@ -288,7 +248,7 @@ class Encounter(models.Model):
 
     ##########################################################################
     def pc_action(self):
-        for pc in Character.objects.filter(world=self.world):
+        for pc in self.pcs.all():
             if pc.status == status.OK:
                 self.obj_action(pc)
             else:
@@ -319,38 +279,22 @@ class Encounter(models.Model):
                 return 'W'
 
     ##########################################################################
-    def move(self, obj):
-        ne = self.nearest_enemy(obj)
-        if not ne:
-            return
-        d = self.dir_to_move(obj)
-        for delta in [0, 1, -1]:
-            if d == 'N':
-                targx = obj.x - 1
-                targy = obj.y + delta
-            elif d == 'S':
-                targx = obj.x + 1
-                targy = obj.y + delta
-            elif d == 'E':
-                targx = obj.x + delta
-                targy = obj.y + 1
-            elif d == 'W':
-                targx = obj.x + delta
-                targy = obj.y - 1
-            if Location.objects.filter(arena=self, x=targx, y=targy):
-                continue
-            break
-        else:
-            print("{} Movement toward {} blocked by {}".format(obj.name, ne.name, Location.objects.get(arena=self, x=targx, y=targy).content_object.name))
+    def move(self, obj, drn):
+        dirmap = {
+                'N': (-1, 0),
+                'S': (1, 0),
+                'E': (0, 1),
+                'W': (0, -1)
+                }
+        targx = obj.x + dirmap[drn][0]
+        targy = obj.y + dirmap[drn][1]
+        if self.arena[(targx, targy)]:
+            print("{} Movement blocked by {}".format(obj.name, self.arena[(targx, targy)].name))
             return
 
-        print("{} moved from {},{} {} to {}, {} (Target {} @ {},{})".format(obj.name, obj.x, obj.y, d, targx, targy, ne.name, ne.x, ne.y))
-        l = Location.objects.get(arena=self, x=obj.x, y=obj.y)
-        l.x = targx
-        l.y = targy
-        l.save()
-        obj.x = targx
-        obj.y = targy
+        print("{} moved from {},{} {} to {}, {}".format(obj.name, obj.x, obj.y, drn, targx, targy))
+        self.arena.move(obj.x, obj.y, targx, targy)
+        obj.x, obj.y = targx, targy
         obj.save()
 
 # EOF

@@ -2,6 +2,7 @@
 
 dropdb pydnd
 createdb pydnd
+/bin/rm */migrations/0*.py
 ./manage.py makemigrations
 ./manage.py migrate
 ./manage.py loaddata */fixtures/*.json

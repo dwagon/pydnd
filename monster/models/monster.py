@@ -13,6 +13,8 @@ class MonsterState(models.Model):
     x = models.IntegerField(default=-1)
     y = models.IntegerField(default=-1)
 
+    animate = True
+
     def save(self, **kwargs):
         if self.status == status.UNDEF:
             self.status = status.OK
