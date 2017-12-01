@@ -27,10 +27,8 @@ class test_Encounter(TestCase):
     ##########################################################################
     def test_place_single_pc(self):
         """ Test placing a single character that it goes in the middle """
-        self.thief.delete()
         e = Encounter.create(arena_x=20, arena_y=20)
         e.save()
-        e.place_pcs()
         self.thief.save()
         figster = Character.objects.get(name='Fig')
         self.assertEqual(figster.x, 10)
@@ -56,13 +54,15 @@ class test_Encounter(TestCase):
         for i in range(10):
             f = Fighter(name='F{}'.format(i))
             f.save()
-        e = Encounter.create(arena_x=20, arena_y=20)
+        e = Encounter.create(arena_x=20, arena_y=20, place_pcs=False)
         e.save()
+        e.arena.clear()
         e.place_pcs()
         used_locs = set()
         for i in e.arena.all_animate():
             used_locs.add((i.x, i.y))
         pc_locs = set([(_.x, _.y) for _ in Character.objects.all()])
+        self.assertEquals(len(pc_locs), 12)     # 10 Fighters + Fig + Thf
         self.assertEquals(used_locs, pc_locs)
 
     ##########################################################################
@@ -71,12 +71,14 @@ class test_Encounter(TestCase):
         m = Monster(name='TestManyOrc', ac=19, xp=5, thaco=19, movement=3, numappearing='25')
         m.save()
         e = Encounter.create(arena_x=10, arena_y=10)
+        e.arena.clear()
         e.save()
         e.add_monster_type('TestManyOrc')
         e.place_monsters()
         used_locs = set()
         for i in e.arena.all_animate():
             used_locs.add((i.x, i.y))
+
         m_locs = set([(_.x, _.y) for _ in e.monsters.all()])
         self.assertEquals(used_locs, m_locs)
 
@@ -97,10 +99,11 @@ class test_Encounter(TestCase):
         e.add_monster_type('TestDualOrc')
         m1, m2 = e.monsters.all()
         e.set_location(self.fighter, 5, 5)
+        e.set_location(self.thief, 4, 4)
         e.set_location(m1, 6, 5)    # Neighbour
         e.set_location(m2, 9, 9)    # Not neighbour
         n = e.neighbours(self.fighter)
-        self.assertEqual(n, [m1])
+        self.assertEqual(set(n), set([self.thief, m1]))
 
     ##########################################################################
     def test_enemy_neighbours(self):

@@ -58,6 +58,11 @@ class Arena(models.Model):
         return l
 
     ##########################################################################
+    def clear(self):
+        for l in Location.objects.all():
+            l.delete()
+
+    ##########################################################################
     def move(self, obj, drn):
         dirmap = {
                 'N': (-1, 0),

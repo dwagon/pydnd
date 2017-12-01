@@ -43,6 +43,7 @@ class Encounter(models.Model):
         ar.save()
         enc.arena = ar
         enc.save()
+        enc.arena.clear()
         if place_pcs:
             enc.place_pcs()
         return enc
@@ -88,9 +89,6 @@ class Encounter(models.Model):
                 x += xdelta
                 y += ydelta
             self.arena.set_location(pc, x, y)
-            pc.x = x
-            pc.y = y
-            pc.save()
             self.pcs.add(pc)
 
     ##########################################################################
