@@ -50,7 +50,7 @@ class Encounter(models.Model):
     ##########################################################################
     def place_pcs(self):
         """ Put all PCs in this world in the arena clustered around the middle """
-        for pc in Character.objects.all():
+        for pc in self.world.all_pcs():
             x = int(self.size_x / 2)
             y = int(self.size_y / 2)
             while self[(x, y)]:
@@ -149,18 +149,18 @@ class Encounter(models.Model):
 
     ##########################################################################
     def status(self):
-        for pc in self.pcs.all():
+        for pc in self.world.all_pcs():
             print(pc)
-        for mon in self.monsters.all():
+        for mon in self.world.all_monsters():
             print(mon)
 
     ##########################################################################
     def close(self):
         xp = 0
-        for monster in self.monsters.all():
+        for monster in self.world.all_monsters():
             xp + monster.xp
             monster.delete()
-        survivors = [_ for _ in self.pcs.exclude(status=status.DEAD)]
+        survivors = [_ for _ in self.world.all_pcs() if _.status != status.DEAD]
         for surv in survivors:
             surv.earnXp(xp / len(survivors))
 
@@ -168,10 +168,10 @@ class Encounter(models.Model):
     def combat_round(self):
         self.turn += 1
         print("\nTurn {}".format(self.turn))
-        m_targets = [_ for _ in self.monsters.all() if _.status == status.OK]
+        m_targets = [_ for _ in self.world.all_monsters() if _.status == status.OK]
         if not m_targets:
             return False
-        pcs = self.pcs.all()
+        pcs = self.world.all_pcs()
         pc_targets = [_ for _ in pcs if _.status == status.OK]
         if not pc_targets:
             return False
@@ -185,7 +185,7 @@ class Encounter(models.Model):
     def obj_dead(self, obj):
         """ Object is no longer part of the living or unliving """
         print("{} has died".format(obj.name))
-        l = Location(encounter=self, x=obj.x, y=obj.y)
+        l = Location.objects.get(encounter=self, x=obj.x, y=obj.y)
         l.delete()
 
     ##########################################################################
@@ -223,7 +223,7 @@ class Encounter(models.Model):
 
     ##########################################################################
     def pc_action(self):
-        for pc in self.pcs.all():
+        for pc in self.world.all_pcs():
             if pc.status == status.OK:
                 self.obj_action(pc)
             else:
@@ -231,7 +231,7 @@ class Encounter(models.Model):
 
     ##########################################################################
     def monster_action(self):
-        for monster in self.monsters.all():
+        for monster in self.world.all_monsters():
             if monster.status == status.OK:
                 self.obj_action(monster)
             else:
