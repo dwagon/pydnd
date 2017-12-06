@@ -1,0 +1,20 @@
+[
+    {
+        "model": "auth.user",
+        "pk": 1,
+        "fields": {
+            "password": "pbkdf2_sha256$30000$fZy3aLwmVkl8$J+Ow8HnaobXJGyBxmW+Ta19Mdh5V+8izEmV7Yw/DNGg=",
+            "last_login": null,
+            "is_superuser": true,
+            "username": "admin",
+            "first_name": "",
+            "last_name": "",
+            "email": "dwagon@pobox.com",
+            "is_staff": true,
+            "is_active": true,
+            "date_joined": "2017-12-06T00:37:33.889Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    }
+]
