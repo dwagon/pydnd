@@ -31,13 +31,13 @@ class test_Encounter(TestCase):
     ##########################################################################
     def test_place_single_pc(self):
         """ Test placing a single character that it goes in the middle """
-        e = Encounter.create(world=self.w, arena_x=20, arena_y=20)
+        e = Encounter.create(world=self.w, size_x=20, size_y=20)
         e.save()
         self.thief.save()
         figster = Character.objects.get(name='Fig')
         self.assertEqual(figster.x, 10)
         self.assertEqual(figster.y, 10)
-        l = e.arena[(10, 10)]
+        l = e[(10, 10)]
         self.assertEqual(l, figster)
 
     ##########################################################################
@@ -58,11 +58,11 @@ class test_Encounter(TestCase):
         for i in range(10):
             f = Fighter(world=self.w, name='F{}'.format(i))
             f.save()
-        e = Encounter.create(world=self.w, arena_x=20, arena_y=20, place_pcs=False)
+        e = Encounter.create(world=self.w, size_x=20, size_y=20, place_pcs=False)
         e.save()
         e.place_pcs()
         used_locs = set()
-        for i in e.arena.all_animate():
+        for i in e.all_animate():
             used_locs.add((i.x, i.y))
         pc_locs = set([(_.x, _.y) for _ in Character.objects.all()])
         self.assertEquals(len(pc_locs), 12)     # 10 Fighters + Fig + Thf
@@ -73,30 +73,32 @@ class test_Encounter(TestCase):
         """ Test Monster placement in arena """
         m = Monster(name='TestManyOrc', ac=19, xp=5, thaco=19, movement=3, numappearing='25')
         m.save()
-        e = Encounter.create(world=self.w, arena_x=10, arena_y=10)
+        e = Encounter.create(world=self.w, size_x=10, size_y=10)
         e.save()
         e.add_monster_type('TestManyOrc')
         e.place_monsters()
         used_locs = set()
-        for i in e.arena.all_animate():
-            used_locs.add((i.x, i.y))
+        for i in e.all_animate():
+            if isinstance(i, MonsterState):
+                used_locs.add((i.x, i.y))
 
         m_locs = set([(_.x, _.y) for _ in MonsterState.objects.filter(world=self.w)])
         self.assertEquals(used_locs, m_locs)
+        m.delete()
 
     ##########################################################################
     def test_set_location(self):
-        e = Encounter.create(world=self.w, arena_x=10, arena_y=10)
+        e = Encounter.create(world=self.w, size_x=10, size_y=10)
         e.save()
         e.set_location(self.fighter, 3, 7)
         self.assertEqual(self.fighter.x, 3)
         self.assertEqual(self.fighter.y, 7)
-        l = e.arena[(3, 7)]
+        l = e[(3, 7)]
         self.assertEqual(l, self.fighter)
 
     ##########################################################################
     def test_neighbours(self):
-        e = Encounter.create(world=self.w, arena_x=10, arena_y=10)
+        e = Encounter.create(world=self.w, size_x=10, size_y=10)
         e.save()
         e.add_monster_type('TestDualOrc')
         m1, m2 = MonsterState.objects.filter(world=self.w)
@@ -110,7 +112,7 @@ class test_Encounter(TestCase):
     ##########################################################################
     def test_enemy_neighbours(self):
         """ Test 'enemy_neighbours' function """
-        e = Encounter.create(world=self.w, arena_x=10, arena_y=10)
+        e = Encounter.create(world=self.w, size_x=10, size_y=10)
         e.save()
         e.add_monster_type('TestDualOrc')
         m1, m2 = MonsterState.objects.filter(world=self.w)
@@ -126,7 +128,7 @@ class test_Encounter(TestCase):
     ##########################################################################
     def test_enemy_in_reach(self):
         """ Test 'enemy_in_reach' function """
-        e = Encounter.create(world=self.w, arena_x=10, arena_y=10)
+        e = Encounter.create(world=self.w, size_x=10, size_y=10)
         e.save()
         e.add_monster_type('TestDualOrc')
         e.place_pcs()
@@ -143,7 +145,7 @@ class test_Encounter(TestCase):
     ##########################################################################
     def test_nearest_enemy(self):
         """ Test 'nearest_enemy' function """
-        e = Encounter.create(world=self.w, arena_x=10, arena_y=10)
+        e = Encounter.create(world=self.w, size_x=10, size_y=10)
         e.save()
         e.add_monster_type('TestDualOrc')
         e.place_pcs()

@@ -1,5 +1,5 @@
 from .encounter import Encounter
-from .arena import Location, Arena
+from .location import Location
 from .map_bits import Wall
 
 # EOF

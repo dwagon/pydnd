@@ -1,10 +1,16 @@
-from django.db import models
-from monster.models import Monster, MonsterState
-from character.models import Character
-from utils import roll
-import status
 import math
 import random
+import status
+import sys
+
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
+
+from .map_bits import Wall
+from character.models import Character
+from .location import Location
+from monster.models import Monster, MonsterState
+from utils import roll
 
 
 ##############################################################################
@@ -14,43 +20,23 @@ class Encounter(models.Model):
 
     turn = models.IntegerField(default=0)
     world = models.ForeignKey('world.World', on_delete=models.CASCADE)
+    size_x = models.IntegerField(default=0)
+    size_y = models.IntegerField(default=0)
 
     ##########################################################################
     @classmethod
     def create(cls, *args, **kwargs):
-        ar_kwargs = {'world': kwargs['world']}
         if 'place_pcs' in kwargs:
             place_pcs = kwargs['place_pcs']
             del kwargs['place_pcs']
         else:
             place_pcs = True
 
-        if 'arena_x' in kwargs:
-            arena_x = kwargs['arena_x']
-            del kwargs['arena_x']
-            ar_kwargs['arena_x'] = arena_x
-        if 'arena_y' in kwargs:
-            arena_y = kwargs['arena_y']
-            del kwargs['arena_y']
-            ar_kwargs['arena_y'] = arena_y
-
         enc = cls(*args, **kwargs)
         enc.save()
         if place_pcs:
             enc.place_pcs()
         return enc
-
-    ##########################################################################
-    def set_location(self, obj, x, y):
-        return self.arena.set_location(obj, x, y)
-
-    ##########################################################################
-    def __str__(self):
-        mons = []
-#        for m in self.monster_types.all().distinct():
-#            mons.append("{}".format(m.name))
-
-        return "Encounter with {}".format(", ".join(mons))
 
     ##########################################################################
     def add_monster_type(self, monstername, number=0):
@@ -65,26 +51,26 @@ class Encounter(models.Model):
     def place_pcs(self):
         """ Put all PCs in this world in the arena clustered around the middle """
         for pc in Character.objects.all():
-            x = int(self.arena.arena_x / 2)
-            y = int(self.arena.arena_y / 2)
-            while self.arena[(x, y)]:
+            x = int(self.size_x / 2)
+            y = int(self.size_y / 2)
+            while self[(x, y)]:
                 xdelta = random.choice([-1, 0, 1])
                 ydelta = random.choice([-1, 0, 1])
                 x += xdelta
                 y += ydelta
-            self.arena.set_location(pc, x, y)
+            self.set_location(pc, x, y)
 
     ##########################################################################
     def place_monsters(self):
         for monster in MonsterState.objects.filter(world=self.world):
-            x = random.randint(0, self.arena.arena_x-1)
-            y = random.randint(0, self.arena.arena_y-1)
-            while self.arena[(x, y)]:
+            x = random.randint(0, self.size_x-1)
+            y = random.randint(0, self.size_y-1)
+            while self[(x, y)]:
                 xdelta = random.choice([-1, 0, 1])
                 ydelta = random.choice([-1, 0, 1])
                 x += xdelta
                 y += ydelta
-            self.arena.set_location(monster, x, y)
+            self.set_location(monster, x, y)
             monster.x = x
             monster.y = y
             monster.save()
@@ -94,7 +80,7 @@ class Encounter(models.Model):
         assert obj.x >= 0
         assert obj.y >= 0
         arena = {}
-        for i in self.arena.all_animate():
+        for i in self.all_animate():
             arena[(i.x, i.y)] = i
         n = []
         objx = obj.x
@@ -131,9 +117,9 @@ class Encounter(models.Model):
         enemy = self.PC if self.objtype(obj) == self.MONSTER else self.MONSTER
         in_reach = set()
         if enemy == self.PC:
-            targets = [_ for _ in self.pcs.all() if _.status == status.OK]
+            targets = [_ for _ in self.world.all_pcs() if _.status == status.OK]
         else:
-            targets = [_ for _ in self.monsters.all() if _.status == status.OK]
+            targets = [_ for _ in self.world.all_monsters() if _.status == status.OK]
         for t in targets:
             d = self.distance(obj, t)
             if d < reach:
@@ -146,9 +132,9 @@ class Encounter(models.Model):
         min_dist = 99999
         min_obj = None
         if enemy == self.PC:
-            targets = [_ for _ in self.pcs.all() if _.status == status.OK]
+            targets = [_ for _ in self.world.all_pcs() if _.status == status.OK]
         else:
-            targets = [_ for _ in self.monsters.all() if _.status == status.OK]
+            targets = [_ for _ in self.world.all_monsters() if _.status == status.OK]
         for t in targets:
             d = self.distance(obj, t)
             if d < min_dist:
@@ -199,11 +185,8 @@ class Encounter(models.Model):
     def obj_dead(self, obj):
         """ Object is no longer part of the living or unliving """
         print("{} has died".format(obj.name))
-        self.arena.delete(obj.x, obj.y)
-
-    ##########################################################################
-    def move(self, obj, dirn):
-        return self.arena.move(obj, dirn)
+        l = Location(encounter=self, x=obj.x, y=obj.y)
+        l.delete()
 
     ##########################################################################
     def obj_action(self, obj):
@@ -269,5 +252,105 @@ class Encounter(models.Model):
                 return 'E'
             if ne.y < obj.y:
                 return 'W'
+
+    ##########################################################################
+    def make_map(self):
+        for x in range(self.size_x):
+            self.set_location(Wall(), x, 0)
+            self.set_location(Wall(), x, self.size_y-1)
+        for y in range(self.size_y):
+            self.set_location(Wall(), 0, y)
+            self.set_location(Wall(), self.size_x, y)
+        self.save()
+
+    ##########################################################################
+    def __getitem__(self, loc):
+        try:
+            l = Location.objects.get(encounter=self, x=loc[0], y=loc[1])
+            return l.content_object
+        except ObjectDoesNotExist:
+            return None
+
+    ##########################################################################
+    def delete(self, x, y):
+        l = Location.objects.filter(encounter=self, x=x, y=y)
+        l.delete()
+
+    ##########################################################################
+    def change_loc(self, oldx, oldy, newx, newy):
+        l = Location.objects.get(encounter=self, x=oldx, y=oldy)
+        l.x, l.y = newx, newy
+        l.save()
+        return l
+
+    ##########################################################################
+    def clear(self):
+        for l in Location.objects.all():
+            l.delete()
+
+    ##########################################################################
+    def move(self, obj, drn):
+        dirmap = {
+                'N': (-1, 0),
+                'S': (1, 0),
+                'E': (0, 1),
+                'W': (0, -1)
+                }
+        targx = obj.x + dirmap[drn][0]
+        targy = obj.y + dirmap[drn][1]
+        if self[(targx, targy)]:
+            print("{} Movement blocked by {}".format(obj.name, self[(targx, targy)].name))
+            return False
+
+        print("{} moved from {},{} {} to {}, {}".format(obj.name, obj.x, obj.y, drn, targx, targy))
+        self.change_loc(obj.x, obj.y, targx, targy)
+        obj.x, obj.y = targx, targy
+        obj.save()
+        return True
+
+    ##########################################################################
+    def all_animate(self):
+        return [o.content_object for o in Location.objects.filter(encounter=self) if o.content_object.animate]
+
+    ##########################################################################
+    def __str__(self):
+        m = []
+        for x in range(0, self.size_x):
+            ycol = []
+            for y in range(0, self.size_y):
+                l = Location.objects.filter(encounter=self, x=x, y=y)
+                if not l:
+                    ycol.append('.')
+                    continue
+                elif isinstance(l[0].content_object, Wall):
+                    ycol.append('X')
+                else:
+                    sys.stderr.write("{}, {} = {}".format(x, y, type(l[0].content_object)))
+                    ycol.append('?')
+            m.append("".join(ycol))
+        return "\n".join(m)
+
+    ##########################################################################
+    def print_arena(self, out=sys.stdout):
+        arena = {}
+        for i in Location.objects.filter(encounter=self):
+            arena[(i.x, i.y)] = i.content_object
+        for x in range(self.size_x):
+            for y in range(self.size_y):
+                if (x, y) in arena:
+                    out.write("{:4} ".format(arena[(x, y)].name[:5]))
+                else:
+                    out.write("{:4} ".format("_"))
+            out.write("\n")
+        out.write("\n")
+
+    ##########################################################################
+    def set_location(self, obj, x, y):
+        obj.x = x
+        obj.y = y
+        obj.save()
+        l = Location(encounter=self, x=x, y=y, content_object=obj)
+        l.save()
+
 
 # EOF

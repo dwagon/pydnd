@@ -36,7 +36,7 @@ def tile(request, tilename):
 @csrf_exempt
 def g_encounter(request):
     if request.method == "POST":
-        e = Encounter(arena_x=20, arena_y=20)
+        e = Encounter(size_x=20, size_y=20)
         e.save()
         e.make_map()
         mp = {'map': e.map_repr()}

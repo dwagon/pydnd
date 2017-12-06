@@ -19,7 +19,7 @@ for i in range(4):
     f = Thief(name='Tom{}'.format(i), stat_dex=18)
     f.save()
     f.equip(lb, ready=True)
-e = Encounter.create(arena_x=20, arena_y=20)
+e = Encounter.create(size_x=20, size_y=20)
 e.save()
 e.add_monster_type('Orc', number=9)
 
