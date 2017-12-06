@@ -96,7 +96,7 @@ class Character(models.Model):
     FRIEND = 'F'
     NONE = 'N'
 
-    world = models.ForeignKey('world.World')
+    world = models.ForeignKey('world.World', on_delete=models.CASCADE)
 
     name = models.CharField(max_length=200)
     charclass = models.CharField(max_length=5, choices=charclass_choices)
