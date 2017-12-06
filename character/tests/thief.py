@@ -2,12 +2,15 @@ from django.test import TestCase
 
 from character.models import Thief, Weapon, Equipment, Armour
 from monster.models import Monster, MonsterState
+from world.models import World
 import status
 
 
 class test_Thief(TestCase):
     def setUp(self):
-        self.th = Thief(name='test', stat_con=9, stat_dex=18)
+        self.w = World()
+        self.w.save()
+        self.th = Thief(world=self.w, name='test', stat_con=9, stat_dex=18)
         self.th.save()
         self.bow = Weapon(name='Short Bow', weight=5, reach=20, damage='3')
         self.bow.save()
@@ -56,7 +59,7 @@ class test_Thief(TestCase):
         self.assertEqual(self.th.stat_bonus('missattack'), 2)
         o = Monster(name='weak_orc', movement=3, ac=20, thaco=20, xp=3)
         o.save()
-        oi = MonsterState(monster=o)
+        oi = MonsterState(world=self.w, monster=o)
         oi.save()
         dmg = self.th.ranged_attack(self.th.equipped_weapon(), oi)
         self.assertEqual(dmg, 5)    # 3dmg + 2 missattack

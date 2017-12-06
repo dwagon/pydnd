@@ -1,4 +1,5 @@
 from django.test import TestCase
+from world.models import World
 
 from character.models import Cleric, Spell
 import status
@@ -6,7 +7,9 @@ import status
 
 class test_Cleric(TestCase):
     def setUp(self):
-        self.cl = Cleric(name='test', stat_con=9)
+        self.w = World()
+        self.w.save()
+        self.cl = Cleric(world=self.w, name='test', stat_con=9)
         self.cl.save()
         self.sp = Spell(name='Cure Light Wounds', level=1, charclass=Spell.CLERIC, spellfile='cure_light_wounds')
         self.sp.save()
@@ -14,7 +17,7 @@ class test_Cleric(TestCase):
     def cleanUp(self):
         self.sp.delete()
         self.cl.delete()
-        self.w.save()
+        self.w.delete()
 
     def test_hp(self):
         self.assertEqual(self.cl.hitdie(), 'd8')

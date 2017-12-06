@@ -6,6 +6,7 @@ import status
 
 ##############################################################################
 class MonsterState(models.Model):
+    world = models.ForeignKey('world.World', on_delete=models.CASCADE)
     monster = models.ForeignKey('Monster', on_delete=models.CASCADE)
     hp = models.IntegerField(default=-1)
     max_hp = models.IntegerField(default=-1)

@@ -8,7 +8,7 @@ import sys
 
 ##############################################################################
 class Location(models.Model):
-    arena = models.ForeignKey('Arena', blank=True)
+    arena = models.ForeignKey('Arena', blank=True, on_delete=models.CASCADE)
     x = models.IntegerField(default=-1)
     y = models.IntegerField(default=-1)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
@@ -24,6 +24,7 @@ class Location(models.Model):
 
 ##############################################################################
 class Arena(models.Model):
+    world = models.ForeignKey('world.World', on_delete=models.CASCADE)
     arena_x = models.IntegerField(default=0)
     arena_y = models.IntegerField(default=0)
 

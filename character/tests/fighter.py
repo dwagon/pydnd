@@ -2,11 +2,14 @@ from django.test import TestCase
 
 from character.models import Fighter, Weapon, Equipment, Armour
 from monster.models import Monster, MonsterState
+from world.models import World
 
 
 class test_Fighter(TestCase):
     def setUp(self):
-        self.fg = Fighter(name='test', stat_con=9, stat_dex=9)
+        self.w = World()
+        self.w.save()
+        self.fg = Fighter(world=self.w, name='test', stat_con=9, stat_dex=9)
         self.fg.save()
         self.sword = Weapon(name='Long Sword', weight=5)
         self.sword.save()
@@ -80,7 +83,7 @@ class test_Fighter(TestCase):
     def test_hit(self):
         o = Monster(name='weak_orc', movement=3, ac=20, thaco=20, xp=3)
         o.save()
-        oi = MonsterState(monster=o)
+        oi = MonsterState(world=self.w, monster=o)
         oi.save()
         rc = self.fg.attack(oi)
         self.assertTrue(rc)
@@ -90,7 +93,7 @@ class test_Fighter(TestCase):
     def test_miss(self):
         o = Monster(name='strong_orc', movement=3, ac=-20, thaco=20, xp=6)
         o.save()
-        oi = MonsterState(monster=o)
+        oi = MonsterState(world=self.w, monster=o)
         oi.save()
         rc = self.fg.attack(oi)
         self.assertFalse(rc)
@@ -98,14 +101,14 @@ class test_Fighter(TestCase):
         o.delete()
 
     def test_strength(self):
-        fg = Fighter(name='test', stat_str=18)
+        fg = Fighter(world=self.w, name='test', stat_str=18)
         fg.save()
         ss = Weapon(name='Short Sword', weight=1, damage='1')
         ss.save()
         fg.equip(ss, ready=True)
         o = Monster(name='weak_orc', movement=3, ac=20, thaco=20, xp=3)
         o.save()
-        oi = MonsterState(monster=o)
+        oi = MonsterState(world=self.w, monster=o)
         oi.save()
         dmg = fg.attack(oi)
         self.assertEqual(dmg, 3)
@@ -113,6 +116,5 @@ class test_Fighter(TestCase):
         o.delete()
         ss.delete()
         fg.delete()
-
 
 # EOF

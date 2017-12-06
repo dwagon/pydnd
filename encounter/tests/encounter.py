@@ -1,5 +1,6 @@
 from django.test import TestCase
-from world.models import Encounter
+from world.models import World
+from encounter.models import Encounter
 from monster.models import Monster, MonsterState
 from character.models import Cleric, Fighter, Character, Thief
 
@@ -8,13 +9,15 @@ from character.models import Cleric, Fighter, Character, Thief
 ##############################################################################
 class test_Encounter(TestCase):
     def setUp(self):
+        self.w = World()
+        self.w.save()
         self.orc = Monster(name='TestOrc', ac=19, xp=5, thaco=19, movement=3, numappearing='1')
         self.orc.save()
         self.dualorc = Monster(name='TestDualOrc', ac=19, xp=5, thaco=19, movement=3, numappearing='2')
         self.dualorc.save()
-        self.fighter = Fighter(name='Fig')
+        self.fighter = Fighter(world=self.w, name='Fig')
         self.fighter.save()
-        self.thief = Thief(name='Thf')
+        self.thief = Thief(world=self.w, name='Thf')
         self.thief.save()
 
     ##########################################################################
@@ -23,11 +26,12 @@ class test_Encounter(TestCase):
         self.dualorc.delete()
         self.fighter.delete()
         self.thief.delete()
+        self.w.delete()
 
     ##########################################################################
     def test_place_single_pc(self):
         """ Test placing a single character that it goes in the middle """
-        e = Encounter.create(arena_x=20, arena_y=20)
+        e = Encounter.create(world=self.w, arena_x=20, arena_y=20)
         e.save()
         self.thief.save()
         figster = Character.objects.get(name='Fig')
@@ -38,13 +42,13 @@ class test_Encounter(TestCase):
 
     ##########################################################################
     def test_objtype(self):
-        e = Encounter.create()
+        e = Encounter.create(world=self.w)
         e.save()
-        c = Cleric(name='Clarence')
+        c = Cleric(world=self.w, name='Clarence')
         c.save()
         ans = e.objtype(c)
         self.assertEqual(ans, Encounter.PC)
-        mi = MonsterState(self.orc)
+        mi = MonsterState(world=self.w, monster=self.orc)
         ans = e.objtype(mi)
         self.assertEqual(ans, Encounter.MONSTER)
 
@@ -52,11 +56,10 @@ class test_Encounter(TestCase):
     def test_place_pcs(self):
         """ Test PC placement in arena """
         for i in range(10):
-            f = Fighter(name='F{}'.format(i))
+            f = Fighter(world=self.w, name='F{}'.format(i))
             f.save()
-        e = Encounter.create(arena_x=20, arena_y=20, place_pcs=False)
+        e = Encounter.create(world=self.w, arena_x=20, arena_y=20, place_pcs=False)
         e.save()
-        e.arena.clear()
         e.place_pcs()
         used_locs = set()
         for i in e.arena.all_animate():
@@ -70,8 +73,7 @@ class test_Encounter(TestCase):
         """ Test Monster placement in arena """
         m = Monster(name='TestManyOrc', ac=19, xp=5, thaco=19, movement=3, numappearing='25')
         m.save()
-        e = Encounter.create(arena_x=10, arena_y=10)
-        e.arena.clear()
+        e = Encounter.create(world=self.w, arena_x=10, arena_y=10)
         e.save()
         e.add_monster_type('TestManyOrc')
         e.place_monsters()
@@ -79,12 +81,12 @@ class test_Encounter(TestCase):
         for i in e.arena.all_animate():
             used_locs.add((i.x, i.y))
 
-        m_locs = set([(_.x, _.y) for _ in e.monsters.all()])
+        m_locs = set([(_.x, _.y) for _ in MonsterState.objects.filter(world=self.w)])
         self.assertEquals(used_locs, m_locs)
 
     ##########################################################################
     def test_set_location(self):
-        e = Encounter.create(arena_x=10, arena_y=10)
+        e = Encounter.create(world=self.w, arena_x=10, arena_y=10)
         e.save()
         e.set_location(self.fighter, 3, 7)
         self.assertEqual(self.fighter.x, 3)
@@ -94,10 +96,10 @@ class test_Encounter(TestCase):
 
     ##########################################################################
     def test_neighbours(self):
-        e = Encounter.create(arena_x=10, arena_y=10)
+        e = Encounter.create(world=self.w, arena_x=10, arena_y=10)
         e.save()
         e.add_monster_type('TestDualOrc')
-        m1, m2 = e.monsters.all()
+        m1, m2 = MonsterState.objects.filter(world=self.w)
         e.set_location(self.fighter, 5, 5)
         e.set_location(self.thief, 4, 4)
         e.set_location(m1, 6, 5)    # Neighbour
@@ -108,10 +110,10 @@ class test_Encounter(TestCase):
     ##########################################################################
     def test_enemy_neighbours(self):
         """ Test 'enemy_neighbours' function """
-        e = Encounter.create(arena_x=10, arena_y=10)
+        e = Encounter.create(world=self.w, arena_x=10, arena_y=10)
         e.save()
         e.add_monster_type('TestDualOrc')
-        m1, m2 = e.monsters.all()
+        m1, m2 = MonsterState.objects.filter(world=self.w)
         e.set_location(self.fighter, 5, 5)
         e.set_location(self.thief, 5, 6)
         e.set_location(m1, 6, 5)    # Neighbour
@@ -124,11 +126,11 @@ class test_Encounter(TestCase):
     ##########################################################################
     def test_enemy_in_reach(self):
         """ Test 'enemy_in_reach' function """
-        e = Encounter.create(arena_x=10, arena_y=10)
+        e = Encounter.create(world=self.w, arena_x=10, arena_y=10)
         e.save()
         e.add_monster_type('TestDualOrc')
         e.place_pcs()
-        m1, m2 = e.monsters.all()
+        m1, m2 = MonsterState.objects.filter(world=self.w)
         e.set_location(self.fighter, 0, 0)
         e.set_location(self.thief, 5, 0)
         e.set_location(m1, 5, 5)    # In Reach
@@ -141,11 +143,11 @@ class test_Encounter(TestCase):
     ##########################################################################
     def test_nearest_enemy(self):
         """ Test 'nearest_enemy' function """
-        e = Encounter.create(arena_x=10, arena_y=10)
+        e = Encounter.create(world=self.w, arena_x=10, arena_y=10)
         e.save()
         e.add_monster_type('TestDualOrc')
         e.place_pcs()
-        m1, m2 = e.monsters.all()
+        m1, m2 = MonsterState.objects.filter(world=self.w)
         e.set_location(self.thief, 5, 0)
         e.set_location(self.fighter, 0, 0)
         e.set_location(m1, 5, 5)

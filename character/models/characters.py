@@ -96,6 +96,8 @@ class Character(models.Model):
     FRIEND = 'F'
     NONE = 'N'
 
+    world = models.ForeignKey('world.World')
+
     name = models.CharField(max_length=200)
     charclass = models.CharField(max_length=5, choices=charclass_choices)
     race = models.CharField(max_length=2, choices=race_choices, default=HUMAN)

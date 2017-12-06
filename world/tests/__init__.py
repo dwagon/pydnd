@@ -1,1 +1,3 @@
-from .encounter import test_Encounter
+from .world import test_World
+
+# EOF

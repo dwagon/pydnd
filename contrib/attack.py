@@ -3,7 +3,7 @@
 import django
 django.setup()
 
-from world.models import Encounter
+from encounter.models import Encounter
 from character.models import Weapon, Fighter, Character, Thief
 
 ls = Weapon(name='Long Sword', damage='1d8')

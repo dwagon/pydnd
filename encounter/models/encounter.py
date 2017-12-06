@@ -1,7 +1,6 @@
 from django.db import models
 from monster.models import Monster, MonsterState
 from character.models import Character
-from .arena import Arena
 from utils import roll
 import status
 import math
@@ -13,16 +12,13 @@ class Encounter(models.Model):
     MONSTER = 'M'
     PC = 'P'
 
-    arena = models.OneToOneField(Arena, on_delete=models.CASCADE)
     turn = models.IntegerField(default=0)
-    monsters = models.ManyToManyField(MonsterState, blank=True)
-    pcs = models.ManyToManyField(Character, blank=True)
-    monster_types = models.ManyToManyField(Monster, blank=True)
+    world = models.ForeignKey('world.World', on_delete=models.CASCADE)
 
     ##########################################################################
     @classmethod
     def create(cls, *args, **kwargs):
-        ar_kwargs = {}
+        ar_kwargs = {'world': kwargs['world']}
         if 'place_pcs' in kwargs:
             place_pcs = kwargs['place_pcs']
             del kwargs['place_pcs']
@@ -39,18 +35,10 @@ class Encounter(models.Model):
             ar_kwargs['arena_y'] = arena_y
 
         enc = cls(*args, **kwargs)
-        ar = Arena(**ar_kwargs)
-        ar.save()
-        enc.arena = ar
         enc.save()
-        enc.arena.clear()
         if place_pcs:
             enc.place_pcs()
         return enc
-
-    ##########################################################################
-    def print_arena(self):
-        return self.arena.print_arena()
 
     ##########################################################################
     def set_location(self, obj, x, y):
@@ -59,23 +47,19 @@ class Encounter(models.Model):
     ##########################################################################
     def __str__(self):
         mons = []
-        for m in self.monster_types.all().distinct():
-            mons.append("{}".format(m.name))
+#        for m in self.monster_types.all().distinct():
+#            mons.append("{}".format(m.name))
 
         return "Encounter with {}".format(", ".join(mons))
 
     ##########################################################################
     def add_monster_type(self, monstername, number=0):
         m = Monster.objects.get(name=monstername)
-        self.monster_types.add(m)
-        self.save()
         num = number if number else roll(m.numappearing)
         for _ in range(num):
-            ms = MonsterState(monster=m)
+            ms = MonsterState(world=self.world, monster=m)
             ms.name = "{}{}".format(m.name, _)
             ms.save()
-            self.monsters.add(ms)
-        self.save()
 
     ##########################################################################
     def place_pcs(self):
@@ -89,11 +73,10 @@ class Encounter(models.Model):
                 x += xdelta
                 y += ydelta
             self.arena.set_location(pc, x, y)
-            self.pcs.add(pc)
 
     ##########################################################################
     def place_monsters(self):
-        for monster in self.monsters.all():
+        for monster in MonsterState.objects.filter(world=self.world):
             x = random.randint(0, self.arena.arena_x-1)
             y = random.randint(0, self.arena.arena_y-1)
             while self.arena[(x, y)]:
