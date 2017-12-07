@@ -4,6 +4,22 @@ from encounter.models import Encounter
 import os
 import json
 
+from .models import World
+from .serializers import WorldSerializer
+from rest_framework import generics
+
+
+##############################################################################
+class WorldList(generics.ListCreateAPIView):
+    queryset = World.objects.all()
+    serializer_class = WorldSerializer
+
+
+##############################################################################
+class WorldDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = World.objects.all()
+    serializer_class = WorldSerializer
+
 
 ##############################################################################
 def levelmap(request, level):

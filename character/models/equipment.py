@@ -13,6 +13,11 @@ def Armour(**kwargs):
 
 
 ##############################################################################
+def Item(**kwargs):
+    return Equipment(category='I', **kwargs)
+
+
+##############################################################################
 class Equipment(models.Model):
     ITEM = 'I'
     WEAPON = 'W'
