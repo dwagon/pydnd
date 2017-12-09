@@ -7,7 +7,7 @@ from monster.models import MonsterState
 
 ##############################################################################
 class World(models.Model):
-    pass
+    name = models.CharField(max_length=200, unique=True)
 
     def all_pcs(self):
         return Character.objects.filter(world=self)
