@@ -1,19 +1,12 @@
 from rest_framework import serializers
-from .models import Equipment, EquipState, SpellState, Character, Spell
-
-
-##############################################################################
-class EquipmentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Equipment
-        fields = ('name', 'category', 'cost', 'weight', 'magic', 'damage', 'reach', 'ac_base', 'ac_modifier')
+from .models import EquipState, SpellState, Character, Spell
 
 
 ##############################################################################
 class EquipStateSerializer(serializers.ModelSerializer):
     class Meta:
         model = EquipState
-        fields = ('world', 'name', 'charclass', 'race', 'gender', 'align', 'x', 'y', 'stat_str', 'bonus_str', 'stat_int', 'stat_wis', 'stat_dex', 'stat_con', 'stat_cha')
+        fields = '__all__'
 
 
 ##############################################################################
