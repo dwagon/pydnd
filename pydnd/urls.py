@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^world/', include('world.urls')),
     url(r'^equipment/', include('character.equipment_urls')),
+    url(r'^character/', include('character.character_urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
 
