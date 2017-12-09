@@ -170,20 +170,21 @@ class Character(models.Model):
             self.stat_cha = self.roll_stat()
 
     ##########################################################################
-    def save(self, **kwargs):
-        if self.status == status.UNDEF:
+    def save(self, *args, **kwargs):
+        if self.id is None or self.status == status.UNDEF:
             self.generate_stats()
             if self.max_hp == 0:
                 self.max_hp = self.calc_hp()
                 self.hp = self.max_hp
             self.status = status.OK
-        # Need to save first to make M2M work on new objects
-        super(Character, self).save(**kwargs)
+            # Need to save first to make M2M work on new objects
+            super(Character, self).save(*args, **kwargs)
+            kwargs['force_insert'] = False
         self.encumbrance = self.calc_encumb()
         self.movement = self.calc_movement()
         self.thaco = self.calc_thaco()
         self.ac = self.calc_ac()
-        super(Character, self).save(**kwargs)
+        super(Character, self).save(*args, **kwargs)
 
     ##########################################################################
     def calc_movement(self):
