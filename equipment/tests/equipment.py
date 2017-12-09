@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from character.models import Equipment, Weapon
+from equipment.models import Equipment, Weapon
 
 
 ##############################################################################
@@ -22,7 +22,7 @@ class test_Weapons(TestCase):
 
     def test_damage(self):
         self.assertEqual(self.sword.damage, '1d8')
-        dmg = self.sword.hit()
+        dmg = self.sword.weapon_dmg()
         self.assertGreaterEqual(dmg, 2)
         self.assertLessEqual(dmg, 9)
 

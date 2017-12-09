@@ -1,7 +1,8 @@
 from django.db import models
 import random
 from . import tables
-from . import Equipment, Spell
+from equipment.models import Equipment
+from . import Spell
 from utils import roll
 from constants import alignment_choices
 import status
@@ -10,7 +11,7 @@ import status
 ##############################################################################
 class EquipState(models.Model):
     character = models.ForeignKey('Character', on_delete=models.CASCADE)
-    equipment = models.ForeignKey('Equipment', on_delete=models.CASCADE)
+    equipment = models.ForeignKey('equipment.Equipment', on_delete=models.CASCADE)
     ready = models.BooleanField(default=False)
 
     def __str__(self):
@@ -130,7 +131,7 @@ class Character(models.Model):
     silver = models.IntegerField(default=0)
     copper = models.IntegerField(default=0)
 
-    gear = models.ManyToManyField('Equipment', blank=True, through=EquipState)
+    gear = models.ManyToManyField('equipment.Equipment', blank=True, through=EquipState)
     spells = models.ManyToManyField('Spell', blank=True, through=SpellState)
 
     animate = True
