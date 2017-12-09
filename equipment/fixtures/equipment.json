@@ -1,0 +1,17 @@
+[
+    {"model": "equipment.equipment", "pk": 1, "fields": {"name": "Banded Mail", "cost": 20000, "weight": 35, "category": "A", "ac_base": 4}},
+    {"model": "equipment.equipment", "pk": 2, "fields": {"name": "Chain Mail", "cost": 7500, "weight": 40, "category": "A", "ac_base": 5}},
+    {"model": "equipment.equipment", "pk": 3, "fields": {"name": "Hide Armor", "cost": 1500, "weight": 30, "category": "A", "ac_base": 6}},
+    {"model": "equipment.equipment", "pk": 4, "fields": {"name": "Leather Armor", "cost": 500, "weight": 15, "category": "A", "ac_base": 8}},
+    {"model": "equipment.equipment", "pk": 5, "fields": {"name": "Padded Armor", "cost": 400, "weight": 10, "category": "A", "ac_base": 8}},
+    {"model": "equipment.equipment", "pk": 6, "fields": {"name": "Plate Mail", "cost": 60000, "weight": 50, "category": "A", "ac_base": 3}},
+    {"model": "equipment.equipment", "pk": 7, "fields": {"name": "Ring Mail", "cost": 10000, "weight": 30, "category": "A", "ac_base": 7}},
+    {"model": "equipment.equipment", "pk": 8, "fields": {"name": "Scale Mail", "cost": 12000, "weight": 40, "category": "A", "ac_base": 6}},
+    {"model": "equipment.equipment", "pk": 9, "fields": {"name": "Shield", "cost": 700, "weight": 10, "category": "A", "ac_modifier": 1}},
+    {"model": "equipment.equipment", "pk": 10, "fields": {"name": "Long Bow", "cost": 7500, "weight": 3, "category": "W", "damage": "1d6", "reach": 40}},
+    {"model": "equipment.equipment", "pk": 11, "fields": {"name": "Battle Axe", "cost": 500, "weight": 7, "category": "W", "damage": "1d8"}},
+    {"model": "equipment.equipment", "pk": 12, "fields": {"name": "Dagger", "cost": 200, "weight": 1, "category": "W", "damage": "1d4"}},
+    {"model": "equipment.equipment", "pk": 13, "fields": {"name": "Long Sword", "cost": 1500, "weight": 4, "category": "W", "damage": "1d8"}},
+    {"model": "equipment.equipment", "pk": 14, "fields": {"name": "Short Sword", "cost": 1000, "weight": 3, "category": "W", "damage": "1d6"}},
+    {"model": "equipment.equipment", "pk": 15, "fields": {"name": "Quarterstaff", "cost": 0, "weight": 4, "category": "W", "damage": "1d6"}}
+]

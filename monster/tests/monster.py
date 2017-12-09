@@ -1,6 +1,7 @@
 from django.test import TestCase
 from monster.models import Monster
-from character.models import Armour, Mage
+from equipment.models import Armour
+from character.models import Mage
 from world.models import World
 
 

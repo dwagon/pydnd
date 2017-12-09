@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'world',
     'encounter',
     'character',
+    'equipment',
     'monster'
 ]
 
