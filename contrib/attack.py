@@ -31,6 +31,13 @@ def rget(url):
 
 
 ##############################################################################
+def get_weapon(wname):
+    data = rget('/equipment?name={}'.format(wname))
+    if data:
+        return data[0]
+
+
+##############################################################################
 def get_world():
     data = rget('/world/')
     if data:
@@ -50,6 +57,7 @@ def make_fighter(world_id, name):
         "name": name
         }
     resp = rpost('/character/', data)
+    ls = get_weapon('Long Sword')
     return resp
 
 
