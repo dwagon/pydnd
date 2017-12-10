@@ -16,6 +16,7 @@ def rpost(url, data):
         return data
     else:
         sys.stderr.write("Error {}: {}".format(r.status_code, url))
+        sys.stderr.write("Content={}".format(r.content))
         sys.exit(1)
 
 
@@ -90,17 +91,18 @@ def make_chars(world_id):
 
 
 ##############################################################################
+def make_encounter(world_id, size_x, size_y):
+    data = {'world': world_id, 'size_x': size_x, 'size_y': size_y, 'turn': 0}
+    resp = rpost('/encounter/', data)
+    print(resp)
+
+
+##############################################################################
 def main():
     world_id = get_world()
     chars = make_chars(world_id)
-    print(chars)
+    encounter_id = make_encounter(world_id, 20, 20)
 
-# ls = Weapon(name='Long Sword', damage='1d8')
-# ls.save()
-# lb = Weapon(name='Long Bow', damage='1d6', reach=20)
-# lb.save()
-
-# #
 #     f.equip(ls, ready=True)
 # e = Encounter.create(size_x=20, size_y=20, world=w)
 # e.save()
