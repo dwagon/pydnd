@@ -92,11 +92,11 @@ WSGI_APPLICATION = 'pydnd.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'dbpydnd',
-        # 'USER': 'pydnd',
-        # 'PASSWORD': 'pydnd',
-        # 'HOST': 'localhost'
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'pydnd',
+        'USER': 'pydnd',
+        'PASSWORD': 'pydnd',
+        'HOST': 'localhost'
     }
 }
 
