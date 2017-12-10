@@ -181,7 +181,6 @@ class Character(models.Model):
             # Need to save first to make M2M work on new objects
             super(Character, self).save(*args, **kwargs)
             # Stop restframework double insert
-            self.add_rope()
             kwargs['force_insert'] = False
         self.encumbrance = self.calc_encumb()
         self.movement = self.calc_movement()
@@ -240,12 +239,6 @@ class Character(models.Model):
     def known_spells(self, level):
         s = Spell.objects.filter(spellstate__memorized=True, level=level)
         return s
-
-    ##########################################################################
-    def add_rope(self):
-        """ No self-respecting adventurer leaves home without rope """
-        rope = Equipment.objects.get(name="50' Rope")
-        self.equip(rope)
 
     ##########################################################################
     def equip(self, obj, ready=False):
