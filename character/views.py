@@ -2,21 +2,12 @@ from .models import Character
 from .serializers import CharacterSerializer
 from .serializers import EquipStateSerializer
 
-from django.shortcuts import get_object_or_404
-
 from equipment.serializers import EquipmentSerializer
 from equipment.models import Equipment
 
 from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
-
-
-##############################################################################
-class CharacterViewSet(ModelViewSet):
-    serializer_class = CharacterSerializer
-    queryset = Character.objects.all()
 
 
 ##############################################################################
