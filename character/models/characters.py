@@ -180,6 +180,7 @@ class Character(models.Model):
             self.status = status.OK
             # Need to save first to make M2M work on new objects
             super(Character, self).save(*args, **kwargs)
+            # Stop restframework double insert
             kwargs['force_insert'] = False
         self.encumbrance = self.calc_encumb()
         self.movement = self.calc_movement()

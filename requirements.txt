@@ -6,3 +6,4 @@ coverage
 python_coveralls
 pygame
 requests
+drf-nested-routers
