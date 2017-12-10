@@ -252,6 +252,7 @@ class Character(models.Model):
         e = EquipState(character=self, equipment=obj, ready=ready)
         e.save()
         self.save()
+        return e
 
     ##########################################################################
     def equipped_weapon(self):

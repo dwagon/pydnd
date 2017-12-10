@@ -58,11 +58,8 @@ def make_fighter(world_id, name):
         }
     resp = rpost('/character/', data)
     ls = get_weapon('Long Sword')
-    equip = rget('/character/{}/equip/'.format(resp['id']))
-    print("Equipment={}".format(equip))
-    ready = rpost('/character/{}/equip/{}'.format(resp['id'], ls['id']), data={'ready': True})
-    print(ready)
-
+    rget('/character/{}/equip/'.format(resp['id']))
+    rpost('/character/{}/equip/{}'.format(resp['id'], ls['id']), data={'ready': True})
     return resp
 
 
@@ -75,6 +72,8 @@ def make_thief(world_id, name):
         "name": name
         }
     resp = rpost('/character/', data)
+    lb = get_weapon('Long Bow')
+    rpost('/character/{}/equip/{}'.format(resp['id'], lb['id']), data={'ready': True})
     return resp
 
 
