@@ -1,3 +1,17 @@
-from django.shortcuts import render
+from .models import Encounter
+from .serializers import EncounterSerializer
+from rest_framework import generics
 
-# Create your views here.
+
+##############################################################################
+class EncounterList(generics.ListCreateAPIView):
+    queryset = Encounter.objects.all()
+    serializer_class = EncounterSerializer
+
+
+##############################################################################
+class EncounterDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Encounter.objects.all()
+    serializer_class = EncounterSerializer
+
+# EOF
