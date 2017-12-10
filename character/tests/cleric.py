@@ -32,8 +32,8 @@ class test_Cleric(TestCase):
         self.assertLessEqual(self.cl.stat_wis, 18)
 
     def test_learn_spell(self):
-        self.cl.learnSpell(self.sp)
-        self.cl.learnSpell(self.sp)
+        self.cl.learn_spell(self.sp)
+        self.cl.learn_spell(self.sp)
         known = self.cl.known_spells(level=1)
         self.assertEqual(len(known), 2)
 
@@ -42,16 +42,16 @@ class test_Cleric(TestCase):
         self.assertFalse(known)
 
     def test_cast_spell(self):
-        self.cl.learnSpell(self.sp)
-        self.cl.learnSpell(self.sp)
+        self.cl.learn_spell(self.sp)
+        self.cl.learn_spell(self.sp)
         known = self.cl.known_spells(level=1)
         self.assertEqual(len(known), 2)
-        self.cl.castSpell(self.sp)
+        self.cl.cast_spell(self.sp)
         known = self.cl.known_spells(level=1)
         self.assertEqual(len(known), 1)
 
     def test_heal(self):
-        self.cl.learnSpell(self.sp)
+        self.cl.learn_spell(self.sp)
         self.cl.max_hp = 8
         self.cl.hp = 5
         self.cl.save()
