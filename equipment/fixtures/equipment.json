@@ -13,5 +13,6 @@
     {"model": "equipment.equipment", "pk": 12, "fields": {"name": "Dagger", "cost": 200, "weight": 1, "category": "W", "damage": "1d4"}},
     {"model": "equipment.equipment", "pk": 13, "fields": {"name": "Long Sword", "cost": 1500, "weight": 4, "category": "W", "damage": "1d8"}},
     {"model": "equipment.equipment", "pk": 14, "fields": {"name": "Short Sword", "cost": 1000, "weight": 3, "category": "W", "damage": "1d6"}},
-    {"model": "equipment.equipment", "pk": 15, "fields": {"name": "Quarterstaff", "cost": 0, "weight": 4, "category": "W", "damage": "1d6"}}
+    {"model": "equipment.equipment", "pk": 15, "fields": {"name": "Quarterstaff", "cost": 0, "weight": 4, "category": "W", "damage": "1d6"}},
+    {"model": "equipment.equipment", "pk": 16, "fields": {"name": "50' Rope", "cost": 100, "weight": 10, "category": "I"}}
 ]
