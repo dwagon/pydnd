@@ -10,7 +10,7 @@ baseurl = 'http://localhost:8000'
 
 ##############################################################################
 def rpost(url, data):
-    r = requests.post(baseurl + url, json=data)
+    r = sess.post(baseurl + url, json=data)
     if r.status_code in (200, 201):
         data = json.loads(r.content)
         return data
@@ -22,7 +22,7 @@ def rpost(url, data):
 
 ##############################################################################
 def rget(url):
-    r = requests.get(baseurl + url)
+    r = sess.get(baseurl + url)
     if r.status_code in (200, 201):
         data = json.loads(r.content)
         return data
@@ -94,14 +94,17 @@ def make_chars(world_id):
 def make_encounter(world_id, size_x, size_y):
     data = {'world': world_id, 'size_x': size_x, 'size_y': size_y, 'turn': 0}
     resp = rpost('/encounter/', data)
-    print(resp)
+    return resp['id']
 
 
 ##############################################################################
 def main():
+    global sess
+    sess = requests.session()
     world_id = get_world()
     chars = make_chars(world_id)
     encounter_id = make_encounter(world_id, 20, 20)
+    print("encounter_id={}".format(encounter_id))
 
 #     f.equip(ls, ready=True)
 # e = Encounter.create(size_x=20, size_y=20, world=w)
