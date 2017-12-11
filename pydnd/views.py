@@ -8,7 +8,7 @@ from rest_framework.reverse import reverse
 @permission_classes((permissions.AllowAny,))
 def api_root(request, format=None):
     return Response({
-        # 'monster': reverse('monster-list', request=request, format=format),
+        'monster': reverse('monster-list', request=request, format=format),
         # 'monsterstate': reverse('monsterstate-list', request=request, format=format),
         'character': reverse('character-list', request=request, format=format),
         'encounter': reverse('encounter-list', request=request, format=format),

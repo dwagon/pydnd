@@ -98,17 +98,23 @@ def make_encounter(world_id, size_x, size_y):
 
 
 ##############################################################################
+def add_monsters(enc_id, monname, number=None):
+    m = rget('/monster/?name={}'.format(monname))
+    data = {'number': number}
+    resp = rpost('/encounter/{}/monster/{}'.format(enc_id, m[0]['id']), data)
+    print(resp)
+
+
+##############################################################################
 def main():
     global sess
     sess = requests.session()
     world_id = get_world()
     chars = make_chars(world_id)
     encounter_id = make_encounter(world_id, 20, 20)
-    print("encounter_id={}".format(encounter_id))
+    add_monsters(encounter_id, 'Orc', number=9)
 
-#     f.equip(ls, ready=True)
-# e = Encounter.create(size_x=20, size_y=20, world=w)
-# e.save()
+
 # e.add_monster_type('Orc', number=9)
 #
 # e.place_monsters()
