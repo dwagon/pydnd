@@ -73,5 +73,26 @@ class test_Encounter_API(TestCase):
         self.assertEqual(result[-1]['monster'], m.id)
         self.assertEqual(result[-1]['status'], 'OK')
 
+    ##########################################################################
+    def test_placing_monsters(self):
+        data = {'world': self.w.id, 'size_x': 17, 'size_y': 11}
+        resp = self.client.post(reverse('encounter-list'), data=data, follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        result = resp.json()
+        enc_id = result['id']
+
+        m = Monster(name='test_drow', numappearing=2)
+        m.save()
+
+        resp = self.client.post(reverse('encounter-monster-create', kwargs={'pk': enc_id, 'monster': m.id}), data={}, follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        result = resp.json()
+
+        resp = self.client.post(reverse('encounter-monster-place', kwargs={'pk': enc_id}), follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        result = resp.json()
+        for m in result:
+            self.assertNotEqual(m['x'], -1)
+            self.assertNotEqual(m['y'], -1)
 
 # EOF

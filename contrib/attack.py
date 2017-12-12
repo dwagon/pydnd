@@ -15,8 +15,8 @@ def rpost(url, data):
         data = json.loads(r.content)
         return data
     else:
-        sys.stderr.write("Error {}: {}".format(r.status_code, url))
-        sys.stderr.write("Content={}".format(r.content))
+        sys.stderr.write("Error {}: {}\n".format(r.status_code, url))
+        sys.stderr.write("Content={}\n".format(r.content))
         sys.exit(1)
 
 
@@ -27,7 +27,7 @@ def rget(url):
         data = json.loads(r.content)
         return data
     else:
-        sys.stderr.write("Error {}: {}".format(r.status_code, url))
+        sys.stderr.write("Error {}: {}\n".format(r.status_code, url))
         sys.exit(1)
 
 
@@ -61,6 +61,7 @@ def make_fighter(world_id, name):
     ls = get_weapon('Long Sword')
     rget('/character/{}/equip/'.format(resp['id']))
     rpost('/character/{}/equip/{}'.format(resp['id'], ls['id']), data={'ready': True})
+    sys.stderr.write("Created {}\n".format(resp['name']))
     return resp
 
 
@@ -75,6 +76,7 @@ def make_thief(world_id, name):
     resp = rpost('/character/', data)
     lb = get_weapon('Long Bow')
     rpost('/character/{}/equip/{}'.format(resp['id'], lb['id']), data={'ready': True})
+    sys.stderr.write("Created {}\n".format(resp['name']))
     return resp
 
 
@@ -101,7 +103,12 @@ def make_encounter(world_id, size_x, size_y):
 def add_monsters(enc_id, monname, number=None):
     m = rget('/monster/?name={}'.format(monname))
     data = {'number': number}
-    resp = rpost('/encounter/{}/monster/{}'.format(enc_id, m[0]['id']), data)
+    rpost('/encounter/{}/monster/{}'.format(enc_id, m[0]['id']), data)
+
+
+##############################################################################
+def place_monsters(enc_id):
+    resp = rpost('/encounter/{}/place_monsters/'.format(enc_id), data={})
     print(resp)
 
 
@@ -114,10 +121,9 @@ def main():
     make_chars(world_id)
     encounter_id = make_encounter(world_id, 20, 20)
     add_monsters(encounter_id, 'Orc', number=9)
+    place_monsters(encounter_id)
 
 
-# e.add_monster_type('Orc', number=9)
-#
 # e.place_monsters()
 # e.print_arena()
 #

@@ -6,7 +6,8 @@ urlpatterns = [
     url(r'^$', views.EncounterList.as_view(), name='encounter-list'),
     url(r'^(?P<pk>[0-9]+)/$', views.EncounterDetail.as_view(), name='encounter-detail'),
     url(r'^(?P<pk>[0-9]+)/monster/$', views.MonsterList.as_view(), name='encounter-monster-list'),
-    url(r'^(?P<pk>[0-9]+)/monster/(?P<monster>[0-9]+)$', views.MonsterViewSet.as_view({'post': 'assign'}), name='encounter-monster-create')
+    url(r'^(?P<pk>[0-9]+)/monster/(?P<monster>[0-9]+)$', views.MonsterViewSet.as_view({'post': 'assign'}), name='encounter-monster-create'),
+    url(r'^(?P<pk>[0-9]+)/place_monsters/$', views.MonsterViewSet.as_view({'post': 'place'}), name='encounter-monster-place')
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

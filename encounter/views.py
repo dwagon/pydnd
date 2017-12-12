@@ -34,6 +34,8 @@ class MonsterList(generics.ListCreateAPIView):
 ##############################################################################
 class MonsterViewSet(viewsets.ModelViewSet):
     def assign(self, request, **kwargs):
+        """ Assign new monster type to an encounter"""
+
         enc = Encounter.objects.get(pk=self.kwargs['pk'])
         mon = Monster.objects.get(pk=kwargs['monster'])
         number = request.data.get('number', None)
@@ -44,6 +46,14 @@ class MonsterViewSet(viewsets.ModelViewSet):
             ms.name = "{}{}".format(mon.name, _)
             ms.save()
 
+        monsters = enc.monsters.all()
+        serializer = MonsterStateSerializer(monsters, many=True)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def place(self, request, **kwargs):
+        """ Place the monsters around the arena """
+        enc = Encounter.objects.get(pk=self.kwargs['pk'])
+        enc.place_monsters()
         monsters = enc.monsters.all()
         serializer = MonsterStateSerializer(monsters, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
