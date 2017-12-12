@@ -95,4 +95,32 @@ class test_Encounter_API(TestCase):
             self.assertNotEqual(m['x'], -1)
             self.assertNotEqual(m['y'], -1)
 
+    ##########################################################################
+    def test_get_map(self):
+        size_x = 5
+        size_y = 3
+        data = {'world': self.w.id, 'size_x': size_x, 'size_y': size_y}
+        resp = self.client.post(reverse('encounter-list'), data=data, follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        result = resp.json()
+        enc_id = result['id']
+
+        m = Monster(name='xyz', numappearing=1)
+        m.save()
+
+        resp = self.client.post(reverse('encounter-monster-create', kwargs={'pk': enc_id, 'monster': m.id}), data={}, follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        resp = self.client.post(reverse('encounter-monster-place', kwargs={'pk': enc_id}), follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        resp = self.client.get(reverse('encounter-arena', kwargs={'pk': enc_id}), follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        result = resp.json()
+        self.assertIn(m.name, result['map'])
+        lines = result['map'].splitlines()
+        self.assertEqual(len(lines), size_x)
+        cols = lines[0].split()
+        self.assertEqual(len(cols), size_y)
+
 # EOF

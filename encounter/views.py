@@ -7,7 +7,6 @@ from rest_framework import viewsets
 from rest_framework import status
 from utils import roll
 from rest_framework.response import Response
-import json
 
 
 ##############################################################################
