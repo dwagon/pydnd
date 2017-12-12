@@ -4,6 +4,7 @@ from monster.models import MonsterState, Monster
 from monster.serializers import MonsterStateSerializer
 from rest_framework import generics
 from rest_framework import viewsets
+from rest_framework import status
 from utils import roll
 from rest_framework.response import Response
 
@@ -51,6 +52,6 @@ class MonsterViewSet(viewsets.ModelViewSet):
 
         monsters = enc.monsters.all()
         serializer = MonsterStateSerializer(monsters, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 # EOF
