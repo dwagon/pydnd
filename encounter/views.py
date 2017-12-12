@@ -7,6 +7,7 @@ from rest_framework import viewsets
 from rest_framework import status
 from utils import roll
 from rest_framework.response import Response
+import json
 
 
 ##############################################################################
@@ -29,6 +30,14 @@ class MonsterList(generics.ListCreateAPIView):
         queryset = MonsterState.objects.all()
         queryset = queryset.filter(encounter=self.kwargs['pk'])
         return queryset
+
+
+##############################################################################
+class ArenaViewSet(viewsets.ModelViewSet):
+    def getmap(self, request, **kwargs):
+        enc = Encounter.objects.get(pk=self.kwargs['pk'])
+        data = {'map': enc.print_arena()}
+        return Response(data)
 
 
 ##############################################################################

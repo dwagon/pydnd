@@ -331,18 +331,20 @@ class Encounter(models.Model):
         return "\n".join(m)
 
     ##########################################################################
-    def print_arena(self, out=sys.stdout):
+    def print_arena(self):
+        output = []
         arena = {}
         for i in Location.objects.filter(encounter=self):
             arena[(i.x, i.y)] = i.content_object
         for x in range(self.size_x):
+            line = []
             for y in range(self.size_y):
                 if (x, y) in arena:
-                    out.write("{:4} ".format(arena[(x, y)].name[:5]))
+                    line.append("{:4}".format(arena[(x, y)].name[:5]))
                 else:
-                    out.write("{:4} ".format("_"))
-            out.write("\n")
-        out.write("\n")
+                    line.append("{:4}".format("_"))
+            output.append(" ".join(line))
+        return "\n".join(output)
 
     ##########################################################################
     def set_location(self, obj, x, y):

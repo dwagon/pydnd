@@ -103,13 +103,19 @@ def make_encounter(world_id, size_x, size_y):
 def add_monsters(enc_id, monname, number=None):
     m = rget('/monster/?name={}'.format(monname))
     data = {'number': number}
-    rpost('/encounter/{}/monster/{}'.format(enc_id, m[0]['id']), data)
+    resp = rpost('/encounter/{}/monster/{}'.format(enc_id, m[0]['id']), data)
+    sys.stderr.write("Added {} {}\n".format(len(resp), resp[0]['name']))
 
 
 ##############################################################################
 def place_monsters(enc_id):
-    resp = rpost('/encounter/{}/place_monsters/'.format(enc_id), data={})
-    print(resp)
+    rpost('/encounter/{}/place_monsters/'.format(enc_id), data={})
+
+
+##############################################################################
+def print_arena(enc_id):
+    ans = rget('/encounter/{}/arena/'.format(enc_id))
+    print(ans['map'])
 
 
 ##############################################################################
@@ -122,11 +128,8 @@ def main():
     encounter_id = make_encounter(world_id, 20, 20)
     add_monsters(encounter_id, 'Orc', number=9)
     place_monsters(encounter_id)
+    print_arena(encounter_id)
 
-
-# e.place_monsters()
-# e.print_arena()
-#
 # while True:
 #     if not e.combat_round():
 #         break
