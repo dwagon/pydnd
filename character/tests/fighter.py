@@ -3,6 +3,7 @@ from django.test import TestCase
 from character.models import Fighter
 from equipment.models import Equipment, Weapon, Armour
 from monster.models import Monster, MonsterState
+from encounter.models import Encounter
 from world.models import World
 
 
@@ -84,7 +85,9 @@ class test_Fighter(TestCase):
     def test_hit(self):
         o = Monster(name='weak_orc', movement=3, ac=20, thaco=20, xp=3)
         o.save()
-        oi = MonsterState(world=self.w, monster=o)
+        e = Encounter(world=self.w)
+        e.save()
+        oi = MonsterState(encounter=e, monster=o)
         oi.save()
         rc = self.fg.attack(oi)
         self.assertTrue(rc)
@@ -94,7 +97,9 @@ class test_Fighter(TestCase):
     def test_miss(self):
         o = Monster(name='strong_orc', movement=3, ac=-20, thaco=20, xp=6)
         o.save()
-        oi = MonsterState(world=self.w, monster=o)
+        e = Encounter(world=self.w)
+        e.save()
+        oi = MonsterState(encounter=e, monster=o)
         oi.save()
         rc = self.fg.attack(oi)
         self.assertFalse(rc)
@@ -109,7 +114,9 @@ class test_Fighter(TestCase):
         fg.equip(ss, ready=True)
         o = Monster(name='weak_orc', movement=3, ac=20, thaco=20, xp=3)
         o.save()
-        oi = MonsterState(world=self.w, monster=o)
+        e = Encounter(world=self.w)
+        e.save()
+        oi = MonsterState(encounter=e, monster=o)
         oi.save()
         dmg = fg.attack(oi)
         self.assertEqual(dmg, 3)

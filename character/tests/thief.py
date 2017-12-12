@@ -2,6 +2,7 @@ from django.test import TestCase
 
 from character.models import Thief
 from equipment.models import Equipment, Weapon, Armour
+from encounter.models import Encounter
 from monster.models import Monster, MonsterState
 from world.models import World
 import status
@@ -55,12 +56,14 @@ class test_Thief(TestCase):
 
     def test_ranged(self):
         """ Test ranged combat """
+        e = Encounter(world=self.w)
+        e.save()
         self.th.equip(self.bow, ready=True)
         self.assertEqual(self.th.get_reach(), 20)
         self.assertEqual(self.th.stat_bonus('missattack'), 2)
         o = Monster(name='weak_orc', movement=3, ac=20, thaco=20, xp=3)
         o.save()
-        oi = MonsterState(world=self.w, monster=o)
+        oi = MonsterState(encounter=e, monster=o)
         oi.save()
         dmg = self.th.ranged_attack(self.th.equipped_weapon(), oi)
         self.assertEqual(dmg, 5)    # 3dmg + 2 missattack

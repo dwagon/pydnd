@@ -43,7 +43,7 @@ class Encounter(models.Model):
         m = Monster.objects.get(name=monstername)
         num = number if number else roll(m.numappearing)
         for _ in range(num):
-            ms = MonsterState(world=self.world, monster=m)
+            ms = MonsterState(encounter=self, monster=m)
             ms.name = "{}{}".format(m.name, _)
             ms.save()
 
@@ -62,7 +62,7 @@ class Encounter(models.Model):
 
     ##########################################################################
     def place_monsters(self):
-        for monster in MonsterState.objects.filter(world=self.world):
+        for monster in MonsterState.objects.filter(encounter=self):
             x = random.randint(0, self.size_x-1)
             y = random.randint(0, self.size_y-1)
             while self[(x, y)]:
@@ -119,7 +119,7 @@ class Encounter(models.Model):
         if enemy == self.PC:
             targets = [_ for _ in self.world.all_pcs() if _.status == status.OK]
         else:
-            targets = [_ for _ in self.world.all_monsters() if _.status == status.OK]
+            targets = [_ for _ in self.monsters.all() if _.status == status.OK]
         for t in targets:
             d = self.distance(obj, t)
             if d < reach:
@@ -134,7 +134,7 @@ class Encounter(models.Model):
         if enemy == self.PC:
             targets = [_ for _ in self.world.all_pcs() if _.status == status.OK]
         else:
-            targets = [_ for _ in self.world.all_monsters() if _.status == status.OK]
+            targets = [_ for _ in self.monsters.all() if _.status == status.OK]
         for t in targets:
             d = self.distance(obj, t)
             if d < min_dist:
@@ -151,13 +151,13 @@ class Encounter(models.Model):
     def status(self):
         for pc in self.world.all_pcs():
             print(pc)
-        for mon in self.world.all_monsters():
+        for mon in self.encounter.all_monsters():
             print(mon)
 
     ##########################################################################
     def close(self):
         xp = 0
-        for monster in self.world.all_monsters():
+        for monster in self.encounter.all_monsters():
             xp + monster.xp
             monster.delete()
         survivors = [_ for _ in self.world.all_pcs() if _.status != status.DEAD]
@@ -168,7 +168,7 @@ class Encounter(models.Model):
     def combat_round(self):
         self.turn += 1
         print("\nTurn {}".format(self.turn))
-        m_targets = [_ for _ in self.world.all_monsters() if _.status == status.OK]
+        m_targets = [_ for _ in self.encounter.all_monsters() if _.status == status.OK]
         if not m_targets:
             return False
         pcs = self.world.all_pcs()
@@ -231,7 +231,7 @@ class Encounter(models.Model):
 
     ##########################################################################
     def monster_action(self):
-        for monster in self.world.all_monsters():
+        for monster in self.encounter.all_monsters():
             if monster.status == status.OK:
                 self.obj_action(monster)
             else:

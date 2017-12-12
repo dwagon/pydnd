@@ -57,7 +57,7 @@ class test_Encounter(TestCase):
         c.save()
         ans = e.objtype(c)
         self.assertEqual(ans, Encounter.PC)
-        mi = MonsterState(world=self.w, monster=self.orc)
+        mi = MonsterState(encounter=e, monster=self.orc)
         ans = e.objtype(mi)
         self.assertEqual(ans, Encounter.MONSTER)
 
@@ -91,7 +91,7 @@ class test_Encounter(TestCase):
             if isinstance(i, MonsterState):
                 used_locs.add((i.x, i.y))
 
-        m_locs = set([(_.x, _.y) for _ in MonsterState.objects.filter(world=self.w)])
+        m_locs = set([(_.x, _.y) for _ in MonsterState.objects.filter(encounter=e)])
         self.assertEquals(used_locs, m_locs)
         m.delete()
 
@@ -113,7 +113,7 @@ class test_Encounter(TestCase):
         self.makeFighter()
         self.makeThief()
         e.add_monster_type('TestDualOrc')
-        m1, m2 = MonsterState.objects.filter(world=self.w)
+        m1, m2 = MonsterState.objects.filter(encounter=e)
         e.set_location(self.fighter, 5, 5)
         e.set_location(self.thief, 4, 4)
         e.set_location(m1, 6, 5)    # Neighbour
@@ -129,7 +129,7 @@ class test_Encounter(TestCase):
         self.makeFighter()
         self.makeThief()
         e.add_monster_type('TestDualOrc')
-        m1, m2 = MonsterState.objects.filter(world=self.w)
+        m1, m2 = MonsterState.objects.filter(encounter=e)
         e.set_location(self.fighter, 5, 5)
         e.set_location(self.thief, 5, 6)
         e.set_location(m1, 6, 5)    # Neighbour
@@ -148,7 +148,7 @@ class test_Encounter(TestCase):
         self.makeThief()
         e.add_monster_type('TestDualOrc')
         e.place_pcs()
-        m1, m2 = MonsterState.objects.filter(world=self.w)
+        m1, m2 = MonsterState.objects.filter(encounter=e)
         e.set_location(self.fighter, 0, 0)
         e.set_location(self.thief, 5, 0)
         e.set_location(m1, 5, 5)    # In Reach
@@ -167,7 +167,7 @@ class test_Encounter(TestCase):
         self.makeThief()
         e.add_monster_type('TestDualOrc')
         e.place_pcs()
-        m1, m2 = MonsterState.objects.filter(world=self.w)
+        m1, m2 = MonsterState.objects.filter(encounter=e)
         e.set_location(self.thief, 5, 0)
         e.set_location(self.fighter, 0, 0)
         e.set_location(m1, 5, 5)
