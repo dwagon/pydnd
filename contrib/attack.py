@@ -109,8 +109,9 @@ def add_monsters(enc_id, monname, number=None):
 def main():
     global sess
     sess = requests.session()
+    sess.trust_env = False
     world_id = get_world()
-    chars = make_chars(world_id)
+    make_chars(world_id)
     encounter_id = make_encounter(world_id, 20, 20)
     add_monsters(encounter_id, 'Orc', number=9)
 
