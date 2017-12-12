@@ -32,6 +32,16 @@ def rget(url):
 
 
 ##############################################################################
+def rdelete(url):
+    r = sess.delete(baseurl + url)
+    if r.status_code in (200, 204):
+        return
+    else:
+        sys.stderr.write("Error {}: {}\n".format(r.status_code, url))
+        sys.exit(1)
+
+
+##############################################################################
 def get_weapon(wname):
     data = rget('/equipment/?name={}'.format(wname))
     if data:
@@ -85,7 +95,7 @@ def make_chars(world_id):
     chars = []
 
     for i in range(4):
-        chars.append(make_fighter(world_id, "Bob{}".format(i)))
+        chars.append(make_fighter(world_id, "Fez{}".format(i)))
 
     for i in range(4):
         chars.append(make_thief(world_id, "Tom{}".format(i)))
@@ -119,12 +129,18 @@ def print_arena(enc_id):
 
 
 ##############################################################################
+def delete_char(ch):
+    sys.stderr.write("Deleting {}\n".format(ch['name']))
+    rdelete('/character/{}'.format(ch['id']))
+
+
+##############################################################################
 def main():
     global sess
     sess = requests.session()
     sess.trust_env = False
     world_id = get_world()
-    make_chars(world_id)
+    chars = make_chars(world_id)
     encounter_id = make_encounter(world_id, 20, 20)
     add_monsters(encounter_id, 'Orc', number=9)
     place_monsters(encounter_id)
@@ -137,11 +153,11 @@ def main():
 #
 # e.status()
 # e.close()
-#
-# for f in Character.objects.all():
-#     f.delete()
-# ls.delete()
 
+    for ch in chars:
+        delete_char(ch)
+
+##############################################################################
 if __name__ == "__main__":
     main()
 

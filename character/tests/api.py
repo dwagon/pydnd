@@ -32,4 +32,16 @@ class test_api(TestCase):
         self.assertEqual(c.charclass, 'F')
         self.assertNotEqual(c.status, 'XX')
 
+    ##########################################################################
+    def test_delete(self):
+        data = {'world': self.w.id, 'charclass': 'F', 'name': 'Florence'}
+        resp = self.client.post(reverse('character-list'), data=data, follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        flo = json.loads(resp.content)
+
+        resp = self.client.delete(reverse('character-detail', kwargs={'pk': flo['id']}), follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        cs = Character.objects.filter(pk=flo['id'])
+        self.assertEqual(len(cs), 0)
+
 # EOF
