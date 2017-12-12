@@ -6,7 +6,8 @@ import status
 
 ##############################################################################
 class MonsterState(models.Model):
-    world = models.ForeignKey('world.World', on_delete=models.CASCADE)
+    name = models.CharField(max_length=200, default="", blank=True)
+    encounter = models.ForeignKey('encounter.Encounter', on_delete=models.CASCADE, related_name='monsters')
     monster = models.ForeignKey('Monster', on_delete=models.CASCADE)
     hp = models.IntegerField(default=-1)
     max_hp = models.IntegerField(default=-1)
@@ -16,6 +17,7 @@ class MonsterState(models.Model):
 
     animate = True
 
+    ##########################################################################
     def save(self, **kwargs):
         if self.status == status.UNDEF:
             self.status = status.OK
@@ -24,9 +26,12 @@ class MonsterState(models.Model):
             self.hp = hits
         super(MonsterState, self).save(**kwargs)
 
+    ##########################################################################
     def __str__(self):
-        return "{} {} (HP:{}/{})".format(self.monster.name, self.get_status_display(), self.hp, self.max_hp)
+        name = self.name if self.name else self.monster.name
+        return "{} {} (HP:{}/{})".format(name, self.get_status_display(), self.hp, self.max_hp)
 
+    ##########################################################################
     def hurt(self, dmg):
         """ Be hurt """
         self.hp -= dmg
@@ -36,11 +41,13 @@ class MonsterState(models.Model):
             return False
         return True
 
+    ##########################################################################
     def __getattr__(self, name):
         if name.startswith('_'):
             raise AttributeError("AttrError on {}".format(name))
         return getattr(self.monster, name)
 
+    ##########################################################################
     def get_reach(self):
         return self.reach
 
@@ -60,9 +67,11 @@ class Monster(models.Model):
     xp = models.IntegerField()
     reach = models.IntegerField(default=0)
 
+    ##########################################################################
     def __str__(self):
         return self.name
 
+    ##########################################################################
     def attack(self, victim):
         """ Attack something else """
         dmgs = 0
@@ -73,6 +82,7 @@ class Monster(models.Model):
                 dmgs += dmg
         return dmgs
 
+    ##########################################################################
     def hit(self, victim):
         """ Try and hit something """
         hitroll = roll('d20')
