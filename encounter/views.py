@@ -32,12 +32,6 @@ class MonsterList(generics.ListCreateAPIView):
 
 
 ##############################################################################
-class MonsterDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = MonsterState.objects.all()
-    serializer_class = MonsterStateSerializer
-
-
-##############################################################################
 class MonsterViewSet(viewsets.ModelViewSet):
     def assign(self, request, **kwargs):
         enc = Encounter.objects.get(pk=self.kwargs['pk'])
