@@ -55,16 +55,16 @@ class MonsterState(models.Model):
 ##############################################################################
 class Monster(models.Model):
     name = models.CharField(max_length=200, unique=True)
-    treasure = models.CharField(max_length=50)
+    treasure = models.CharField(max_length=50, null=True)
     align = models.CharField(max_length=2, choices=alignment_choices, default='N')
     numappearing = models.CharField('Num Appearing', max_length=20)
-    ac = models.IntegerField('AC')
+    ac = models.IntegerField('AC', default=10)
     movement = models.IntegerField(default=9)
     hitdie = models.CharField('Hit Die', max_length=5, default='1d8')
-    thaco = models.IntegerField()
+    thaco = models.IntegerField(default=20)
     numattacks = models.IntegerField('Num Attacks', default=1)
     damage = models.CharField(max_length=50)
-    xp = models.IntegerField()
+    xp = models.IntegerField(default=0)
     reach = models.IntegerField(default=0)
 
     ##########################################################################
