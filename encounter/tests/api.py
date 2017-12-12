@@ -49,4 +49,29 @@ class test_Encounter_API(TestCase):
         self.assertEqual(result[0]['encounter'], enc_id)
         self.assertEqual(result[0]['monster'], m.id)
 
+    ##########################################################################
+    def test_listing_monsters(self):
+        data = {'world': self.w.id, 'size_x': 17, 'size_y': 11}
+        resp = self.client.post(reverse('encounter-list'), data=data, follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        result = resp.json()
+        enc_id = result['id']
+
+        m = Monster(name='test_kobold', numappearing=5)
+        m.save()
+
+        resp = self.client.post(reverse('encounter-monster-create', kwargs={'pk': enc_id, 'monster': m.id}), data={}, follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        result = resp.json()
+        self.assertEqual(len(result), 5)
+
+        resp = self.client.get(reverse('encounter-monster-list', kwargs={'pk': enc_id}), follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        result = resp.json()
+        self.assertEqual(len(result), 5)
+        self.assertEqual(result[-1]['encounter'], enc_id)
+        self.assertEqual(result[-1]['monster'], m.id)
+        self.assertEqual(result[-1]['status'], 'OK')
+
+
 # EOF
