@@ -8,7 +8,7 @@ urlpatterns = [
 
     url(r'^(?P<pk>[0-9]+)/monster/$', views.MonsterList.as_view(), name='encounter-monster-list'),
     url(r'^(?P<pk>[0-9]+)/monster/(?P<monster>[0-9]+)$', views.MonsterViewSet.as_view({'post': 'assign'}), name='encounter-monster-create'),
-    url(r'^(?P<pk>[0-9]+)/place_monsters/$', views.MonsterViewSet.as_view({'post': 'place'}), name='encounter-monster-place'),
+    url(r'^(?P<pk>[0-9]+)/place_monsters/$', views.place_monster, name='encounter-monster-place'),
 
     url(r'^(?P<pk>[0-9]+)/place_pcs/$', views.place_pcs, name='encounter-character-place'),
     url(r'^(?P<pk>[0-9]+)/arena/$', views.ArenaViewSet.as_view({'get': 'getmap'}), name='encounter-arena'),

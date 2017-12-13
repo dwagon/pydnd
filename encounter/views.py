@@ -59,13 +59,16 @@ class MonsterViewSet(viewsets.ModelViewSet):
         serializer = MonsterStateSerializer(monsters, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def place(self, request, **kwargs):
-        """ Place the monsters around the arena """
-        enc = Encounter.objects.get(pk=self.kwargs['pk'])
-        enc.place_monsters()
-        monsters = enc.monsters.all()
-        serializer = MonsterStateSerializer(monsters, many=True)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+##############################################################################
+@api_view(['POST'])
+def place_monster(request, **kwargs):
+    """ Place the monsters around the arena """
+    enc = Encounter.objects.get(pk=kwargs['pk'])
+    enc.place_monsters()
+    monsters = enc.monsters.all()
+    serializer = MonsterStateSerializer(monsters, many=True)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 ##############################################################################
