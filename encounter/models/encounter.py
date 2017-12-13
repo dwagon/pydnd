@@ -185,7 +185,7 @@ class Encounter(models.Model):
     def obj_dead(self, obj):
         """ Object is no longer part of the living or unliving """
         print("{} has died".format(obj.name))
-        l = Location.objects.get(encounter=self, x=obj.x, y=obj.y)
+        l = self.locations.get(x=obj.x, y=obj.y)
         l.delete()
 
     ##########################################################################
@@ -266,26 +266,26 @@ class Encounter(models.Model):
     ##########################################################################
     def __getitem__(self, loc):
         try:
-            l = Location.objects.get(encounter=self, x=loc[0], y=loc[1])
+            l = self.locations.get(x=loc[0], y=loc[1])
             return l.content_object
         except ObjectDoesNotExist:
             return None
 
     ##########################################################################
-    def delete(self, x, y):
-        l = Location.objects.filter(encounter=self, x=x, y=y)
+    def Xdelete(self, x, y):
+        l = self.locations.filter(x=x, y=y)
         l.delete()
 
     ##########################################################################
     def change_loc(self, oldx, oldy, newx, newy):
-        l = Location.objects.get(encounter=self, x=oldx, y=oldy)
+        l = self.locations.get(x=oldx, y=oldy)
         l.x, l.y = newx, newy
         l.save()
         return l
 
     ##########################################################################
     def clear(self):
-        for l in Location.objects.all():
+        for l in self.locations.all():
             l.delete()
 
     ##########################################################################
@@ -310,7 +310,7 @@ class Encounter(models.Model):
 
     ##########################################################################
     def all_animate(self):
-        return [o.content_object for o in Location.objects.filter(encounter=self) if o.content_object.animate]
+        return [o.content_object for o in self.locations.all() if o.content_object.animate]
 
     ##########################################################################
     def __str__(self):
@@ -318,7 +318,7 @@ class Encounter(models.Model):
         for x in range(0, self.size_x):
             ycol = []
             for y in range(0, self.size_y):
-                l = Location.objects.filter(encounter=self, x=x, y=y)
+                l = self.locations.filter(x=x, y=y)
                 if not l:
                     ycol.append('.')
                     continue
@@ -334,7 +334,7 @@ class Encounter(models.Model):
     def print_arena(self):
         output = []
         arena = {}
-        for i in Location.objects.filter(encounter=self):
+        for i in self.locations.all():
             arena[(i.x, i.y)] = i.content_object
         for x in range(self.size_x):
             line = []
@@ -353,6 +353,14 @@ class Encounter(models.Model):
         obj.save()
         l = Location(encounter=self, x=x, y=y, content_object=obj)
         l.save()
+
+    ##########################################################################
+    def delete(self, *args, **kwargs):
+        for l in self.locations.all():
+            l.delete()
+        for m in self.monsters.all():
+            m.delete()
+        super().delete(*args, **kwargs)
 
 
 # EOF

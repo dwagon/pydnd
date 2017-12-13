@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 
 ##############################################################################
 class Location(models.Model):
-    encounter = models.ForeignKey('Encounter', blank=True, on_delete=models.CASCADE)
+    encounter = models.ForeignKey('Encounter', blank=True, on_delete=models.CASCADE, related_name='locations')
     x = models.IntegerField(default=-1)
     y = models.IntegerField(default=-1)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
