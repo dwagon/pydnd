@@ -210,7 +210,7 @@ class Encounter(models.Model):
         targ = random.choice(targ_list)
         dmg = obj.attack(targ)
         if dmg:
-            if hasattr(obj, 'equipped_weapon'):
+            if hasattr(obj, 'equipped_weapon') and obj.equipped_weapon():
                 weap = "with {} ".format(obj.equipped_weapon().name)
             else:
                 weap = ""
