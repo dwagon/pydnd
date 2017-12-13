@@ -85,4 +85,13 @@ def place_pcs(request, **kwargs):
     enc.place_pcs()
     return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
 
+
+##############################################################################
+@api_view(['POST'])
+def combat_round(request, **kwargs):
+    enc = Encounter.objects.get(pk=kwargs['pk'])
+    keep_going = enc.combat_round()
+
+    return Response({"finished": not keep_going}, status=status.HTTP_200_OK)
+
 # EOF

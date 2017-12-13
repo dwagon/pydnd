@@ -167,8 +167,7 @@ class Encounter(models.Model):
     ##########################################################################
     def combat_round(self):
         self.turn += 1
-        print("\nTurn {}".format(self.turn))
-        m_targets = [_ for _ in self.encounter.all_monsters() if _.status == status.OK]
+        m_targets = [_ for _ in self.monsters.all() if _.status == status.OK]
         if not m_targets:
             return False
         pcs = self.world.all_pcs()
@@ -231,7 +230,7 @@ class Encounter(models.Model):
 
     ##########################################################################
     def monster_action(self):
-        for monster in self.encounter.all_monsters():
+        for monster in self.monsters.all():
             if monster.status == status.OK:
                 self.obj_action(monster)
             else:

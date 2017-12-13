@@ -128,6 +128,7 @@ def place_monsters(enc_id):
 def print_arena(enc_id):
     ans = rget('/encounter/{}/arena/'.format(enc_id))
     print(ans['map'])
+    print()
 
 
 ##############################################################################
@@ -156,6 +157,12 @@ def delete_world(world_id, chars):
 
 
 ##############################################################################
+def combat_round(enc_id):
+    ans = rpost('/encounter/{}/combat_round/'.format(enc_id), data={})
+    return ans['finished']
+
+
+##############################################################################
 def main():
     global sess
     sess = requests.session()
@@ -168,14 +175,16 @@ def main():
     place_monsters(encounter_id)
     print_arena(encounter_id)
 
-# while True:
-#     if not e.combat_round():
-#         break
-#     e.print_arena()
-#
+    while True:
+        finished = combat_round(encounter_id)
+        if finished:
+            break
+        print_arena(encounter_id)
+
 # e.status()
 # e.close()
 
+    print_arena(encounter_id)
     delete_encounter(encounter_id)
     delete_world(world_id, chars)
 

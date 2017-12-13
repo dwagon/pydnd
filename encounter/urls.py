@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/place_monsters/$', views.place_monster, name='encounter-monster-place'),
 
     url(r'^(?P<pk>[0-9]+)/place_pcs/$', views.place_pcs, name='encounter-character-place'),
+    url(r'^(?P<pk>[0-9]+)/combat_round/$', views.combat_round, name='encounter-combat-round'),
     url(r'^(?P<pk>[0-9]+)/arena/$', views.ArenaViewSet.as_view({'get': 'getmap'}), name='encounter-arena'),
 ]
 
