@@ -114,7 +114,7 @@ def add_monsters(enc_id, monname, number=None):
     m = rget('/monster/?name={}'.format(monname))
     data = {'number': number}
     resp = rpost('/encounter/{}/monster/{}'.format(enc_id, m[0]['id']), data)
-    sys.stderr.write("Added {} {}\n".format(len(resp), resp[0]['name']))
+    sys.stderr.write("Added {} {}\n".format(len(resp), m[0]['name']))
 
 
 ##############################################################################

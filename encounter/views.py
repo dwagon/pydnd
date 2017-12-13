@@ -76,6 +76,6 @@ def place_monster(request, **kwargs):
 def place_pcs(request, **kwargs):
     enc = Encounter.objects.get(pk=kwargs['pk'])
     enc.place_pcs()
-    return Response({"status": "ok"})
+    return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
 
 # EOF
