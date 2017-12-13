@@ -7,6 +7,7 @@ from rest_framework import viewsets
 from rest_framework import status
 from utils import roll
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 
 ##############################################################################
@@ -65,5 +66,13 @@ class MonsterViewSet(viewsets.ModelViewSet):
         monsters = enc.monsters.all()
         serializer = MonsterStateSerializer(monsters, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+##############################################################################
+@api_view(['POST'])
+def place_pcs(request, **kwargs):
+    enc = Encounter.objects.get(pk=kwargs['pk'])
+    enc.place_pcs()
+    return Response({"status": "ok"})
 
 # EOF

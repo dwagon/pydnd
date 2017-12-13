@@ -129,6 +129,11 @@ def print_arena(enc_id):
 
 
 ##############################################################################
+def place_pcs(enc_id):
+    rpost('/encounter/{}/place_pcs/'.format(enc_id), data={})
+
+
+##############################################################################
 def delete_char(ch):
     sys.stderr.write("Deleting {}\n".format(ch['name']))
     rdelete('/character/{}'.format(ch['id']))
@@ -141,7 +146,8 @@ def main():
     sess.trust_env = False
     world_id = get_world()
     chars = make_chars(world_id)
-    encounter_id = make_encounter(world_id, 20, 20)
+    encounter_id = make_encounter(world_id, 15, 15)
+    place_pcs(encounter_id)
     add_monsters(encounter_id, 'Orc', number=9)
     place_monsters(encounter_id)
     print_arena(encounter_id)
