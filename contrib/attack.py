@@ -54,6 +54,7 @@ def get_world():
     if data:
         world_id = data[0]['id']
     else:
+        sys.stderr.write("Creating world\n")
         data = rpost('/world/', {"name": "attack{}".format(os.getpid())})
         world_id = data['id']
     return world_id
@@ -115,6 +116,7 @@ def add_monsters(enc_id, monname, number=None):
     data = {'number': number}
     resp = rpost('/encounter/{}/monster/{}'.format(enc_id, m[0]['id']), data)
     sys.stderr.write("Added {} {}\n".format(len(resp), m[0]['name']))
+    return resp
 
 
 ##############################################################################
@@ -140,6 +142,20 @@ def delete_char(ch):
 
 
 ##############################################################################
+def delete_encounter(enc_id):
+    sys.stderr.write("Deleting encounter\n")
+    rdelete('/encounter/{}'.format(enc_id))
+
+
+##############################################################################
+def delete_world(world_id, chars):
+    for ch in chars:
+        delete_char(ch)
+    sys.stderr.write("Deleting world\n")
+    rdelete('/world/{}'.format(world_id))
+
+
+##############################################################################
 def main():
     global sess
     sess = requests.session()
@@ -160,8 +176,9 @@ def main():
 # e.status()
 # e.close()
 
-    for ch in chars:
-        delete_char(ch)
+    delete_encounter(encounter_id)
+    delete_world(world_id, chars)
+
 
 ##############################################################################
 if __name__ == "__main__":
