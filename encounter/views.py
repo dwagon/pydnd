@@ -59,6 +59,13 @@ class MonsterViewSet(viewsets.ModelViewSet):
         serializer = MonsterStateSerializer(monsters, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    def remove(self, request, **kwargs):
+        """ Remove the monster state """
+        enc = Encounter.objects.get(pk=self.kwargs['pk'])
+        m = enc.monsters.get(pk=self.kwargs['monster'])
+        m.delete()
+        return Response({}, status=status.HTTP_204_NO_CONTENT)
+
 
 ##############################################################################
 @api_view(['POST'])

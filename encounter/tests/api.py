@@ -43,12 +43,43 @@ class test_Encounter_API(TestCase):
         m.save()
 
         data = {'number': 3}
-        resp = self.client.post(reverse('encounter-monster-create', kwargs={'pk': enc_id, 'monster': m.id}), data=data, follow=True, format='json')
+        resp = self.client.post(reverse('encounter-monster-detail', kwargs={'pk': enc_id, 'monster': m.id}), data=data, follow=True, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         result = resp.json()
         self.assertEqual(len(result), 3)
         self.assertEqual(result[0]['encounter'], enc_id)
         self.assertEqual(result[0]['monster'], m.id)
+
+    ##########################################################################
+    def test_delete_monsters(self):
+        data = {'world': self.w.id, 'size_x': 13, 'size_y': 17}
+        resp = self.client.post(reverse('encounter-list'), data=data, follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        result = resp.json()
+        enc_id = result['id']
+
+        num_monsters = 3
+        m = Monster(name='test_bat', numappearing=num_monsters)
+        m.save()
+
+        # Create the monsters
+        resp = self.client.post(reverse('encounter-monster-detail', kwargs={'pk': enc_id, 'monster': m.id}), data=data, follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # Get the list of monsters
+        mresp = self.client.get(reverse('encounter-monster-list', kwargs={'pk': enc_id}), follow=True, format='json')
+        self.assertEqual(mresp.status_code, status.HTTP_200_OK)
+        monsters = mresp.json()
+
+        # Delete one of the monsters
+        resp = self.client.delete(reverse('encounter-monster-detail', kwargs={'pk': enc_id, 'monster': monsters[0]['id']}), data={}, follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+
+        # Get the shorter list of monsters
+        mresp = self.client.get(reverse('encounter-monster-list', kwargs={'pk': enc_id}), follow=True, format='json')
+        self.assertEqual(mresp.status_code, status.HTTP_200_OK)
+        monsters = mresp.json()
+        self.assertEqual(len(monsters), num_monsters - 1)
 
     ##########################################################################
     def test_listing_monsters(self):
@@ -61,7 +92,7 @@ class test_Encounter_API(TestCase):
         m = Monster(name='test_kobold', numappearing=5)
         m.save()
 
-        resp = self.client.post(reverse('encounter-monster-create', kwargs={'pk': enc_id, 'monster': m.id}), data={}, follow=True, format='json')
+        resp = self.client.post(reverse('encounter-monster-detail', kwargs={'pk': enc_id, 'monster': m.id}), data={}, follow=True, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         result = resp.json()
         self.assertEqual(len(result), 5)
@@ -85,7 +116,7 @@ class test_Encounter_API(TestCase):
         m = Monster(name='test_drow', numappearing=2)
         m.save()
 
-        resp = self.client.post(reverse('encounter-monster-create', kwargs={'pk': enc_id, 'monster': m.id}), data={}, follow=True, format='json')
+        resp = self.client.post(reverse('encounter-monster-detail', kwargs={'pk': enc_id, 'monster': m.id}), data={}, follow=True, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         result = resp.json()
 
@@ -109,7 +140,7 @@ class test_Encounter_API(TestCase):
         m = Monster(name='xyz', numappearing=1)
         m.save()
 
-        resp = self.client.post(reverse('encounter-monster-create', kwargs={'pk': enc_id, 'monster': m.id}), data={}, follow=True, format='json')
+        resp = self.client.post(reverse('encounter-monster-detail', kwargs={'pk': enc_id, 'monster': m.id}), data={}, follow=True, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         resp = self.client.post(reverse('encounter-monster-place', kwargs={'pk': enc_id}), follow=True, format='json')
