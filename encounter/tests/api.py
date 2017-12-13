@@ -32,6 +32,19 @@ class test_Encounter_API(TestCase):
         self.assertEqual(e.size_x, 13)
 
     ##########################################################################
+    def test_delete(self):
+        data = {'world': self.w.id, 'size_x': 13, 'size_y': 7}
+        resp = self.client.post(reverse('encounter-list'), data=data, follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        data = resp.json()
+
+        resp = self.client.delete(reverse('encounter-detail', kwargs={'pk': data['id']}), follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+
+        e = Encounter.objects.filter(id=data['id'])
+        self.assertEqual(len(e), 0)
+
+    ##########################################################################
     def test_add_monsters(self):
         data = {'world': self.w.id, 'size_x': 17, 'size_y': 11}
         resp = self.client.post(reverse('encounter-list'), data=data, follow=True, format='json')
