@@ -1,5 +1,6 @@
 from django.test import TestCase
 from encounter.models import Encounter
+from equipment.models import Equipment
 from monster.models import Monster
 from character.models import Character
 from world.models import World
@@ -185,5 +186,53 @@ class test_Encounter_API(TestCase):
         for c in chars:
             self.assertNotEqual(c.x, -1)
             self.assertNotEqual(c.y, -1)
+
+    ##########################################################################
+    def setup_pc(self, enc_id):
+        # Create a pointed stick
+        ls = Equipment(name='Pointed Stick', category='w', damage='1d4')
+        ls.save()
+
+        # Create a PC
+        c = self.client.post(reverse('character-list'), data={'world': self.w.id, 'charclass': 'F', 'name': 'Figlet'}, follow=True, format='json')
+        self.assertEqual(c.status_code, status.HTTP_201_CREATED)
+        char = c.json()['id']
+
+        # Find a pointed stick
+        ps = self.client.get(reverse('equipment-list') + '?name=Pointed%20Stick', follow=True, format='json')
+        self.assertEqual(ps.status_code, status.HTTP_200_OK)
+        stick = ps.json()[0]['id']
+
+        # Equip the stick
+        equ = self.client.post(reverse('inventory-detail', kwargs={'pk': char, 'inv_pk': stick}), data={'ready': True}, follow=True, format='json')
+        self.assertEqual(equ.status_code, status.HTTP_200_OK)
+
+    ##########################################################################
+    def test_combat_round(self):
+        data = {'world': self.w.id, 'size_x': 3, 'size_y': 7}
+        resp = self.client.post(reverse('encounter-list'), data=data, follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        enc_id = resp.json()['id']
+
+        self.setup_pc(enc_id)
+
+        # Place the PC
+        resp = self.client.post(reverse('encounter-character-place', kwargs={'pk': enc_id}), follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # Create the monsters
+        m = Monster(name='test_spider', numappearing=2, damage='1d6')
+        m.save()
+
+        resp = self.client.post(reverse('encounter-monster-detail', kwargs={'pk': enc_id, 'monster': m.id}), data={}, follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # Place the monsters
+        resp = self.client.post(reverse('encounter-monster-place', kwargs={'pk': enc_id}), follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # Finally, combat
+        resp = self.client.post(reverse('encounter-combat-round', kwargs={'pk': enc_id}), follow=True, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
 # EOF
