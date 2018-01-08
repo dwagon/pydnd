@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^monster/', include('monster.urls')),
     url(r'^equipment/', include('equipment.urls')),
     url(r'^character/', include('character.urls')),
+    url(r'^message/', include('message.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
 

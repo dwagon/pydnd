@@ -10,6 +10,7 @@ from .map_bits import Wall
 from character.models import Character
 from .location import Location
 from monster.models import Monster, MonsterState
+from message.models import Message
 from utils import roll
 
 
@@ -149,10 +150,12 @@ class Encounter(models.Model):
 
     ##########################################################################
     def status(self):
+        output = []
         for pc in self.world.all_pcs():
-            print(pc)
+            output.append(str(pc))
         for mon in self.encounter.all_monsters():
-            print(mon)
+            output.append(str(mon))
+        return output
 
     ##########################################################################
     def close(self):
@@ -181,9 +184,14 @@ class Encounter(models.Model):
         return True
 
     ##########################################################################
+    def M(self, msg):
+        m = Message(world=self.world, msg=msg)
+        m.save()
+
+    ##########################################################################
     def obj_dead(self, obj):
         """ Object is no longer part of the living or unliving """
-        print("{} has died".format(obj.name))
+        self.M("{} has died".format(obj.name))
         l = self.locations.get(x=obj.x, y=obj.y)
         l.delete()
 
@@ -214,11 +222,11 @@ class Encounter(models.Model):
                 weap = "with {} ".format(obj.equipped_weapon().name)
             else:
                 weap = ""
-            print("{} hit {} {}for {} -> {}".format(obj.name, targ.name, weap, dmg, targ.get_status_display()))
+            self.M("{} hit {} {}for {} -> {}".format(obj.name, targ.name, weap, dmg, targ.get_status_display()))
             if targ.status == status.DEAD:
                 self.obj_dead(targ)
         else:
-            print("{} missed {}".format(obj.name, targ.name))
+            self.M("{} missed {}".format(obj.name, targ.name))
 
     ##########################################################################
     def pc_action(self):
@@ -226,7 +234,7 @@ class Encounter(models.Model):
             if pc.status == status.OK:
                 self.obj_action(pc)
             else:
-                print("{} is {}".format(pc.name, pc.get_status_display()))
+                self.M("{} is {}".format(pc.name, pc.get_status_display()))
 
     ##########################################################################
     def monster_action(self):
@@ -234,7 +242,7 @@ class Encounter(models.Model):
             if monster.status == status.OK:
                 self.obj_action(monster)
             else:
-                print("{} is {}".format(monster.name, monster.get_status_display()))
+                self.M("{} is {}".format(monster.name, monster.get_status_display()))
 
     ##########################################################################
     def dir_to_move(self, obj):
@@ -298,10 +306,10 @@ class Encounter(models.Model):
         targx = obj.x + dirmap[drn][0]
         targy = obj.y + dirmap[drn][1]
         if self[(targx, targy)]:
-            print("{} Movement blocked by {}".format(obj.name, self[(targx, targy)].name))
+            self.M("{} Movement blocked by {}".format(obj.name, self[(targx, targy)].name))
             return False
 
-        print("{} moved from {},{} {} to {}, {}".format(obj.name, obj.x, obj.y, drn, targx, targy))
+        self.M("{} moved from {},{} {} to {}, {}".format(obj.name, obj.x, obj.y, drn, targx, targy))
         self.change_loc(obj.x, obj.y, targx, targy)
         obj.x, obj.y = targx, targy
         obj.save()

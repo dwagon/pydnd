@@ -128,7 +128,15 @@ def place_monsters(enc_id):
 def print_arena(enc_id):
     ans = rget('/encounter/{}/arena/'.format(enc_id))
     print(ans['map'])
-    print()
+    print("")
+
+
+##############################################################################
+def get_messages(enc_id):
+    msglist = rget('/message/')
+    for m in msglist:
+        print(m['msg'])
+        rdelete('/message/{}'.format(m['id']))
 
 
 ##############################################################################
@@ -171,7 +179,7 @@ def main():
     chars = make_chars(world_id)
     encounter_id = make_encounter(world_id, 15, 15)
     place_pcs(encounter_id)
-    add_monsters(encounter_id, 'Orc', number=9)
+    add_monsters(encounter_id, 'Orc', number=10)
     place_monsters(encounter_id)
     print_arena(encounter_id)
 
@@ -180,9 +188,7 @@ def main():
         if finished:
             break
         print_arena(encounter_id)
-
-# e.status()
-# e.close()
+        get_messages(encounter_id)
 
     print_arena(encounter_id)
     delete_encounter(encounter_id)

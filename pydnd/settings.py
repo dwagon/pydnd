@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'encounter',
     'character',
     'equipment',
+    'message',
     'monster'
 ]
 
