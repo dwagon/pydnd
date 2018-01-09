@@ -6,39 +6,58 @@ import os
 import sys
 
 baseurl = 'http://localhost:8000'
+retries = 5
 
 
 ##############################################################################
 def rpost(url, data):
-    r = sess.post(baseurl + url, json=data)
-    if r.status_code in (200, 201):
-        data = json.loads(r.content)
-        return data
+    for i in range(retries):
+        try:
+            r = sess.post(baseurl + url, json=data)
+            if r.status_code in (200, 201):
+                data = json.loads(r.content)
+                return data
+            else:
+                sys.stderr.write("Error {}: {}\n".format(r.status_code, url))
+                sys.stderr.write("Content={}\n".format(r.content))
+                sys.exit(1)
+        except Exception as exc:
+            sys.stderr.write("Retry {}: {}".format(i, exc))
     else:
-        sys.stderr.write("Error {}: {}\n".format(r.status_code, url))
-        sys.stderr.write("Content={}\n".format(r.content))
-        sys.exit(1)
+        sys.stderr.write("Failed to post: {}: {}".format(url, data))
 
 
 ##############################################################################
 def rget(url):
-    r = sess.get(baseurl + url)
-    if r.status_code in (200, 201):
-        data = json.loads(r.content)
-        return data
+    for i in range(retries):
+        try:
+            r = sess.get(baseurl + url)
+            if r.status_code in (200, 201):
+                data = json.loads(r.content)
+                return data
+            else:
+                sys.stderr.write("Error {}: {}\n".format(r.status_code, url))
+                sys.exit(1)
+        except Exception as exc:
+            sys.stderr.write("Retry {}: {}".format(i, exc))
     else:
-        sys.stderr.write("Error {}: {}\n".format(r.status_code, url))
-        sys.exit(1)
+        sys.stderr.write("Failed to get: {}: {}".format(url, data))
 
 
 ##############################################################################
 def rdelete(url):
-    r = sess.delete(baseurl + url)
-    if r.status_code in (200, 204):
-        return
+    for i in range(retries):
+        try:
+            r = sess.delete(baseurl + url)
+            if r.status_code in (200, 204):
+                return
+            else:
+                sys.stderr.write("Error {}: {}\n".format(r.status_code, url))
+                sys.exit(1)
+        except Exception as exc:
+            sys.stderr.write("Retry {}: {}".format(i, exc))
     else:
-        sys.stderr.write("Error {}: {}\n".format(r.status_code, url))
-        sys.exit(1)
+        sys.stderr.write("Failed to delete: {}".format(url))
 
 
 ##############################################################################
@@ -136,7 +155,7 @@ def get_messages(enc_id):
     msglist = rget('/message/')
     for m in msglist:
         print(m['msg'])
-        rdelete('/message/{}'.format(m['id']))
+        rdelete('/message/{}/'.format(m['id']))
 
 
 ##############################################################################
@@ -147,13 +166,13 @@ def place_pcs(enc_id):
 ##############################################################################
 def delete_char(ch):
     sys.stderr.write("Deleting {}\n".format(ch['name']))
-    rdelete('/character/{}'.format(ch['id']))
+    rdelete('/character/{}/'.format(ch['id']))
 
 
 ##############################################################################
 def delete_encounter(enc_id):
     sys.stderr.write("Deleting encounter\n")
-    rdelete('/encounter/{}'.format(enc_id))
+    rdelete('/encounter/{}/'.format(enc_id))
 
 
 ##############################################################################
@@ -161,7 +180,7 @@ def delete_world(world_id, chars):
     for ch in chars:
         delete_char(ch)
     sys.stderr.write("Deleting world\n")
-    rdelete('/world/{}'.format(world_id))
+    rdelete('/world/{}/'.format(world_id))
 
 
 ##############################################################################
@@ -179,7 +198,7 @@ def main():
     chars = make_chars(world_id)
     encounter_id = make_encounter(world_id, 15, 15)
     place_pcs(encounter_id)
-    add_monsters(encounter_id, 'Orc', number=10)
+    add_monsters(encounter_id, 'Orc', number=15)
     place_monsters(encounter_id)
     print_arena(encounter_id)
 
