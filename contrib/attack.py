@@ -10,10 +10,10 @@ retries = 5
 
 
 ##############################################################################
-def rpost(url, data):
+def rmethod(url, method, data={}):
     for i in range(retries):
         try:
-            r = sess.post(baseurl + url, json=data)
+            r = method(baseurl + url, json=data)
             if r.status_code in (200, 201):
                 data = json.loads(r.content)
                 return data
@@ -22,42 +22,25 @@ def rpost(url, data):
                 sys.stderr.write("Content={}\n".format(r.content))
                 sys.exit(1)
         except Exception as exc:
-            sys.stderr.write("Retry {}: {}".format(i, exc))
+            sys.stderr.write("Retry {}: {}\n".format(i, exc))
     else:
-        sys.stderr.write("Failed to post: {}: {}".format(url, data))
+        sys.stderr.write("Failed to {}: {}: {}\n".format(method.__name__, url, data))
+        sys.exit(1)
+
+
+##############################################################################
+def rpost(url, data):
+    return rmethod(url, sess.post, data)
 
 
 ##############################################################################
 def rget(url):
-    for i in range(retries):
-        try:
-            r = sess.get(baseurl + url)
-            if r.status_code in (200, 201):
-                data = json.loads(r.content)
-                return data
-            else:
-                sys.stderr.write("Error {}: {}\n".format(r.status_code, url))
-                sys.exit(1)
-        except Exception as exc:
-            sys.stderr.write("Retry {}: {}".format(i, exc))
-    else:
-        sys.stderr.write("Failed to get: {}: {}".format(url, data))
+    return rmethod(url, sess.get)
 
 
 ##############################################################################
 def rdelete(url):
-    for i in range(retries):
-        try:
-            r = sess.delete(baseurl + url)
-            if r.status_code in (200, 204):
-                return
-            else:
-                sys.stderr.write("Error {}: {}\n".format(r.status_code, url))
-                sys.exit(1)
-        except Exception as exc:
-            sys.stderr.write("Retry {}: {}".format(i, exc))
-    else:
-        sys.stderr.write("Failed to delete: {}".format(url))
+    return rmethod(url, sess.delete)
 
 
 ##############################################################################
