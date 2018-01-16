@@ -29,4 +29,11 @@ class CharacterSerializer(serializers.ModelSerializer):
         model = Character
         fields = '__all__'
 
+
+##############################################################################
+class CharacterShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Character
+        fields = ('id', 'name', 'charclass', 'hp', 'max_hp', 'ac', 'thaco', 'movement', 'level', 'status')
+
 # EOF

@@ -1,5 +1,5 @@
 from .models import Encounter
-from .serializers import EncounterSerializer
+from .serializers import EncounterSerializer, LocationSerializer
 from monster.models import MonsterState, Monster
 from monster.serializers import MonsterStateSerializer
 from rest_framework import generics
@@ -36,8 +36,11 @@ class MonsterList(generics.ListCreateAPIView):
 class ArenaViewSet(viewsets.ModelViewSet):
     def getmap(self, request, **kwargs):
         enc = Encounter.objects.get(pk=self.kwargs['pk'])
-        data = {'map': enc.print_arena()}
-        return Response(data)
+        arena = {}
+        for i in enc.locations.all():
+            loc = "{} {}".format(i.x, i.y)
+            arena[loc] = LocationSerializer(i).data
+        return Response(arena, status=status.HTTP_200_OK)
 
 
 ##############################################################################
