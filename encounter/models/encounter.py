@@ -192,8 +192,8 @@ class Encounter(models.Model):
     def obj_dead(self, obj):
         """ Object is no longer part of the living or unliving """
         self.M("{} has died".format(obj.name))
-        l = self.locations.get(x=obj.x, y=obj.y)
-        l.delete()
+        loc = self.locations.get(x=obj.x, y=obj.y)
+        loc.delete()
 
     ##########################################################################
     def obj_action(self, obj):
@@ -273,22 +273,22 @@ class Encounter(models.Model):
     ##########################################################################
     def __getitem__(self, loc):
         try:
-            l = self.locations.get(x=loc[0], y=loc[1])
-            return l.content_object
+            loc = self.locations.get(x=loc[0], y=loc[1])
+            return loc.content_object
         except ObjectDoesNotExist:
             return None
 
     ##########################################################################
     def Xdelete(self, x, y):
-        l = self.locations.filter(x=x, y=y)
-        l.delete()
+        loc = self.locations.filter(x=x, y=y)
+        loc.delete()
 
     ##########################################################################
     def change_loc(self, oldx, oldy, newx, newy):
-        l = self.locations.get(x=oldx, y=oldy)
-        l.x, l.y = newx, newy
-        l.save()
-        return l
+        loc = self.locations.get(x=oldx, y=oldy)
+        loc.x, loc.y = newx, newy
+        loc.save()
+        return loc
 
     ##########################################################################
     def clear(self):
@@ -325,14 +325,14 @@ class Encounter(models.Model):
         for x in range(0, self.size_x):
             ycol = []
             for y in range(0, self.size_y):
-                l = self.locations.filter(x=x, y=y)
-                if not l:
+                loc = self.locations.filter(x=x, y=y)
+                if not loc:
                     ycol.append('.')
                     continue
-                elif isinstance(l[0].content_object, Wall):
+                elif isinstance(loc[0].content_object, Wall):
                     ycol.append('X')
                 else:
-                    sys.stderr.write("{}, {} = {}".format(x, y, type(l[0].content_object)))
+                    sys.stderr.write("{}, {} = {}".format(x, y, type(loc[0].content_object)))
                     ycol.append('?')
             m.append("".join(ycol))
         return "\n".join(m)
@@ -358,8 +358,8 @@ class Encounter(models.Model):
         obj.x = x
         obj.y = y
         obj.save()
-        l = Location(encounter=self, x=x, y=y, content_object=obj)
-        l.save()
+        loc = Location(encounter=self, x=x, y=y, content_object=obj)
+        loc.save()
 
     ##########################################################################
     def delete(self, *args, **kwargs):
