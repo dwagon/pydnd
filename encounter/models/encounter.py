@@ -49,16 +49,25 @@ class Encounter(models.Model):
             ms.save()
 
     ##########################################################################
+    def find_empty_spot(self, x, y):
+        while self[(x, y)]:
+            xdelta = random.choice([-1, 0, 1])
+            ydelta = random.choice([-1, 0, 1])
+            x += xdelta
+            y += ydelta
+            x = max(0, x)
+            y = max(0, y)
+            x = min(x, self.size_x)
+            y = min(y, self.size_y)
+        return x, y
+
+    ##########################################################################
     def place_pcs(self):
         """ Put all PCs in this world in the arena clustered around the middle """
         for pc in self.world.all_pcs():
             x = int(self.size_x / 2)
             y = int(self.size_y / 2)
-            while self[(x, y)]:
-                xdelta = random.choice([-1, 0, 1])
-                ydelta = random.choice([-1, 0, 1])
-                x += xdelta
-                y += ydelta
+            x, y = self.find_empty_spot(x, y)
             self.set_location(pc, x, y)
 
     ##########################################################################
@@ -66,11 +75,7 @@ class Encounter(models.Model):
         for monster in MonsterState.objects.filter(encounter=self):
             x = random.randint(0, self.size_x-1)
             y = random.randint(0, self.size_y-1)
-            while self[(x, y)]:
-                xdelta = random.choice([-1, 0, 1])
-                ydelta = random.choice([-1, 0, 1])
-                x += xdelta
-                y += ydelta
+            x, y = self.find_empty_spot(x, y)
             self.set_location(monster, x, y)
             monster.x = x
             monster.y = y
