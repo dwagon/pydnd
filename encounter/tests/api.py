@@ -163,11 +163,12 @@ class test_Encounter_API(TestCase):
         resp = self.client.get(reverse('encounter-arena', kwargs={'pk': enc_id}), follow=True, format='json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         result = resp.json()
-        self.assertIn(m.name, result['map'])
-        lines = result['map'].splitlines()
-        self.assertEqual(len(lines), size_x)
-        cols = lines[0].split()
-        self.assertEqual(len(cols), size_y)
+        for loc in result:
+            x = int(loc.split()[0])
+            y = int(loc.split()[1])
+            self.assertEqual(x, result[loc]['x'])
+            self.assertEqual(y, result[loc]['y'])
+            self.assertEqual(result[loc]['content']['name'], 'xyz0')
 
     ##########################################################################
     def test_placing_pcs(self):
