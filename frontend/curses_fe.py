@@ -3,53 +3,63 @@
 import curses
 import pydnd
 
-
-##############################################################################
-def init_curses():
-    stdscr = curses.initscr()
-    curses.noecho()
-    curses.cbreak()
-    return stdscr
+arena_x = 10
+arena_y = 20
 
 
 ##############################################################################
-def draw_map(scr, eid):
-    arena = pydnd.get_arena(eid)
-    scr.border()
-    for loc in arena:
-        x_str, y_str = loc.split()
-        x, y = int(x_str), int(y_str)
-        f = open('/tmp/foo.2', 'a')
-        try:
-            f.write("{} {} {} {}\n".format(y, x, loc, arena[loc]))
-        except Exception as exc:
-            f.write("exc={}\n".format(exc))
-        f.close()
-        y = min(y, 0)
-        x = min(x, 0)
-        scr.addnstr(y, x, arena[loc]['content']['name'], 5)
-    scr.refresh()
+class Screen(object):
+    def __init__(self, screen):
+        self.screen = screen
+        self.screen_height, self.screen_width = screen.getmaxyx()
+        self.init_windows()
+        self.encounter_id = self.init_game()
 
+    #########################################################################
+    def init_windows(self):
+        third = int(self.screen_width / 3)
+        self.message_win = self.screen.subwin(5, self.screen_width, self.screen_height-5, 0)
+        self.message_win.border()
+        self.map_win = self.screen.subwin(self.screen_height-4, third*2+1, 0, 0)
+        self.map_win.border()
+        self.detail_win = self.screen.subwin(self.screen_height-4, third, 0, third*2)
+        self.detail_win.border()
+        self.screen.refresh()
 
-##############################################################################
-def end_curses(stdscr):
-    curses.nocbreak()
-    stdscr.keypad(False)
-    curses.echo()
-    curses.endwin()
+    #########################################################################
+    def init_game(self):
+        pydnd.initiate_session()
+        world_id = pydnd.get_world()
+        pydnd.make_chars(world_id)
+        encounter_id = pydnd.make_encounter(world_id, arena_x, arena_y)
+        pydnd.place_pcs(encounter_id)
+        pydnd.add_monsters(encounter_id, 'Orc', number=15)
+        pydnd.place_monsters(encounter_id)
+        return encounter_id
+
+    #########################################################################
+    def loop(self):
+        self.draw_map(self.map_win, self.encounter_id)
+        self.screen.refresh()
+        self.screen.getch()
+
+    ##########################################################################
+    def draw_map(self, win, eid):
+        arena = pydnd.get_arena(eid)
+        win.border()
+        win.addstr(0, 0, "Testing")
+        win.bkgd('.')
+        for loc in arena:
+            x_str, y_str = loc.split()
+            x, y = int(x_str), int(y_str)
+            win.addnstr(y, x*4, arena[loc]['content']['name'], 4)
+        win.refresh()
 
 
 ##############################################################################
 def main(stdscr):
-    pydnd.initiate_session()
-    world_id = pydnd.get_world()
-    chars = pydnd.make_chars(world_id)
-    encounter_id = pydnd.make_encounter(world_id, 15, 15)
-    pydnd.place_pcs(encounter_id)
-    pydnd.add_monsters(encounter_id, 'Orc', number=15)
-    pydnd.place_monsters(encounter_id)
-    draw_map(stdscr, encounter_id)
-    len(chars)
+    s = Screen(stdscr)
+    s.loop()
 
 
 ##############################################################################
