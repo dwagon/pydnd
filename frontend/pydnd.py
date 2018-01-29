@@ -18,13 +18,14 @@ def rmethod(url, method, data={}):
                 data = json.loads(r.content)
                 return data
             else:
-                sys.stderr.write("Error {}: {}\n".format(r.status_code, url))
-                sys.stderr.write("Content={}\n".format(r.content))
+                # sys.stderr.write("Error {}: {}\n".format(r.status_code, url))
+                # sys.stderr.write("Content={}\n".format(r.content))
                 sys.exit(1)
         except Exception as exc:
-            sys.stderr.write("Retry {}: {}\n".format(i, exc))
+            # sys.stderr.write("Retry {}: {}\n".format(i, exc))
+            pass
     else:
-        sys.stderr.write("Failed to {}: {}: {}\n".format(method.__name__, url, data))
+        # sys.stderr.write("Failed to {}: {}: {}\n".format(method.__name__, url, data))
         sys.exit(1)
 
 
@@ -129,16 +130,21 @@ def get_arena(enc_id):
 
 
 ##############################################################################
-def get_messages(enc_id):
+def get_messages(enc_id, max_num=None, delete=False):
+    ans = []
     msglist = rget('/message/')
+    if max_num:
+        msglist = msglist[:max_num]
     for m in msglist:
-        print(m['msg'])
-        rdelete('/message/{}/'.format(m['id']))
+        ans.append(m['msg'])
+        if delete:
+            rdelete('/message/{}/'.format(m['id']))
+    return ans
 
 
 ##############################################################################
 def place_pcs(enc_id):
-    rpost('/encounter/{}/place_pcs/'.format(enc_id), data={})
+    ans = rpost('/encounter/{}/place_pcs/'.format(enc_id), data={})
 
 
 ##############################################################################
