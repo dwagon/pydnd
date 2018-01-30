@@ -13,20 +13,26 @@ retries = 5
 def rmethod(url, method, data={}):
     for i in range(retries):
         try:
-            r = method(baseurl + url, json=data)
-            if r.status_code in (200, 201):
-                data = json.loads(r.content)
-                return data
+            if method.__name__ == 'delete':
+                r = method(baseurl + url)
+                if not r.ok:
+                    sys.stderr.write("Error {}: {}\n".format(r.status_code, url))
+                return
             else:
-                # sys.stderr.write("Error {}: {}\n".format(r.status_code, url))
-                # sys.stderr.write("Content={}\n".format(r.content))
-                sys.exit(1)
+                r = method(baseurl + url, json=data)
+                if r.ok:
+                    data = json.loads(r.content)
+                    return data
+                else:
+                    sys.stderr.write("Error {}: {}\n".format(r.status_code, url))
+                    sys.stderr.write("Content={}\n".format(r.content))
+                    return
         except Exception as exc:
-            # sys.stderr.write("Retry {}: {}\n".format(i, exc))
-            pass
+            sys.stderr.write("Retry {}: {}\n".format(i, exc))
+            raise
     else:
-        # sys.stderr.write("Failed to {}: {}: {}\n".format(method.__name__, url, data))
-        sys.exit(1)
+        sys.stderr.write("Failed to {}: {}: {}\n".format(method.__name__, url, data))
+        return
 
 
 ##############################################################################
@@ -95,6 +101,7 @@ def make_thief(world_id, name):
 def make_chars(world_id):
     chars = []
 
+    delete_all_chars()
     for i in range(4):
         chars.append(make_fighter(world_id, "Fez{}".format(i)))
 
@@ -143,13 +150,21 @@ def get_messages(enc_id, max_num=None, delete=False):
 
 
 ##############################################################################
+def delete_all_chars():
+    ans = rget('/character/')
+    for ch in ans:
+        ans = delete_char(ch)
+
+
+##############################################################################
 def place_pcs(enc_id):
-    ans = rpost('/encounter/{}/place_pcs/'.format(enc_id), data={})
+    rpost('/encounter/{}/place_pcs/'.format(enc_id), data={})
 
 
 ##############################################################################
 def delete_char(ch):
-    rdelete('/character/{}/'.format(ch['id']))
+    ans = rdelete('/character/{}/'.format(ch['id']))
+    return(ans)
 
 
 ##############################################################################
