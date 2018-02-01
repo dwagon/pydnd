@@ -133,6 +133,9 @@ class Character(models.Model):
 
     gear = models.ManyToManyField('equipment.Equipment', blank=True, through=EquipState)
     spells = models.ManyToManyField('Spell', blank=True, through=SpellState)
+    moves = models.IntegerField(default=-1)
+    initiative = models.IntegerField(default=-1)
+    attacks = models.IntegerField(default=-1)
 
     animate = True
 
@@ -392,6 +395,20 @@ class Character(models.Model):
     def move(self, dirn):
         # self.world.move(self, dirn)
         pass
+
+    ##########################################################################
+    def start_turn(self):
+        self.generate_initiative()
+        self.attacks = 0
+        self.moves = self.movement
+        self.save()
+
+    ##########################################################################
+    def generate_initiative(self):
+        init = roll('d10') + self.stat_bonus('defadj')
+        self.initiative = init
+        self.save()
+        return init
 
     ##########################################################################
     def hitdie(self):
