@@ -137,6 +137,12 @@ def get_arena(enc_id):
 
 
 ##############################################################################
+def get_encounter(enc_id):
+    ans = rget('/encounter/{}/'.format(enc_id))
+    return ans
+
+
+##############################################################################
 def get_messages(enc_id, max_num=None, delete=False):
     ans = []
     msglist = rget('/message/')
@@ -180,8 +186,8 @@ def delete_world(world_id, chars):
 
 
 ##############################################################################
-def combat_round(enc_id):
-    ans = rpost('/encounter/{}/combat_round/'.format(enc_id), data={})
+def combat_phase(enc_id):
+    ans = rpost('/encounter/{}/combat_phase/'.format(enc_id), data={})
     return ans['finished']
 
 
@@ -195,21 +201,35 @@ def initiate_session():
 
 ##############################################################################
 def main():
+    initiate_session()
     world_id = get_world()
+    print("world_id={}".format(world_id))
     chars = make_chars(world_id)
+    print("chars={}".format(chars))
     encounter_id = make_encounter(world_id, 15, 15)
+    print("encounter_id={}".format(encounter_id))
     place_pcs(encounter_id)
     add_monsters(encounter_id, 'Orc', number=15)
     place_monsters(encounter_id)
 
     while True:
-        finished = combat_round(encounter_id)
+        finished = combat_phase(encounter_id)
+        arena = get_arena(encounter_id)
+        print("arena={}".format(arena))
+        encounter = get_encounter(encounter_id)
+        print("encounter={}".format(encounter))
         if finished:
             break
-        get_messages(encounter_id)
+        msgs = get_messages(encounter_id)
+        print("msgs={}".format(msgs))
+        input("Press key")
 
     delete_encounter(encounter_id)
     delete_world(world_id, chars)
 
+
+##############################################################################
+if __name__ == "__main__":
+    main()
 
 # EOF
