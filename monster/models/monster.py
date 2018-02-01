@@ -14,6 +14,9 @@ class MonsterState(models.Model):
     status = models.CharField(max_length=2, choices=status.status_choices, default=status.UNDEF)
     x = models.IntegerField(default=-1)
     y = models.IntegerField(default=-1)
+    moves = models.IntegerField(default=-1)
+    initiative = models.IntegerField(default=-1)
+    attacks = models.IntegerField(default=-1)
 
     animate = True
 
@@ -50,6 +53,20 @@ class MonsterState(models.Model):
     ##########################################################################
     def get_reach(self):
         return self.reach
+
+    ##########################################################################
+    def start_turn(self):
+        self.generate_initiative()
+        self.attacks = self.numattacks
+        self.moves = self.movement
+        self.save()
+
+    ##########################################################################
+    def generate_initiative(self):
+        init = roll('d10')
+        self.initiative = init
+        self.save()
+        return init
 
 
 ##############################################################################
