@@ -91,9 +91,9 @@ def place_pcs(request, **kwargs):
 
 ##############################################################################
 @api_view(['POST'])
-def combat_round(request, **kwargs):
+def combat_phase(request, **kwargs):
     enc = Encounter.objects.get(pk=kwargs['pk'])
-    keep_going = enc.combat_round()
+    keep_going = enc.combat_phase()
 
     return Response({"finished": not keep_going}, status=status.HTTP_200_OK)
 
