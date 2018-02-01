@@ -20,6 +20,7 @@ class Encounter(models.Model):
     PC = 'P'
 
     turn = models.IntegerField(default=0)
+    phase = models.IntegerField(default=-1)
     world = models.ForeignKey('world.World', on_delete=models.CASCADE)
     size_x = models.IntegerField(default=0)
     size_y = models.IntegerField(default=0)
@@ -173,18 +174,29 @@ class Encounter(models.Model):
             surv.earnXp(xp / len(survivors))
 
     ##########################################################################
-    def combat_round(self):
+    def combat_turn(self):
         self.turn += 1
-        m_targets = [_ for _ in self.monsters.all() if _.status == status.OK]
+        self.phase = 0
+        [_.start_turn() for _ in self.monsters.all() if _.status == status.OK]
+        [_.start_turn() for _ in self.world.all_pcs() if _.status == status.OK]
+        self.save()
+
+    ##########################################################################
+    def combat_phase(self):
+        if self.phase < 0 or self.phase > 20:
+            self.combat_turn()
+        self.phase += 1
+        self.save()
+        all_pcs = self.world.all_pcs()
+        all_monsters = self.monsters.all()
+        m_targets = [_ for _ in all_monsters if _.status == status.OK]
         if not m_targets:
             return False
-        pcs = self.world.all_pcs()
-        pc_targets = [_ for _ in pcs if _.status == status.OK]
+        pc_targets = [_ for _ in all_pcs if _.status == status.OK]
         if not pc_targets:
             return False
-        # TODO: Initiative
-        self.pc_action()
-        self.monster_action()
+        [self.obj_action(_) for _ in all_pcs if _.status == status.OK and _.initiative >= self.phase]
+        [self.obj_action(_) for _ in all_monsters if _.status == status.OK and _.initiative >= self.phase]
 
         return True
 
@@ -203,51 +215,35 @@ class Encounter(models.Model):
     ##########################################################################
     def obj_action(self, obj):
         """ Move towards an enemy until one is range and then attack them """
-        moves = obj.movement
-        for _ in range(moves):
-            reach = obj.get_reach()
-            if reach:
-                targ_list = self.enemy_in_reach(obj, reach)
-            else:
-                targ_list = self.enemy_neighbours(obj)
-            if targ_list:
-                break
-            else:
-                ne = self.nearest_enemy(obj)
-                if not ne:
-                    return
+        reach = obj.get_reach()
+        if reach:
+            targ_list = self.enemy_in_reach(obj, reach)
+        else:
+            targ_list = self.enemy_neighbours(obj)
+
+        if not targ_list and obj.moves > 0:
+            ne = self.nearest_enemy(obj)
+            if ne:
                 dirn = self.dir_to_move(obj)
                 self.move(obj, dirn)
-        else:
-            return
-        targ = random.choice(targ_list)
-        dmg = obj.attack(targ)
-        if dmg:
-            if hasattr(obj, 'equipped_weapon') and obj.equipped_weapon():
-                weap = "with {} ".format(obj.equipped_weapon().name)
-            else:
-                weap = ""
-            self.M("{} hit {} {}for {} -> {}".format(obj.name, targ.name, weap, dmg, targ.get_status_display()))
-            if targ.status == status.DEAD:
-                self.obj_dead(targ)
-        else:
-            self.M("{} missed {}".format(obj.name, targ.name))
+                obj.moves -= 1
+                obj.save()
 
-    ##########################################################################
-    def pc_action(self):
-        for pc in self.world.all_pcs():
-            if pc.status == status.OK:
-                self.obj_action(pc)
+        if obj.attacks > 0 and targ_list:
+            obj.attacks -= 1
+            targ = random.choice(targ_list)
+            dmg = obj.attack(targ)
+            if dmg:
+                if hasattr(obj, 'equipped_weapon') and obj.equipped_weapon():
+                    weap = "with {} ".format(obj.equipped_weapon().name)
+                else:
+                    weap = ""
+                self.M("{} hit {} {}for {} -> {}".format(obj.name, targ.name, weap, dmg, targ.get_status_display()))
+                if targ.status == status.DEAD:
+                    self.obj_dead(targ)
             else:
-                self.M("{} is {}".format(pc.name, pc.get_status_display()))
-
-    ##########################################################################
-    def monster_action(self):
-        for monster in self.monsters.all():
-            if monster.status == status.OK:
-                self.obj_action(monster)
-            else:
-                self.M("{} is {}".format(monster.name, monster.get_status_display()))
+                self.M("{} missed {}".format(obj.name, targ.name))
+            obj.save()
 
     ##########################################################################
     def dir_to_move(self, obj):
@@ -282,11 +278,6 @@ class Encounter(models.Model):
             return loc.content_object
         except ObjectDoesNotExist:
             return None
-
-    ##########################################################################
-    def Xdelete(self, x, y):
-        loc = self.locations.filter(x=x, y=y)
-        loc.delete()
 
     ##########################################################################
     def change_loc(self, oldx, oldy, newx, newy):
@@ -341,22 +332,6 @@ class Encounter(models.Model):
                     ycol.append('?')
             m.append("".join(ycol))
         return "\n".join(m)
-
-    ##########################################################################
-    def print_arena(self):
-        output = []
-        arena = {}
-        for i in self.locations.all():
-            arena[(i.x, i.y)] = i.content_object
-        for x in range(self.size_x):
-            line = []
-            for y in range(self.size_y):
-                if (x, y) in arena:
-                    line.append("{:4}".format(arena[(x, y)].name[:5]))
-                else:
-                    line.append("{:4}".format("_"))
-            output.append(" ".join(line))
-        return "\n".join(output)
 
     ##########################################################################
     def set_location(self, obj, x, y):
