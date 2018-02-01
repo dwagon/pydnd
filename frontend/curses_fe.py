@@ -72,7 +72,7 @@ class Screen(object):
     def loop(self):
         while True:
             self.draw_map(self.map_win, self.encounter_id)
-            finished = pydnd.combat_round(self.encounter_id)
+            finished = pydnd.combat_phase(self.encounter_id)
             self.display_messages()
             self.screen.refresh()
             self.screen.getch()
