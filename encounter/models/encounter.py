@@ -195,8 +195,8 @@ class Encounter(models.Model):
         pc_targets = [_ for _ in all_pcs if _.status == status.OK]
         if not pc_targets:
             return False
-        [self.obj_action(_) for _ in all_pcs if _.status == status.OK and _.initiative >= self.phase]
-        [self.obj_action(_) for _ in all_monsters if _.status == status.OK and _.initiative >= self.phase]
+        [self.obj_action(_) for _ in all_pcs if _.status == status.OK and self.phase >= _.initiative]
+        [self.obj_action(_) for _ in all_monsters if _.status == status.OK and self.phase >= _.initiative]
 
         return True
 
