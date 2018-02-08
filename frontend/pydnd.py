@@ -51,6 +51,20 @@ def rdelete(url):
 
 
 ##############################################################################
+def get_character(name=''):
+    data = rget('/character/?name={}'.format(name))
+    if data:
+        return data
+
+
+##############################################################################
+def get_monsters(enc_id):
+    data = rget('/monster/state/?encounter={}'.format(enc_id))
+    if data:
+        return data
+
+
+##############################################################################
 def get_weapon(wname):
     data = rget('/equipment/?name={}'.format(wname))
     if data:
@@ -95,19 +109,6 @@ def make_thief(world_id, name):
     lb = get_weapon('Long Bow')
     rpost('/character/{}/equip/{}'.format(resp['id'], lb['id']), data={'ready': True})
     return resp
-
-
-##############################################################################
-def make_chars(world_id):
-    chars = []
-
-    delete_all_chars()
-    for i in range(4):
-        chars.append(make_fighter(world_id, "Fez{}".format(i)))
-
-    for i in range(4):
-        chars.append(make_thief(world_id, "Tom{}".format(i)))
-    return chars
 
 
 ##############################################################################
@@ -179,7 +180,7 @@ def delete_encounter(enc_id):
 
 
 ##############################################################################
-def delete_world(world_id, chars):
+def delete_world(world_id, chars=[]):
     for ch in chars:
         delete_char(ch)
     rdelete('/world/{}/'.format(world_id))
@@ -202,30 +203,48 @@ def initiate_session():
 ##############################################################################
 def main():
     initiate_session()
+    delete_all_chars()
     world_id = get_world()
     print("world_id={}".format(world_id))
-    chars = make_chars(world_id)
-    print("chars={}".format(chars))
+    make_thief(world_id, "Tom")
+    make_fighter(world_id, "Fez")
     encounter_id = make_encounter(world_id, 15, 15)
     print("encounter_id={}".format(encounter_id))
     place_pcs(encounter_id)
-    add_monsters(encounter_id, 'Orc', number=15)
+    add_monsters(encounter_id, 'Orc', number=5)
     place_monsters(encounter_id)
 
     while True:
         finished = combat_phase(encounter_id)
         arena = get_arena(encounter_id)
-        print("arena={}".format(arena))
+        for y in range(15):
+            for x in range(15):
+                loc = "{} {}".format(x, y)
+                if loc in arena:
+                    sys.stdout.write("{:5}".format(arena[loc]['content']['name']))
+                else:
+                    sys.stdout.write("{:5}".format(". "))
+            sys.stdout.write("\n")
+
         encounter = get_encounter(encounter_id)
         print("encounter={}".format(encounter))
+        chars = get_character(encounter_id)
+        print("chars")
+        for ch in chars:
+            print("  {}".format(ch))
+        mons = get_monsters(encounter_id)
+        print("monsters")
+        for mo in mons:
+            print("  {}".format(mo))
         if finished:
             break
-        msgs = get_messages(encounter_id)
-        print("msgs={}".format(msgs))
-        input("Press key")
+        msgs = get_messages(encounter_id, delete=True)
+        for m in msgs:
+            print("{}".format(m))
+        input("--- Hit Return ---")
 
     delete_encounter(encounter_id)
-    delete_world(world_id, chars)
+    delete_world(world_id)
 
 
 ##############################################################################
