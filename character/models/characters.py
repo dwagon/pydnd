@@ -399,7 +399,7 @@ class Character(models.Model):
     ##########################################################################
     def start_turn(self):
         self.generate_initiative()
-        self.attacks = 0
+        self.attacks = 1
         self.moves = self.movement
         self.save()
 
