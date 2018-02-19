@@ -14,8 +14,8 @@ class Screen(object):
         self.msgbuf = deque([], msg_win_height)
         self.screen = screen
         self.screen_height, self.screen_width = screen.getmaxyx()
-        self.arena_x = int((self.screen_width * 2)/(3 * 5)) - 2
-        self.arena_y = int((self.screen_height - msg_win_height + 2) / 2) - 2
+        self.arena_x = int((self.screen_width * 2)/(3 * 5))
+        self.arena_y = int((self.screen_height - msg_win_height + 2) / 2) - 3
         self.init_windows()
         self.encounter_id = self.init_game()
 
