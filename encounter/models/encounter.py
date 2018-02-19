@@ -96,6 +96,7 @@ class Encounter(models.Model):
             for y in [objy-1, objy, objy+1]:
                 if (x, y) in arena:
                     n.append(arena[(x, y)])
+        if obj in n:
         n.remove(obj)
         return n
 
