@@ -4,6 +4,7 @@ import requests
 import json
 import os
 import sys
+import time
 
 baseurl = 'http://localhost:8000'
 retries = 5
@@ -29,7 +30,7 @@ def rmethod(url, method, data={}):
                     return
         except Exception as exc:
             sys.stderr.write("Retry {}: {}\n".format(i, exc))
-            raise
+            time.sleep(0.1)
     else:
         sys.stderr.write("Failed to {}: {}: {}\n".format(method.__name__, url, data))
         return
@@ -211,7 +212,7 @@ def main():
     encounter_id = make_encounter(world_id, 15, 15)
     print("encounter_id={}".format(encounter_id))
     place_pcs(encounter_id)
-    add_monsters(encounter_id, 'Orc', number=5)
+    add_monsters(encounter_id, 'Orc', number=4)
     place_monsters(encounter_id)
 
     while True:
