@@ -233,7 +233,7 @@ class test_Encounter_API(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         # Finally, combat
-        resp = self.client.post(reverse('encounter-combat-round', kwargs={'pk': enc_id}), follow=True, format='json')
+        resp = self.client.post(reverse('encounter-combat-phase', kwargs={'pk': enc_id}), follow=True, format='json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
 # EOF
