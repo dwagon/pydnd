@@ -19,18 +19,15 @@ class test_Fighter(TestCase):
         self.mace.save()
         self.spikes = Equipment(name='Iron Spikes', weight=6)
         self.spikes.save()
-        self.leather = Armour(name='Leather', weight=6, ac_base=6)
+        self.leather = Armour(name='Leather', weight=6, base_ac=6)
         self.leather.save()
-        self.helmet = Armour(name='Helmet', weight=5, ac_modifier=1)
-        self.helmet.save()
-        self.shield = Armour(name='Shield', weight=4, ac_modifier=2)
+        self.shield = Armour(name='Shield', weight=4)
         self.shield.save()
 
     def cleanUp(self):
         self.spikes.delete()
         self.sword.delete()
         self.leather.delete()
-        self.helmet.delete()
         self.fg.delete()
         self.w.delete()
 
@@ -38,9 +35,6 @@ class test_Fighter(TestCase):
         self.assertEqual(self.fg.hitdie(), 'd10')
         self.assertGreaterEqual(self.fg.hp, 1)
         self.assertLessEqual(self.fg.hp, 10)
-
-    def test_thaco(self):
-        self.assertEqual(self.fg.thaco, 20)
 
     def test_stats(self):
         self.assertGreaterEqual(self.fg.stat_str, 3)
@@ -61,10 +55,9 @@ class test_Fighter(TestCase):
 
     def test_armour(self):
         self.fg.equip(self.leather, ready=True)
-        self.fg.equip(self.helmet, ready=True)
         self.fg.equip(self.spikes)
         a = self.fg.equipped_armour()
-        self.assertEqual(sorted([_.name for _ in a]), sorted(['Leather', 'Helmet']))
+        self.assertEqual(sorted([_.name for _ in a]), sorted(['Leather']))
 
     def test_naked(self):
         a = self.fg.equipped_armour()
@@ -77,7 +70,6 @@ class test_Fighter(TestCase):
         self.assertEqual(self.fg.ac, 10)
         self.fg.equip(self.leather, ready=True)
         self.assertEqual(self.fg.ac, 6)
-        self.fg.equip(self.helmet, ready=True)
         self.assertEqual(self.fg.ac, 5)
         self.fg.equip(self.shield)
         self.assertEqual(self.fg.ac, 5)

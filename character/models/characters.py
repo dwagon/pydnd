@@ -1,18 +1,21 @@
-from django.db import models
-import random
-from . import tables
-from equipment.models import Equipment
 from . import Spell
-from utils import roll
+from . import tables
 from constants import alignment_choices
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+from django.db import models
+from equipment.models import Equipment
+from utils import roll
 import status
 
 
 ##############################################################################
 class EquipState(models.Model):
     character = models.ForeignKey('Character', on_delete=models.CASCADE)
-    equipment = models.ForeignKey('equipment.Equipment', on_delete=models.CASCADE)
     ready = models.BooleanField(default=False)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
 
     def __str__(self):
         return "{}'s {}".format(self.character.name, self.equipment.name)
@@ -261,7 +264,8 @@ class Character(models.Model):
     ##########################################################################
     def equipped_armour(self):
         """ Return the equiped armour """
-        e = Equipment.objects.filter(equipstate__ready=True, character=self, category=Equipment.ARMOUR)
+        # TODO
+        e = Equipment.objects.filter(equipstate__ready=True, character=self)
         return e
 
     ##########################################################################
@@ -362,26 +366,8 @@ class Character(models.Model):
 
     ##########################################################################
     def calc_ac(self):
-        armour = self.equipped_armour()
-        base = 10
-        mod = 0
-        dex = self.stat_bonus('defadj')
-        if armour:
-            base = min([_.ac_base for _ in armour])
-            mod = sum([_.ac_modifier for _ in armour])
-        ac = base - mod + dex
-        return ac
-
-    ##########################################################################
-    def calc_thaco(self):
-        if self.charclass == self.THIEF:
-            return 20 - int((self.level - 1) / 2)
-        elif self.charclass == self.FIGHTER:
-            return 21 - self.level
-        elif self.charclass == self.MAGE:
-            return 20 - int((self.level - 1) / 3)
-        elif self.charclass == self.CLERIC:
-            return 20 - int((self.level - 1) * 2 / 3)
+        pass
+        # TODO
 
     ##########################################################################
     def earnXp(self, xp):

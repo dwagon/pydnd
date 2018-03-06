@@ -19,9 +19,9 @@ class test_Monster(TestCase):
         self.assertEqual(self.orc.movement, 3)
 
     def test_attack(self):
-        e = Armour(name='useless', ac_base=30)
+        e = Armour(name='useless', base_ac=30)
         e.save()
-        c = Mage(world=self.w, name='victim', max_hp=10, hp=10)
+        c = Wizard(world=self.w, name='victim', max_hp=10, hp=10)
         c.save()
         c.equip(e, ready=True)
         dmg = self.orc.attack(c)
@@ -30,18 +30,18 @@ class test_Monster(TestCase):
         self.assertEqual(c.hp, 10 - dmg)
 
     def test_hit(self):
-        e = Armour(name='useless', ac_base=30)
+        e = Armour(name='useless', base_ac=30)
         e.save()
-        c = Mage(world=self.w, name='victim')
+        c = Wizard(world=self.w, name='victim')
         c.save()
         c.equip(e, ready=True)
         hit = self.orc.hit(c)
         self.assertTrue(hit)
 
     def test_miss(self):
-        e = Armour(name='impervious', ac_base=-30)
+        e = Armour(name='impervious', base_ac=-30)
         e.save()
-        c = Mage(world=self.w, name='victim')
+        c = Wizard(world=self.w, name='victim')
         c.save()
         c.equip(e, ready=True)
         c.ac = -30    # Guarantee miss
