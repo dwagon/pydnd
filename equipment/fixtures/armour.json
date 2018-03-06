@@ -1,0 +1,14 @@
+[
+    {"model": "equipment.armour", "pk": 1, "fields": {"name": "Padded", "cost": "5gp", "weight": 8, "armour_categ": "L", "base_ac": 11, "stealth_disadv": true}},
+    {"model": "equipment.armour", "pk": 2, "fields": {"name": "Leather", "cost": "10gp", "weight": 10, "armour_categ": "L", "base_ac": 11, "stealth_disadv": false}},
+    {"model": "equipment.armour", "pk": 3, "fields": {"name": "Studded Leather", "cost": "45gp", "weight": 13, "armour_categ": "L", "base_ac": 12, "stealth_disadv": false}},
+    {"model": "equipment.armour", "pk": 4, "fields": {"name": "Hide", "cost": "10gp", "weight": 10, "armour_categ": "M", "base_ac": 12, "stealth_disadv": false}},
+    {"model": "equipment.armour", "pk": 5, "fields": {"name": "Chain shirt", "cost": "50gp", "weight": 20, "armour_categ": "M", "base_ac": 13, "stealth_disadv": false}},
+    {"model": "equipment.armour", "pk": 6, "fields": {"name": "Scale Mail", "cost": "50gp", "weight": 45, "armour_categ": "M", "base_ac": 14, "stealth_disadv": true}},
+    {"model": "equipment.armour", "pk": 7, "fields": {"name": "Breastplate", "cost": "400gp", "weight": 20, "armour_categ": "M", "base_ac": 14, "stealth_disadv": false}},
+    {"model": "equipment.armour", "pk": 8, "fields": {"name": "Half plate", "cost": "750gp", "weight": 40, "armour_categ": "M", "base_ac": 15, "stealth_disadv": true}},
+    {"model": "equipment.armour", "pk": 9, "fields": {"name": "Ring mail", "cost": "30gp", "weight": 40, "armour_categ": "H", "base_ac": 14, "stealth_disadv": true}},
+    {"model": "equipment.armour", "pk": 10, "fields": {"name": "Chain mail", "cost": "75gp", "weight": 55, "armour_categ": "H", "base_ac": 16, "stealth_disadv": true}},
+    {"model": "equipment.armour", "pk": 11, "fields": {"name": "Splint", "cost": "200gp", "weight": 60, "armour_categ": "H", "base_ac": 17, "stealth_disadv": true}},
+    {"model": "equipment.armour", "pk": 12, "fields": {"name": "Plate", "cost": "1500gp", "weight": 65, "armour_categ": "H", "base_ac": 18, "stealth_disadv": true}}
+]

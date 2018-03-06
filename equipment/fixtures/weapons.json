@@ -1,0 +1,4 @@
+[
+    {"model": "equipment.weapon", "pk": 1, "fields": {"name": "Longsword", "cost": "15gp", "weight": 3, "damage": "1d8", "damage_cat": "S", "properties": "versatile (1d10)", "normal_range": 0, "long_range": 0}},
+    {"model": "equipment.weapon", "pk": 2, "fields": {"name": "Long bow", "cost": "50gp", "weight": 2, "damage": "1d8", "damage_cat": "P", "properties": "ammunition, heavy, twohanded", "normal_range": 150, "long_range": 600}}
+]
