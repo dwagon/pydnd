@@ -1,3 +1,3 @@
 [
-    {"model": "equipment.equipment", "pk": 1, "fields": {"name": "Rope, hempen (50 feet)", "cost": "1gp", "weight": 10}}
+    {"model": "equipment.equipment", "pk": 13, "fields": {"name": "Rope, hempen (50 feet)", "cost": "1gp", "weight": 10}}
 ]
