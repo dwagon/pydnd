@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from equipment.models import Equipment, Weapon
+from equipment.models import Equipment, Weapon, Armour
 
 
 ##############################################################################
@@ -17,10 +17,21 @@ class test_Equipment(TestCase):
 ##############################################################################
 class test_Weapons(TestCase):
     def setUp(self):
-        self.sword = Weapon(name='long sword', damage='1d8', damage_cat='S')
-        self.sword.save()
+        self.stick = Weapon(name='test stick', damage='1d4', damage_cat='P')
+        self.stick.save()
 
     def test_damage(self):
-        self.assertEqual(self.sword.damage, '1d8')
+        self.assertEqual(self.stick.damage, '1d4')
+
+
+##############################################################################
+class test_Armour(TestCase):
+    def setUp(self):
+        self.plate = Armour(name='test breastplate', cost="400gp", base_ac=14, armour_categ='M')
+        self.plate.save()
+
+    def test_ac(self):
+        ac = self.plate.calc_ac(5)
+        self.assertEqual(ac, 16)
 
 # EOF
