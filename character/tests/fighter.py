@@ -46,7 +46,7 @@ class test_Fighter(TestCase):
         self.fg.equip(self.spikes)
         self.assertEqual(self.fg.encumbrance, 18)
         self.fg.equip(self.leather, ready=True)
-        w = self.fg.equipped_weapon()
+        w = self.fg.equipped_weapon()[0]
         self.assertEqual(w.name, 'Long Sword')
 
     def test_unequiped(self):

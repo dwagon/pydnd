@@ -4,7 +4,7 @@ from constants import alignment_choices
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from equipment.models import Equipment
+from gm2m import GM2MField
 from utils import roll
 import status
 
@@ -12,10 +12,12 @@ import status
 ##############################################################################
 class EquipState(models.Model):
     character = models.ForeignKey('Character', on_delete=models.CASCADE)
-    ready = models.BooleanField(default=False)
+    content_object = GenericForeignKey(ct_field='content_type', fk_field='object_id')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
+    # object_id = models.PositiveIntegerField()
+    object_id = models.CharField(max_length=255)
+
+    ready = models.BooleanField(default=False)
 
     def __str__(self):
         return "{}'s {}".format(self.character.name, self.equipment.name)
@@ -134,7 +136,7 @@ class Character(models.Model):
     silver = models.IntegerField(default=0)
     copper = models.IntegerField(default=0)
 
-    gear = models.ManyToManyField('equipment.Equipment', blank=True, through=EquipState)
+    gear = GM2MField(through='EquipState')
     spells = models.ManyToManyField('Spell', blank=True, through=SpellState)
     moves = models.IntegerField(default=-1)
     initiative = models.IntegerField(default=-1)
@@ -201,10 +203,11 @@ class Character(models.Model):
 
     ##########################################################################
     def get_reach(self):
-        weap = self.equipped_weapon()
-        if not weap:
-            return 0
-        return weap.reach
+        weaps = self.equipped_weapon()
+        for weap in weaps:
+            if weap.normal_range:
+                return (weap.normal_range, weap.long_range)
+        return 0, 0
 
     ##########################################################################
     def calc_hp(self):
@@ -248,24 +251,23 @@ class Character(models.Model):
 
     ##########################################################################
     def equip(self, obj, ready=False):
-        e = EquipState(character=self, equipment=obj, ready=ready)
+        e = EquipState(character=self, content_object=obj, ready=ready)
         e.save()
         self.save()
         return e
 
     ##########################################################################
     def equipped_weapon(self):
-        """ Return the equiped weapon - currently only one weapon can be readied """
-        e = Equipment.objects.filter(equipstate__ready=True, character=self, category=Equipment.WEAPON)
-        if not e:
-            return None
-        return e[0]
+        """ Return the equipped weapon """
+        from equipment.models.weapon import Weapon
+        e = self.gear.filter(ready=True).filter(Model=Weapon)
+        return e
 
     ##########################################################################
     def equipped_armour(self):
-        """ Return the equiped armour """
-        # TODO
-        e = Equipment.objects.filter(equipstate__ready=True, character=self)
+        """ Return the equipped armour """
+        from equipment.models.armour import Armour
+        e = self.gear.filter(ready=True).filter(Model=Armour)
         return e
 
     ##########################################################################
@@ -281,8 +283,9 @@ class Character(models.Model):
 
     ##########################################################################
     def attack(self, victim):
-        weap = self.equipped_weapon()
-        if not weap or weap.reach == 0:
+        weaps = self.equipped_weapon()
+        for weap in weaps:
+            if weap.normal_range == 0:
             return self.melee_attack(weap, victim)
         else:
             return self.ranged_attack(weap, victim)
