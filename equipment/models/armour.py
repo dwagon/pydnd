@@ -7,10 +7,12 @@ class Armour(Equipment):
     LIGHT = 'L'
     MEDIUM = 'M'
     HEAVY = 'H'
+    SHIELD = 'S'
     armour_choices = (
         (LIGHT, 'Light'),
         (MEDIUM, 'Medium'),
-        (HEAVY, 'Heavy')
+        (HEAVY, 'Heavy'),
+        (SHIELD, 'Shield')
         )
     stealth_disadv = models.BooleanField(default=False)
     base_ac = models.IntegerField(default=-1)
