@@ -18,5 +18,14 @@ class Armour(Equipment):
     base_ac = models.IntegerField(default=-1)
     armour_categ = models.CharField(max_length=1, choices=armour_choices)
 
-    def calc_ac(self):
-        pass
+    def calc_ac(self, dexmod):
+        if self.armour_categ == 'L':
+            return self.base_ac + dexmod
+        elif self.armour_categ == 'M':
+            return self.base_ac + min(dexmod, 2)
+        elif self.armour_categ == 'H':
+            return self.base_ac
+        elif self.armour_categ == 'S':
+            return 2
+
+# EOF
