@@ -2,51 +2,13 @@
     {
         "model": "monster.monster",
         "pk": 1,
-        "fields": {"name": "Bugbear", "treasure": "J,K,L,M", "align": "CE", "numappearing": "2d4", "ac": 5, "movement": 9, "hitdie": "3d8+1", "thaco": 17, "numattacks": 1, "damage": "2d4", "xp": 120}
+        "fields": {
+            "name": "Orc", "align": "CE", "size": "M", "ac": 13, "hitdie": "2d8 + 6", "speed": 30, "stat_str": 16, "stat_dex": 12, "stat_con": 16, "stat_int": 7, "stat_wis": 11, "stat_cha": 10, "dmg_vuln": "", "dmg_immun": "", "cond_immun": "", "challenge": "1/2"}
     },
     {
-        "model": "monster.monster",
-        "pk": 2,
-        "fields": {"name": "Ghoul", "treasure": "B, T", "align": "CE", "numappearing": "2d12", "ac": 6, "movement": 9, "hitdie": "2d8", "thaco": 19, "numattacks": 3, "damage": "1d3/1d3/1d6", "xp": 175}
-    },
-    {
-        "model": "monster.monster",
-        "pk": 3,
-        "fields": {"name": "Gnolls", "treasure": "D,Q*5,S", "align": "CE", "numappearing": "2d6", "ac": 5, "movement": 9, "hitdie": "2d8", "thaco": 19, "numattacks": 1, "damage": "2d4", "xp": 35}
-    },
-    {
-        "model": "monster.monster",
-        "pk": 4,
-        "fields": {"name": "Goblin", "treasure": "C", "align": "LE", "numappearing": "4d6", "ac": 6, "movement": 6, "hitdie": "1d8", "thaco": 20, "numattacks": 1, "damage": "1d6", "xp": 15}
-    },
-    {
-        "model": "monster.monster",
-        "pk": 5,
-        "fields": {"name": "Hobgoblin", "treasure": "J, M, D", "align": "LE", "numappearing": "2d10", "ac": 5, "movement": 9, "hitdie": "1d8+1", "thaco": 19, "numattacks": 1, "damage": "1d6", "xp": 35}
-    },
-    {
-        "model": "monster.monster",
-        "pk": 6,
-        "fields": {"name": "Kobold", "treasure": "J, O", "align": "LE", "numappearing": "5d4", "ac": 7, "movement": 6, "hitdie": "1d4", "thaco": 20, "numattacks": 1, "damage": "1d4", "xp": 7}
-    },
-    {
-        "model": "monster.monster",
-        "pk": 7,
-        "fields": {"name": "Ogre", "treasure": "M", "align": "CE", "numappearing": "2d10", "ac": 5, "movement": 9, "hitdie": "4d8+1", "thaco": 17, "numattacks": 1, "damage": "1d10", "xp": 175}
-    },
-    {
-        "model": "monster.monster",
-        "pk": 8,
-        "fields": {"name": "Orc", "treasure": "L", "align": "LE", "numappearing": "3d10*10", "ac": 6, "movement": 9, "hitdie": "1d8", "thaco": 19, "numattacks": 1, "damage": "1d8", "xp": 15}
-    },
-    {
-        "model": "monster.monster",
-        "pk": 9,
-        "fields": {"name": "Skeleton", "treasure": "", "align": "N", "numappearing": "3d10", "ac": 7, "movement": 12, "hitdie": "1d8", "thaco": 19, "numattacks": 1, "damage": "1d6", "xp": 65}
-    },
-    {
-        "model": "monster.monster",
-        "pk": 10,
-        "fields": {"name": "Zombie", "treasure": "", "align": "N", "numappearing": "3d8", "ac": 8, "movement": 6, "hitdie": "2d8", "thaco": 19, "numattacks": 1, "damage": "1d8", "xp": 65}
+        "model": "monster.monsterattacks",
+        "pk": 1,
+        "fields": {
+            "monster": 1, "name": "greataxe", "desc": "Melee Weapon Attack", "to_hit": 5, "reach": 5, "damage": "1d12+3", "damage_cat": "S", "normal_range": 0, "long_range": 0}
     }
 ]

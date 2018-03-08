@@ -14,7 +14,7 @@ class test_Rogue(TestCase):
         self.w.save()
         self.th = Rogue(world=self.w, name='test', stat_con=9, stat_dex=18)
         self.th.save()
-        self.bow = Weapon(name='Test Bow', weight=5, normal_range=5, long_range=10)
+        self.bow = Weapon(name='Test Bow', weight=5, damage='1', damage_cat='P', normal_range=5, long_range=10)
         self.bow.save()
         self.mace = Weapon(name='Mace', weight=7)
         self.mace.save()
@@ -26,6 +26,11 @@ class test_Rogue(TestCase):
         self.helmet.save()
         self.shield = Armour(name='Shield', weight=4)
         self.shield.save()
+        self.setup_orc()
+
+    def setup_orc(self):
+        self.o = Monster(name="Orc", align="CE", size="M", ac=13, hitdie="2d8 + 6", speed=30, stat_str=16, stat_dex=12, stat_con=16, stat_int=7, stat_wis=11, stat_cha=10, challenge="1/2")
+        self.o.save()
 
     def cleanUp(self):
         self.spikes.delete()
@@ -34,6 +39,7 @@ class test_Rogue(TestCase):
         self.helmet.delete()
         self.th.delete()
         self.w.delete()
+        self.o.delete()
 
     def test_hp(self):
         self.assertEqual(self.th.hitdie(), 'd6')
@@ -54,12 +60,16 @@ class test_Rogue(TestCase):
         e.save()
         self.th.equip(self.bow, ready=True)
         self.assertEqual(self.th.get_reach(), (5, 10))
-        o = Monster(name='weak_orc', movement=3, ac=20, thaco=20, xp=3)
+        bow = self.th.equipped_weapon()[0]
+        o = Monster.objects.get(name='Orc')
+        o.ac = 1        # Ensure hit
         o.save()
         oi = MonsterState(encounter=e, monster=o)
         oi.save()
-        dmg, dmgcat = self.th.ranged_attack(self.th.equipped_weapon()[0], oi)
-        self.assertEqual(dmg, 5)    # 3dmg + 2 missattack
+        dmg, dmgcat = self.th.ranged_attack(weap=bow, victim=oi)
+        o.ac = 13       # Restore
+        o.save()
+        self.assertEqual(dmg, 1 + 4)    # 1dmg + 4 dex bonus
 
     def test_hurt(self):
         """ Test being hurt - ouch """
