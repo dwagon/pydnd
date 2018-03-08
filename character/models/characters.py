@@ -122,19 +122,21 @@ class Character(models.Model):
 
     name = models.CharField(max_length=200)
     charclass = models.CharField(max_length=5, choices=charclass_choices)
-    race = models.CharField(max_length=2, choices=race_choices, default=HUMAN)
+    race = models.CharField(max_length=3, choices=race_choices, default=HUMAN)
+    subrace = models.CharField(max_length=3, choices=race_choices, default=NONE)
     gender = models.CharField(max_length=1, choices=gender_choices, default=UNKNOWN)
     hp = models.IntegerField(default=0)
     max_hp = models.IntegerField(default=0)
     ac = models.IntegerField(default=10)
-    thaco = models.IntegerField(default=0)
+    initiative = models.IntegerField(default=0)
     dmg = models.IntegerField(default=1)
     encumbrance = models.IntegerField(default=0)
-    movement = models.IntegerField(default=12)
+    speed = models.IntegerField(default=30)
     xp = models.IntegerField(default=0)
     align = models.CharField(max_length=2, choices=alignment_choices, default='N')
     level = models.IntegerField(default=1)
     status = models.CharField(max_length=2, choices=status.status_choices, default=status.UNDEF)
+    proficiency = models.IntegerField(default=-1)
 
     x = models.IntegerField(default=-1)
     y = models.IntegerField(default=-1)
@@ -196,15 +198,14 @@ class Character(models.Model):
             # Stop restframework double insert
             kwargs['force_insert'] = False
         self.encumbrance = self.calc_encumb()
-        self.movement = self.calc_movement()
-        self.thaco = self.calc_thaco()
+        self.speed = self.calc_speed()
         self.ac = self.calc_ac()
         super(Character, self).save(*args, **kwargs)
 
     ##########################################################################
-    def calc_movement(self):
-        # TODO: Encumbrance
-        return tables.race[self.race]['movement']
+    def calc_speed(self):
+        # TODO: Race
+        return 30
 
     ##########################################################################
     def get_reach(self):
@@ -279,9 +280,7 @@ class Character(models.Model):
     def hit(self, victim, mod=0):
         hitroll = roll('d20')
         hitroll += mod
-        to_hit = self.thaco - victim.ac
-        self.equipped_weapon()
-        if hitroll > to_hit:
+        if hitroll > victim.ac:
             return True
         else:
             return False
@@ -385,7 +384,7 @@ class Character(models.Model):
     def start_turn(self):
         self.generate_initiative()
         self.attacks = 1
-        self.moves = self.movement
+        self.moves = self.speed
         self.save()
 
     ##########################################################################

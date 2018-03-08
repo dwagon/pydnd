@@ -1,10 +1,16 @@
 #!/bin/bash
 
+echo "Deleting database"
 dropdb pydnd
+echo "Recreating database"
 createdb pydnd
+echo "Removing old migrations"
 /bin/rm */migrations/0*.py
+echo "Making Migrations"
 ./manage.py makemigrations
+echo "Migrating DB"
 ./manage.py migrate
+echo "Loading Fixtures"
 ./manage.py loaddata */fixtures/*.json
 # ./manage.py createsuperuser --username admin --email maybe@yes.no
 

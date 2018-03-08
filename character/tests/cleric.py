@@ -24,9 +24,6 @@ class test_Cleric(TestCase):
         self.assertGreaterEqual(self.cl.hp, 1)
         self.assertLessEqual(self.cl.hp, 8)
 
-    def test_thaco(self):
-        self.assertEqual(self.cl.thaco, 20)
-
     def test_stats(self):
         self.assertGreaterEqual(self.cl.stat_wis, 3)
         self.assertLessEqual(self.cl.stat_wis, 18)

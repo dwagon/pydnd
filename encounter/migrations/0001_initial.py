@@ -9,8 +9,8 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('world', '0001_initial'),
         ('contenttypes', '0002_remove_content_type_name'),
+        ('world', '0001_initial'),
     ]
 
     operations = [

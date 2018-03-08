@@ -2,6 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
+import gm2m.fields
 
 
 class Migration(migrations.Migration):
@@ -9,7 +10,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('equipment', '0001_initial'),
+        ('contenttypes', '0002_remove_content_type_name'),
         ('world', '0001_initial'),
     ]
 
@@ -19,24 +20,24 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=200)),
-                ('charclass', models.CharField(choices=[('F', 'Fighter'), ('T', 'Thief'), ('M', 'Mage'), ('C', 'Cleric')], max_length=5)),
-                ('race', models.CharField(choices=[('HU', 'Human'), ('EL', 'Elf'), ('DW', 'Dwarf'), ('HE', 'Half Elven'), ('HL', 'Halfling'), ('GN', 'Gnome')], default='HU', max_length=2)),
+                ('charclass', models.CharField(choices=[('BB', 'Barbarian'), ('BD', 'Bard'), ('CL', 'Cleric'), ('DR', 'Druid'), ('FG', 'Fighter'), ('MK', 'Monk'), ('PL', 'Paladin'), ('RA', 'Ranger'), ('RO', 'Rogue'), ('SO', 'Sorceror'), ('WA', 'Warlock'), ('WZ', 'Wizard')], max_length=5)),
+                ('race', models.CharField(choices=[('HU', 'Human'), ('EL', 'Elf'), ('DW', 'Dwarf'), ('HE', 'Half Elven'), ('HL', 'Halfling'), ('GN', 'Gnome')], default='HU', max_length=3)),
+                ('subrace', models.CharField(choices=[('HU', 'Human'), ('EL', 'Elf'), ('DW', 'Dwarf'), ('HE', 'Half Elven'), ('HL', 'Halfling'), ('GN', 'Gnome')], default='N', max_length=3)),
                 ('gender', models.CharField(choices=[('M', 'Male'), ('F', 'Female'), ('U', 'Unknown')], default='U', max_length=1)),
                 ('hp', models.IntegerField(default=0)),
                 ('max_hp', models.IntegerField(default=0)),
                 ('ac', models.IntegerField(default=10)),
-                ('thaco', models.IntegerField(default=0)),
                 ('dmg', models.IntegerField(default=1)),
                 ('encumbrance', models.IntegerField(default=0)),
-                ('movement', models.IntegerField(default=12)),
+                ('speed', models.IntegerField(default=30)),
                 ('xp', models.IntegerField(default=0)),
                 ('align', models.CharField(choices=[('LG', 'Lawful Good'), ('LN', 'Lawful Neutral'), ('LE', 'Lawful Evil'), ('NG', 'Neutral Good'), ('N', 'True Neutral'), ('NE', 'Neutral Evil'), ('CG', 'Chaotic Good'), ('CN', 'Chaotic Neutral'), ('CE', 'Chaotic Evil')], default='N', max_length=2)),
                 ('level', models.IntegerField(default=1)),
                 ('status', models.CharField(choices=[('XX', 'XX'), ('OK', 'OK'), ('DE', 'Dead'), ('UC', 'Unconscious')], default='XX', max_length=2)),
+                ('proficiency', models.IntegerField(default=-1)),
                 ('x', models.IntegerField(default=-1)),
                 ('y', models.IntegerField(default=-1)),
                 ('stat_str', models.IntegerField(default=-1)),
-                ('bonus_str', models.IntegerField(default=-1)),
                 ('stat_int', models.IntegerField(default=-1)),
                 ('stat_wis', models.IntegerField(default=-1)),
                 ('stat_dex', models.IntegerField(default=-1)),
@@ -55,9 +56,10 @@ class Migration(migrations.Migration):
             name='EquipState',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('object_id', models.CharField(max_length=255)),
                 ('ready', models.BooleanField(default=False)),
                 ('character', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='character.Character')),
-                ('equipment', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='equipment.Equipment')),
+                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType')),
             ],
         ),
         migrations.CreateModel(
@@ -74,7 +76,7 @@ class Migration(migrations.Migration):
             name='SpellState',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('memorized', models.BooleanField(default=False)),
+                ('prepared', models.BooleanField(default=False)),
                 ('default', models.BooleanField(default=False)),
                 ('character', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='character.Character')),
                 ('spell', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='character.Spell')),
@@ -83,7 +85,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='character',
             name='gear',
-            field=models.ManyToManyField(blank=True, through='character.EquipState', to='equipment.Equipment'),
+            field=gm2m.fields.GM2MField(through='character.EquipState', through_fields=['character', 'content_object', 'content_type', 'object_id']),
         ),
         migrations.AddField(
             model_name='character',

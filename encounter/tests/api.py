@@ -191,7 +191,7 @@ class test_Encounter_API(TestCase):
     ##########################################################################
     def setup_pc(self, enc_id):
         # Create a pointed stick
-        ls = Equipment(name='Pointed Stick', category='w', damage='1d4')
+        ls = Equipment(name='Pointed Stick')
         ls.save()
 
         # Create a PC
