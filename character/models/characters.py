@@ -140,7 +140,6 @@ class Character(models.Model):
     y = models.IntegerField(default=-1)
 
     stat_str = models.IntegerField(default=-1)
-    bonus_str = models.IntegerField(default=-1)
     stat_int = models.IntegerField(default=-1)
     stat_wis = models.IntegerField(default=-1)
     stat_dex = models.IntegerField(default=-1)
@@ -173,24 +172,14 @@ class Character(models.Model):
         """ Generate any missing stats while ensuring class minimums """
         if self.stat_str < 0:
             self.stat_str = self.roll_stat()
-            if self.stat_str == 18:
-                self.bonus_str = random.randint(1, 100)
-            if self.charclass == self.FIGHTER:
-                self.stat_str = max(9, self.stat_str)
         if self.stat_dex < 0:
             self.stat_dex = self.roll_stat()
-            if self.charclass == self.THIEF:
-                self.stat_dex = max(9, self.stat_dex)
         if self.stat_int < 0:
             self.stat_int = self.roll_stat()
-            if self.charclass == self.MAGE:
-                self.stat_int = max(9, self.stat_int)
         if self.stat_con < 0:
             self.stat_con = self.roll_stat()
         if self.stat_wis < 0:
             self.stat_wis = self.roll_stat()
-            if self.charclass == self.CLERIC:
-                self.stat_wis = max(9, self.stat_wis)
         if self.stat_cha < 0:
             self.stat_cha = self.roll_stat()
 
@@ -229,7 +218,7 @@ class Character(models.Model):
     def calc_hp(self):
         """ Calculate the HP for a level - try and make it not suck too much """
         hp = max(roll(self.hitdie()), roll(self.hitdie()))
-        hp += self.stat_bonus('hp_adj')
+        hp += self.stat_bonus(self.stat_con)
         hp = max(1, hp)
         return hp
 
@@ -308,10 +297,10 @@ class Character(models.Model):
 
     ##########################################################################
     def ranged_attack(self, weap, victim):
-        mod = self.stat_bonus('missattack')
+        mod = self.stat_bonus(self.stat_dex)
         if self.hit(victim, mod):
-            dmg = weap.weapon_dmg()
-            dmg += self.stat_bonus('missattack')
+            dmg = roll(weap.damage())
+            dmg += self.stat_bonus(self.stat_dex)
             victim.hurt(dmg)
             return dmg
         else:
@@ -319,42 +308,21 @@ class Character(models.Model):
 
     ##########################################################################
     def melee_attack(self, weap, victim):
-        mod = self.stat_bonus('hitprob')
+        mod = self.stat_bonus(self.stat_str)
         if self.hit(victim, mod):
             if not weap:
                 dmg = 1
             else:
-                dmg = weap.weapon_dmg()
-            dmg += self.stat_bonus('dmgadj')
+                dmg = roll(weap.damage())
+            dmg += self.stat_bonus(self.stat_str)
             victim.hurt(dmg)
             return dmg
         else:
             return 0
 
     ##########################################################################
-    def stat_bonus(self, bonus):
-        if bonus in ('dmgadj', 'hitprob', 'weight'):
-            if self.bonus_str >= 0:
-                if self.bonus_str <= 50:
-                    mod = tables.bonus_str_mods[50][bonus]
-                elif self.bonus_str <= 75:
-                    mod = tables.bonus_str_mods[75][bonus]
-                elif self.bonus_str <= 90:
-                    mod = tables.bonus_str_mods[90][bonus]
-                elif self.bonus_str <= 99:
-                    mod = tables.bonus_str_mods[99][bonus]
-                else:
-                    mod = tables.bonus_str_mods[100][bonus]
-            else:
-                mod = tables.str_mods[self.stat_str][bonus]
-        if bonus in ('hp_adj',):
-            if self.charclass == self.FIGHTER:
-                index = 1
-            else:
-                index = 0
-            mod = tables.con_mods[self.stat_con][bonus][index]
-        if bonus in ('missattack', 'defadj'):
-            mod = tables.dex_mods[self.stat_dex][bonus]
+    def stat_bonus(self, stat):
+        mod = tables.stat_mods[stat]['mod']
         return mod
 
     ##########################################################################
@@ -422,7 +390,7 @@ class Character(models.Model):
 
     ##########################################################################
     def generate_initiative(self):
-        init = roll('d10') + self.stat_bonus('defadj')
+        init = roll('d10') + self.stat_bonus(self.stat_dex)
         self.initiative = init
         self.save()
         return init
