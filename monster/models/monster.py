@@ -1,88 +1,26 @@
 from django.db import models
 from utils import roll
-from constants import alignment_choices
-import status
-
-
-##############################################################################
-class MonsterState(models.Model):
-    name = models.CharField(max_length=200, default="", blank=True)
-    encounter = models.ForeignKey('encounter.Encounter', on_delete=models.CASCADE, related_name='monsters')
-    monster = models.ForeignKey('Monster', on_delete=models.CASCADE)
-    hp = models.IntegerField(default=-1)
-    max_hp = models.IntegerField(default=-1)
-    status = models.CharField(max_length=2, choices=status.status_choices, default=status.UNDEF)
-    x = models.IntegerField(default=-1)
-    y = models.IntegerField(default=-1)
-    moves = models.IntegerField(default=-1)
-    initiative = models.IntegerField(default=-1)
-    attacks = models.IntegerField(default=-1)
-
-    animate = True
-
-    ##########################################################################
-    def save(self, **kwargs):
-        if self.status == status.UNDEF:
-            self.status = status.OK
-            hits = roll(self.monster.hitdie)
-            self.max_hp = hits
-            self.hp = hits
-        super(MonsterState, self).save(**kwargs)
-
-    ##########################################################################
-    def __str__(self):
-        name = self.name if self.name else self.monster.name
-        return "{} {} (HP:{}/{})".format(name, self.get_status_display(), self.hp, self.max_hp)
-
-    ##########################################################################
-    def hurt(self, dmg, dmg_cat):
-        """ Be hurt """
-        self.hp -= dmg
-        if self.hp <= 0:
-            self.status = status.DEAD
-            self.save()
-            return False
-        return True
-
-    ##########################################################################
-    def __getattr__(self, name):
-        if name.startswith('_'):
-            raise AttributeError("AttrError on {}".format(name))
-        return getattr(self.monster, name)
-
-    ##########################################################################
-    def get_reach(self):
-        return self.reach
-
-    ##########################################################################
-    def start_turn(self):
-        self.generate_initiative()
-        self.attacks = self.numattacks
-        self.moves = self.movement
-        self.save()
-
-    ##########################################################################
-    def generate_initiative(self):
-        init = roll('d10')
-        self.initiative = init
-        self.save()
-        return init
+from constants import alignment_choices, size_choices
 
 
 ##############################################################################
 class Monster(models.Model):
     name = models.CharField(max_length=200, unique=True)
-    treasure = models.CharField(max_length=50, null=True)
     align = models.CharField(max_length=2, choices=alignment_choices, default='N')
-    numappearing = models.CharField('Num Appearing', max_length=20)
+    size = models.CharField(max_length=2, choices=size_choices, default='M')
     ac = models.IntegerField('AC', default=10)
-    movement = models.IntegerField(default=9)
-    hitdie = models.CharField('Hit Die', max_length=5, default='1d8')
-    thaco = models.IntegerField(default=20)
-    numattacks = models.IntegerField('Num Attacks', default=1)
-    damage = models.CharField(max_length=50)
-    xp = models.IntegerField(default=0)
-    reach = models.IntegerField(default=0)
+    hitdie = models.CharField('Hit Die', max_length=10, default='1d8')
+    speed = models.IntegerField(default=30)
+    stat_str = models.IntegerField(default=-1)
+    stat_int = models.IntegerField(default=-1)
+    stat_wis = models.IntegerField(default=-1)
+    stat_dex = models.IntegerField(default=-1)
+    stat_con = models.IntegerField(default=-1)
+    stat_cha = models.IntegerField(default=-1)
+    dmg_vuln = models.CharField(max_length=200, default="")
+    dmg_immun = models.CharField(max_length=200, default="")
+    cond_immun = models.CharField(max_length=200, default="")
+    challenge = models.CharField(max_length=10)
 
     ##########################################################################
     def __str__(self):
@@ -92,21 +30,23 @@ class Monster(models.Model):
     def attack(self, victim):
         """ Attack something else """
         dmgs = 0
-        for _ in range(0, self.numattacks):
-            if self.hit(victim):
-                dmg = roll(self.damage)
-                victim.hurt(dmg)
-                dmgs += dmg
+# TODO
+#        for _ in range(0, self.numattacks):
+#            if self.hit(victim):
+#                dmg = roll(self.damage)
+#                victim.hurt(dmg)
+#                dmgs += dmg
         return dmgs
 
     ##########################################################################
     def hit(self, victim):
         """ Try and hit something """
-        hitroll = roll('d20')
-        to_hit = self.thaco - victim.ac
-        if hitroll >= to_hit:
-            return True
-        else:
-            return False
+# TODO
+#        hitroll = roll('d20')
+#        to_hit = self.thaco - victim.ac
+#        if hitroll >= to_hit:
+#            return True
+#        else:
+#            return False
 
 # EOF
