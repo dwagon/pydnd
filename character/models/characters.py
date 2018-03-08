@@ -43,13 +43,13 @@ def Fighter(**kwargs):
 
 
 ##############################################################################
-def Thief(**kwargs):
-    return Character(charclass=Character.THIEF, **kwargs)
+def Rogue(**kwargs):
+    return Character(charclass=Character.ROGUE, **kwargs)
 
 
 ##############################################################################
-def Mage(**kwargs):
-    return Character(charclass=Character.MAGE, **kwargs)
+def Wizard(**kwargs):
+    return Character(charclass=Character.WIZARD, **kwargs)
 
 
 ##############################################################################
@@ -60,15 +60,31 @@ def Cleric(**kwargs):
 ##############################################################################
 class Character(models.Model):
     # Character Class Choices
-    FIGHTER = 'F'
-    THIEF = 'T'
-    MAGE = 'M'
-    CLERIC = 'C'
+    BARBARIAN = 'BB'
+    BARD = 'BD'
+    CLERIC = 'CL'
+    DRUID = 'DR'
+    FIGHTER = 'FG'
+    MONK = 'MK'
+    PALADIN = 'PL'
+    RANGER = 'RA'
+    ROGUE = 'RO'
+    SORCEROR = 'SO'
+    WARLOCK = 'WA'
+    WIZARD = 'WZ'
     charclass_choices = (
-        (FIGHTER, 'Fighter'),
-        (THIEF, 'Thief'),
-        (MAGE, 'Mage'),
+        (BARBARIAN, 'Barbarian'),
+        (BARD, 'Bard'),
         (CLERIC, 'Cleric'),
+        (DRUID, 'Druid'),
+        (FIGHTER, 'Fighter'),
+        (MONK, 'Monk'),
+        (PALADIN, 'Paladin'),
+        (RANGER, 'Ranger'),
+        (ROGUE, 'Rogue'),
+        (SORCEROR, 'Sorceror'),
+        (WARLOCK, 'Warlock'),
+        (WIZARD, 'Wizard'),
         )
 
     # Gender Choices
@@ -414,9 +430,9 @@ class Character(models.Model):
     ##########################################################################
     def hitdie(self):
         hd_map = {
-                self.THIEF: 'd6',
+                self.ROGUE: 'd6',
                 self.FIGHTER: 'd10',
-                self.MAGE: 'd4',
+                self.WIZARD: 'd6',
                 self.CLERIC: 'd8',
                 }
         return hd_map[self.charclass]

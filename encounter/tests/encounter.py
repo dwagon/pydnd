@@ -2,7 +2,7 @@ from django.test import TestCase
 from world.models import World
 from encounter.models import Encounter
 from monster.models import Monster, MonsterState
-from character.models import Cleric, Fighter, Character, Thief
+from character.models import Cleric, Fighter, Character, Rogue
 
 
 ##############################################################################
@@ -23,13 +23,13 @@ class test_Encounter(TestCase):
 
     ##########################################################################
     def makeThief(self):
-        self.thief = Thief(world=self.w, name='Thf')
-        self.thief.save()
+        self.rogue = Rogue(world=self.w, name='Thf')
+        self.rogue.save()
 
     ##########################################################################
     def tearDown(self):
-        if hasattr(self, 'thief'):
-            self.thief.delete()
+        if hasattr(self, 'rogue'):
+            self.rogue.delete()
         if hasattr(self, 'fighter'):
             self.fighter.delete()
         self.orc.delete()
@@ -115,11 +115,11 @@ class test_Encounter(TestCase):
         e.add_monster_type('TestDualOrc')
         m1, m2 = MonsterState.objects.filter(encounter=e)
         e.set_location(self.fighter, 5, 5)
-        e.set_location(self.thief, 4, 4)
+        e.set_location(self.rogue, 4, 4)
         e.set_location(m1, 6, 5)    # Neighbour
         e.set_location(m2, 9, 9)    # Not neighbour
         n = e.neighbours(self.fighter)
-        self.assertEqual(set(n), set([self.thief, m1]))
+        self.assertEqual(set(n), set([self.rogue, m1]))
 
     ##########################################################################
     def test_enemy_neighbours(self):
@@ -131,13 +131,13 @@ class test_Encounter(TestCase):
         e.add_monster_type('TestDualOrc')
         m1, m2 = MonsterState.objects.filter(encounter=e)
         e.set_location(self.fighter, 5, 5)
-        e.set_location(self.thief, 5, 6)
+        e.set_location(self.rogue, 5, 6)
         e.set_location(m1, 6, 5)    # Neighbour
         e.set_location(m2, 9, 9)    # Not neighbour
         n = e.enemy_neighbours(self.fighter)
         self.assertEqual(n, [m1])
         n = e.enemy_neighbours(m1)
-        self.assertEqual(sorted(n), sorted([self.fighter, self.thief]))
+        self.assertEqual(sorted(n), sorted([self.fighter, self.rogue]))
 
     ##########################################################################
     def test_enemy_in_reach(self):
@@ -150,13 +150,13 @@ class test_Encounter(TestCase):
         e.place_pcs()
         m1, m2 = MonsterState.objects.filter(encounter=e)
         e.set_location(self.fighter, 0, 0)
-        e.set_location(self.thief, 5, 0)
+        e.set_location(self.rogue, 5, 0)
         e.set_location(m1, 5, 5)    # In Reach
         e.set_location(m2, 5, 9)    # Not in reach
-        n = e.enemy_in_reach(self.thief, 7)
+        n = e.enemy_in_reach(self.rogue, 7)
         self.assertEqual(n, [m1])
         n = e.enemy_in_reach(m1, 7)
-        self.assertEqual(n, [self.thief])
+        self.assertEqual(n, [self.rogue])
 
     ##########################################################################
     def test_nearest_enemy(self):
@@ -168,13 +168,13 @@ class test_Encounter(TestCase):
         e.add_monster_type('TestDualOrc')
         e.place_pcs()
         m1, m2 = MonsterState.objects.filter(encounter=e)
-        e.set_location(self.thief, 5, 0)
+        e.set_location(self.rogue, 5, 0)
         e.set_location(self.fighter, 0, 0)
         e.set_location(m1, 5, 5)
         e.set_location(m2, 5, 9)
-        n = e.nearest_enemy(self.thief)
+        n = e.nearest_enemy(self.rogue)
         self.assertEqual(n, m1)
         n = e.nearest_enemy(m1)
-        self.assertEqual(n, self.thief)
+        self.assertEqual(n, self.rogue)
 
 # EOF
