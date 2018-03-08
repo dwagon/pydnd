@@ -290,9 +290,9 @@ class Character(models.Model):
         weaps = self.equipped_weapon()
         for weap in weaps:
             if weap.normal_range == 0:
-            return self.melee_attack(weap, victim)
-        else:
-            return self.ranged_attack(weap, victim)
+                return self.melee_attack(weap, victim)
+            else:
+                return self.ranged_attack(weap, victim)
 
     ##########################################################################
     def ranged_attack(self, weap, victim):
