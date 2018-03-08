@@ -310,6 +310,7 @@ class Character(models.Model):
     ##########################################################################
     def melee_attack(self, weap, victim):
         mod = self.stat_bonus(self.stat_str)
+        mod += self.proficiency
         if self.hit(victim, mod):
             if not weap:
                 dmg = 1
