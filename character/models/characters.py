@@ -27,14 +27,14 @@ class EquipState(models.Model):
 class SpellState(models.Model):
     character = models.ForeignKey('Character', on_delete=models.CASCADE)
     spell = models.ForeignKey(Spell, on_delete=models.CASCADE)
-    memorized = models.BooleanField(default=False)
+    prepared = models.BooleanField(default=False)
     default = models.BooleanField(default=False)
 
     def __str__(self):
-        memstr = ""
-        if self.memorized:
-            memstr = "memorized "
-        return "{}'s {}{}".format(self.character.name, memstr, self.spell.name)
+        prepstr = ""
+        if self.prepared:
+            prepstr = "prepared "
+        return "{}'s {}{}".format(self.character.name, prepstr, self.spell.name)
 
 
 ##############################################################################
@@ -231,22 +231,22 @@ class Character(models.Model):
 
     ##########################################################################
     def learn_spell(self, spell):
-        s = SpellState(character=self, spell=spell, memorized=True)
+        s = SpellState(character=self, spell=spell, prepared=True)
         s.save()
         self.save()
 
     ##########################################################################
     def cast_spell(self, spell):
-        ss = SpellState.objects.filter(memorized=True, spell=spell)
+        ss = SpellState.objects.filter(prepared=True, spell=spell)
         if not ss:
             return False
         spell.cast(caster=self)
-        ss[0].memorized = False
+        ss[0].prepared = False
         ss[0].save()
 
     ##########################################################################
     def known_spells(self, level):
-        s = Spell.objects.filter(spellstate__memorized=True, level=level)
+        s = Spell.objects.filter(spellstate__prepared=True, level=level)
         return s
 
     ##########################################################################
