@@ -11,7 +11,7 @@ class test_Fighter(TestCase):
     def setUp(self):
         self.w = World()
         self.w.save()
-        self.fg = Fighter(world=self.w, name='test', stat_con=9, stat_dex=9)
+        self.fg = Fighter(world=self.w, name='test', stat_con=10, stat_dex=10)
         self.fg.save()
         self.sword = Weapon(name='Long Sword', weight=5)
         self.sword.save()
@@ -19,9 +19,9 @@ class test_Fighter(TestCase):
         self.mace.save()
         self.spikes = Equipment(name='Iron Spikes', weight=6)
         self.spikes.save()
-        self.leather = Armour(name='Leather', weight=6, base_ac=6)
+        self.leather = Armour(name='TestLeather', weight=6, base_ac=11, armour_categ='L')
         self.leather.save()
-        self.shield = Armour(name='Shield', weight=4)
+        self.shield = Armour(name='Shield', weight=4, armour_categ='S')
         self.shield.save()
 
     def cleanUp(self):
@@ -57,7 +57,7 @@ class test_Fighter(TestCase):
         self.fg.equip(self.leather, ready=True)
         self.fg.equip(self.spikes)
         a = self.fg.equipped_armour()
-        self.assertEqual(sorted([_.name for _ in a]), sorted(['Leather']))
+        self.assertEqual(sorted([_.name for _ in a]), sorted(['TestLeather']))
 
     def test_naked(self):
         a = self.fg.equipped_armour()
@@ -69,10 +69,9 @@ class test_Fighter(TestCase):
         self.fg.equip(self.spikes)
         self.assertEqual(self.fg.ac, 10)
         self.fg.equip(self.leather, ready=True)
-        self.assertEqual(self.fg.ac, 6)
-        self.assertEqual(self.fg.ac, 5)
-        self.fg.equip(self.shield)
-        self.assertEqual(self.fg.ac, 5)
+        self.assertEqual(self.fg.ac, 11)
+        self.fg.equip(self.shield, ready=True)
+        self.assertEqual(self.fg.ac, 13)
 
     def test_hit(self):
         o = Monster(name='weak_orc', movement=3, ac=20, thaco=20, xp=3)

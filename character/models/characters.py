@@ -369,8 +369,20 @@ class Character(models.Model):
 
     ##########################################################################
     def calc_ac(self):
-        pass
-        # TODO
+        """ Calculate the characters AC """
+        armours = self.equipped_armour()
+        if not armours:
+            ac = 10 + self.stat_bonus(self.stat_dex)
+            return ac
+        ac = 10
+        for armour in armours:
+            print("Stff={}".format(armour.categ()))
+            if armour.categ() != 'Shield':
+                ac = armour.calc_ac(self.stat_bonus(self.stat_dex))
+        for armour in armours:
+            if armour.categ() == 'Shield':
+                ac += armour.calc_ac(self.stat_bonus(self.stat_dex))
+        return ac
 
     ##########################################################################
     def earnXp(self, xp):

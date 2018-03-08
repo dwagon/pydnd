@@ -19,7 +19,7 @@ class test_Monster(TestCase):
         self.assertEqual(self.orc.movement, 3)
 
     def test_attack(self):
-        e = Armour(name='useless', base_ac=30)
+        e = Armour(name='useless', base_ac=3, armour_categ='L')
         e.save()
         c = Wizard(world=self.w, name='victim', max_hp=10, hp=10)
         c.save()
@@ -30,7 +30,7 @@ class test_Monster(TestCase):
         self.assertEqual(c.hp, 10 - dmg)
 
     def test_hit(self):
-        e = Armour(name='useless', base_ac=30)
+        e = Armour(name='useless', base_ac=3, armour_categ='L')
         e.save()
         c = Wizard(world=self.w, name='victim')
         c.save()
@@ -39,7 +39,7 @@ class test_Monster(TestCase):
         self.assertTrue(hit)
 
     def test_miss(self):
-        e = Armour(name='impervious', base_ac=-30)
+        e = Armour(name='impervious', base_ac=30, armour_categ='H')
         e.save()
         c = Wizard(world=self.w, name='victim')
         c.save()

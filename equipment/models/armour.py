@@ -18,6 +18,11 @@ class Armour(Equipment):
     base_ac = models.IntegerField(default=-1)
     armour_categ = models.CharField(max_length=1, choices=armour_choices)
 
+    ##########################################################################
+    def categ(self):
+        return self.get_armour_categ_display()
+
+    ##########################################################################
     def calc_ac(self, dexmod):
         if self.armour_categ == 'L':
             return self.base_ac + dexmod
@@ -27,5 +32,7 @@ class Armour(Equipment):
             return self.base_ac
         elif self.armour_categ == 'S':
             return 2
+        else:
+            assert False, "Bad armour category {}".format(self.armour_categ)
 
 # EOF
