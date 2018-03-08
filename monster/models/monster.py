@@ -35,7 +35,7 @@ class MonsterState(models.Model):
         return "{} {} (HP:{}/{})".format(name, self.get_status_display(), self.hp, self.max_hp)
 
     ##########################################################################
-    def hurt(self, dmg):
+    def hurt(self, dmg, dmg_cat):
         """ Be hurt """
         self.hp -= dmg
         if self.hp <= 0:

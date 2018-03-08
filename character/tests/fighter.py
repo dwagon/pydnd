@@ -74,7 +74,7 @@ class test_Fighter(TestCase):
         self.assertEqual(self.fg.ac, 13)
 
     def test_hit(self):
-        o = Monster(name='weak_orc', movement=3, ac=20, thaco=20, xp=3)
+        o = Monster(name='weak_orc', movement=3, ac=1, thaco=20, xp=3)
         o.save()
         e = Encounter(world=self.w)
         e.save()
@@ -100,7 +100,7 @@ class test_Fighter(TestCase):
     def test_strength(self):
         fg = Fighter(world=self.w, name='test', stat_str=18)
         fg.save()
-        ss = Weapon(name='Short Sword', weight=1, damage='1')
+        ss = Weapon(name='Short Stick', weight=1, damage='1', damage_cat='P')
         ss.save()
         fg.equip(ss, ready=True)
         o = Monster(name='weak_orc', movement=3, ac=20, thaco=20, xp=3)
@@ -110,7 +110,7 @@ class test_Fighter(TestCase):
         oi = MonsterState(encounter=e, monster=o)
         oi.save()
         dmg = fg.attack(oi)
-        self.assertEqual(dmg, 3)
+        self.assertEqual(dmg, [(1 + 4, 'P')])
         oi.delete()
         o.delete()
         ss.delete()

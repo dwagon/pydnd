@@ -288,22 +288,24 @@ class Character(models.Model):
     ##########################################################################
     def attack(self, victim):
         weaps = self.equipped_weapon()
+        damages = []
         for weap in weaps:
             if weap.normal_range == 0:
-                return self.melee_attack(weap, victim)
+                damages.append(self.melee_attack(weap, victim))
             else:
-                return self.ranged_attack(weap, victim)
+                damages.append(self.ranged_attack(weap, victim))
+        return damages
 
     ##########################################################################
     def ranged_attack(self, weap, victim):
         mod = self.stat_bonus(self.stat_dex)
         if self.hit(victim, mod):
-            dmg = roll(weap.damage())
+            dmg = roll(weap.damage)
             dmg += self.stat_bonus(self.stat_dex)
-            victim.hurt(dmg)
-            return dmg
+            victim.hurt(dmg, weap.damage_cat)
+            return dmg, weap.damage_cat
         else:
-            return 0
+            return 0, None
 
     ##########################################################################
     def melee_attack(self, weap, victim):
@@ -312,12 +314,12 @@ class Character(models.Model):
             if not weap:
                 dmg = 1
             else:
-                dmg = roll(weap.damage())
+                dmg = roll(weap.damage)
             dmg += self.stat_bonus(self.stat_str)
-            victim.hurt(dmg)
-            return dmg
+            victim.hurt(dmg, weap.damage_cat)
+            return dmg, weap.damage_cat
         else:
-            return 0
+            return 0, None
 
     ##########################################################################
     def stat_bonus(self, stat):
@@ -359,7 +361,6 @@ class Character(models.Model):
             return ac
         ac = 10
         for armour in armours:
-            print("Stff={}".format(armour.categ()))
             if armour.categ() != 'Shield':
                 ac = armour.calc_ac(self.stat_bonus(self.stat_dex))
         for armour in armours:

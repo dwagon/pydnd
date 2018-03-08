@@ -40,9 +40,6 @@ class test_Rogue(TestCase):
         self.assertGreaterEqual(self.th.hp, 1)
         self.assertLessEqual(self.th.hp, 6)
 
-    def test_ac_dexmod(self):
-        self.assertEqual(self.th.ac, 6)
-
     def test_encumb(self):
         self.assertEqual(self.th.encumbrance, 0)
 
@@ -61,7 +58,7 @@ class test_Rogue(TestCase):
         o.save()
         oi = MonsterState(encounter=e, monster=o)
         oi.save()
-        dmg = self.th.ranged_attack(self.th.equipped_weapon()[0], oi)
+        dmg, dmgcat = self.th.ranged_attack(self.th.equipped_weapon()[0], oi)
         self.assertEqual(dmg, 5)    # 3dmg + 2 missattack
 
     def test_hurt(self):
