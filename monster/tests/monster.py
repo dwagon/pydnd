@@ -9,14 +9,14 @@ class test_Monster(TestCase):
     def setUp(self):
         self.w = World()
         self.w.save()
-        self.orc = Monster(name='orc', movement=3, ac=3, thaco=19, xp=3, damage='1d4')
+        self.orc = Monster(name="Orc", align="CE", size="M", ac=13, hitdie="2d8 + 6", speed=30, stat_str=16, stat_dex=12, stat_con=16, stat_int=7, stat_wis=11, stat_cha=10, challenge="1/2")
         self.orc.save()
 
     def tearDown(self):
         self.w.delete()
 
-    def test_movement(self):
-        self.assertEqual(self.orc.movement, 3)
+    def test_speed(self):
+        self.assertEqual(self.orc.speed, 30)
 
     def test_attack(self):
         e = Armour(name='useless', base_ac=3, armour_categ='L')

@@ -5,7 +5,6 @@ from monster.serializers import MonsterStateSerializer
 from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework import status
-from utils import roll
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
@@ -50,9 +49,7 @@ class MonsterViewSet(viewsets.ModelViewSet):
 
         enc = Encounter.objects.get(pk=self.kwargs['pk'])
         mon = Monster.objects.get(pk=kwargs['monster'])
-        number = request.data.get('number', None)
-        if number is None:
-            number = roll(mon.numappearing)
+        number = request.data.get('number', 1)
         for _ in range(number):
             ms = MonsterState(encounter=enc, monster=mon)
             ms.name = "{}{}".format(mon.name, _)

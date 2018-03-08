@@ -14,9 +14,12 @@ class test_Encounter_API(TestCase):
         self.client = APIClient()
         self.w = World()
         self.w.save()
+        self.elf = Monster(name="Elf", align="CG", size="M", ac=13, hitdie="2d8 + 6", speed=30, stat_str=16, stat_dex=12, stat_con=16, stat_int=7, stat_wis=11, stat_cha=10, challenge="1/2")
+        self.elf.save()
 
     ##########################################################################
     def tearDown(self):
+        self.elf.delete()
         self.w.delete()
 
     ##########################################################################
@@ -53,16 +56,13 @@ class test_Encounter_API(TestCase):
         result = resp.json()
         enc_id = result['id']
 
-        m = Monster(name='test_elf', numappearing=20)
-        m.save()
-
         data = {'number': 3}
-        resp = self.client.post(reverse('encounter-monster-detail', kwargs={'pk': enc_id, 'monster': m.id}), data=data, follow=True, format='json')
+        resp = self.client.post(reverse('encounter-monster-detail', kwargs={'pk': enc_id, 'monster': self.elf.id}), data=data, follow=True, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         result = resp.json()
         self.assertEqual(len(result), 3)
         self.assertEqual(result[0]['encounter'], enc_id)
-        self.assertEqual(result[0]['monster'], m.id)
+        self.assertEqual(result[0]['monster'], self.elf.id)
 
     ##########################################################################
     def test_delete_monsters(self):
@@ -73,11 +73,9 @@ class test_Encounter_API(TestCase):
         enc_id = result['id']
 
         num_monsters = 3
-        m = Monster(name='test_bat', numappearing=num_monsters)
-        m.save()
 
         # Create the monsters
-        resp = self.client.post(reverse('encounter-monster-detail', kwargs={'pk': enc_id, 'monster': m.id}), data=data, follow=True, format='json')
+        resp = self.client.post(reverse('encounter-monster-detail', kwargs={'pk': enc_id, 'monster': self.elf.id}), data=data, follow=True, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         # Get the list of monsters
@@ -103,8 +101,7 @@ class test_Encounter_API(TestCase):
         result = resp.json()
         enc_id = result['id']
 
-        m = Monster(name='test_kobold', numappearing=5)
-        m.save()
+        m = Monster.objects.get(name='Elf')
 
         resp = self.client.post(reverse('encounter-monster-detail', kwargs={'pk': enc_id, 'monster': m.id}), data={}, follow=True, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
@@ -127,8 +124,7 @@ class test_Encounter_API(TestCase):
         result = resp.json()
         enc_id = result['id']
 
-        m = Monster(name='test_drow', numappearing=2)
-        m.save()
+        m = Monster.objects.get(name='Elf')
 
         resp = self.client.post(reverse('encounter-monster-detail', kwargs={'pk': enc_id, 'monster': m.id}), data={}, follow=True, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
@@ -151,8 +147,7 @@ class test_Encounter_API(TestCase):
         result = resp.json()
         enc_id = result['id']
 
-        m = Monster(name='xyz', numappearing=1)
-        m.save()
+        m = Monster.objects.get(name='Elf')
 
         resp = self.client.post(reverse('encounter-monster-detail', kwargs={'pk': enc_id, 'monster': m.id}), data={}, follow=True, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
@@ -168,7 +163,7 @@ class test_Encounter_API(TestCase):
             y = int(loc.split()[1])
             self.assertEqual(x, result[loc]['x'])
             self.assertEqual(y, result[loc]['y'])
-            self.assertEqual(result[loc]['content']['name'], 'xyz0')
+            self.assertEqual(result[loc]['content']['name'], 'Elf0')
 
     ##########################################################################
     def test_placing_pcs(self):
@@ -222,8 +217,7 @@ class test_Encounter_API(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         # Create the monsters
-        m = Monster(name='test_spider', numappearing=2, damage='1d6')
-        m.save()
+        m = Monster.objects.get(name='Elf')
 
         resp = self.client.post(reverse('encounter-monster-detail', kwargs={'pk': enc_id, 'monster': m.id}), data={}, follow=True, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)

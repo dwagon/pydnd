@@ -11,7 +11,6 @@ from character.models import Character
 from .location import Location
 from monster.models import Monster, MonsterState
 from message.models import Message
-from utils import roll
 
 
 ##############################################################################
@@ -41,10 +40,9 @@ class Encounter(models.Model):
         return enc
 
     ##########################################################################
-    def add_monster_type(self, monstername, number=0):
+    def add_monster_type(self, monstername, number):
         m = Monster.objects.get(name=monstername)
-        num = number if number else roll(m.numappearing)
-        for _ in range(num):
+        for _ in range(number):
             ms = MonsterState(encounter=self, monster=m)
             ms.name = "{}{}".format(m.name, _)
             ms.save()

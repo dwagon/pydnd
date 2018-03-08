@@ -11,10 +11,8 @@ class test_Encounter(TestCase):
     def setUp(self):
         self.w = World()
         self.w.save()
-        self.orc = Monster(name='TestOrc', ac=19, xp=5, thaco=19, movement=3, numappearing='1')
+        self.orc = Monster(name="Orc", align="CE", size="M", ac=13, hitdie="2d8 + 6", speed=30, stat_str=16, stat_dex=12, stat_con=16, stat_int=7, stat_wis=11, stat_cha=10, challenge="1/2")
         self.orc.save()
-        self.dualorc = Monster(name='TestDualOrc', ac=19, xp=5, thaco=19, movement=3, numappearing='2')
-        self.dualorc.save()
 
     ##########################################################################
     def makeFighter(self):
@@ -33,7 +31,6 @@ class test_Encounter(TestCase):
         if hasattr(self, 'fighter'):
             self.fighter.delete()
         self.orc.delete()
-        self.dualorc.delete()
         self.w.delete()
 
     ##########################################################################
@@ -46,8 +43,8 @@ class test_Encounter(TestCase):
         figster = Character.objects.get(name='Fig')
         self.assertEqual(figster.x, 10)
         self.assertEqual(figster.y, 10)
-        l = e[(10, 10)]
-        self.assertEqual(l, figster)
+        loc = e[(10, 10)]
+        self.assertEqual(loc, figster)
 
     ##########################################################################
     def test_objtype(self):
@@ -80,11 +77,9 @@ class test_Encounter(TestCase):
     ##########################################################################
     def test_place_monsters(self):
         """ Test Monster placement in arena """
-        m = Monster(name='TestManyOrc', ac=19, xp=5, thaco=19, movement=3, numappearing='25')
-        m.save()
         e = Encounter.create(world=self.w, size_x=10, size_y=10)
         e.save()
-        e.add_monster_type('TestManyOrc')
+        e.add_monster_type('Orc', 25)
         e.place_monsters()
         used_locs = set()
         for i in e.all_animate():
@@ -93,7 +88,6 @@ class test_Encounter(TestCase):
 
         m_locs = set([(_.x, _.y) for _ in MonsterState.objects.filter(encounter=e)])
         self.assertEquals(used_locs, m_locs)
-        m.delete()
 
     ##########################################################################
     def test_set_location(self):
@@ -103,8 +97,8 @@ class test_Encounter(TestCase):
         e.set_location(self.fighter, 3, 7)
         self.assertEqual(self.fighter.x, 3)
         self.assertEqual(self.fighter.y, 7)
-        l = e[(3, 7)]
-        self.assertEqual(l, self.fighter)
+        loc = e[(3, 7)]
+        self.assertEqual(loc, self.fighter)
 
     ##########################################################################
     def test_neighbours(self):
@@ -112,7 +106,7 @@ class test_Encounter(TestCase):
         e.save()
         self.makeFighter()
         self.makeThief()
-        e.add_monster_type('TestDualOrc')
+        e.add_monster_type('Orc', 2)
         m1, m2 = MonsterState.objects.filter(encounter=e)
         e.set_location(self.fighter, 5, 5)
         e.set_location(self.rogue, 4, 4)
@@ -128,7 +122,7 @@ class test_Encounter(TestCase):
         e.save()
         self.makeFighter()
         self.makeThief()
-        e.add_monster_type('TestDualOrc')
+        e.add_monster_type('Orc', 2)
         m1, m2 = MonsterState.objects.filter(encounter=e)
         e.set_location(self.fighter, 5, 5)
         e.set_location(self.rogue, 5, 6)
@@ -146,7 +140,7 @@ class test_Encounter(TestCase):
         e.save()
         self.makeFighter()
         self.makeThief()
-        e.add_monster_type('TestDualOrc')
+        e.add_monster_type('Orc', 2)
         e.place_pcs()
         m1, m2 = MonsterState.objects.filter(encounter=e)
         e.set_location(self.fighter, 0, 0)
@@ -165,7 +159,7 @@ class test_Encounter(TestCase):
         e.save()
         self.makeFighter()
         self.makeThief()
-        e.add_monster_type('TestDualOrc')
+        e.add_monster_type('Orc', 2)
         e.place_pcs()
         m1, m2 = MonsterState.objects.filter(encounter=e)
         e.set_location(self.rogue, 5, 0)
