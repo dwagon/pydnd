@@ -54,7 +54,7 @@ class test_Cleric(TestCase):
         self.cl.save()
         self.cl.heal(5)
         self.assertEqual(self.cl.hp, 8)
-        self.cl.hurt(9)
+        self.cl.hurt([(9, 'S')])
         self.assertEqual(self.cl.status, status.UNCONSCIOUS)
         self.cl.heal(5)
         self.assertEqual(self.cl.hp, 4)

@@ -75,13 +75,13 @@ class test_Rogue(TestCase):
         """ Test being hurt - ouch """
         self.th.hp = 9
         self.th.save()
-        rc = self.th.hurt(1)
+        rc = self.th.hurt([(1, 'P')])
         self.assertEqual(self.th.status, status.OK)
         self.assertTrue(rc)
-        rc = self.th.hurt(10)
+        rc = self.th.hurt([(10, 'S')])
         self.assertEqual(self.th.status, status.UNCONSCIOUS)
         self.assertFalse(rc)
-        rc = self.th.hurt(10)
+        rc = self.th.hurt([(10, 'N')])
         self.assertEqual(self.th.status, status.DEAD)
         self.assertFalse(rc)
 
