@@ -15,8 +15,6 @@ class EquipState(models.Model):
     content_object = GenericForeignKey(ct_field='content_type', fk_field='object_id')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
-    # object_id = models.CharField(max_length=255)
-
     ready = models.BooleanField(default=False)
 
     def __str__(self):
@@ -340,17 +338,18 @@ class Character(models.Model):
         return True
 
     ##########################################################################
-    def hurt(self, dmg):
+    def hurt(self, dmgs):
         """ Be hurt. Return True if still ok """
-        self.hp -= dmg
-        if self.hp <= 0:
-            self.status = status.UNCONSCIOUS
-            if self.hp < -10:
-                self.status = status.DEAD
+        for dmg in dmgs:
+            self.hp -= dmg[0]
+            if self.hp <= 0:
+                self.status = status.UNCONSCIOUS
+                if self.hp < -10:
+                    self.status = status.DEAD
+                self.save()
+                return False
             self.save()
-            return False
-        self.save()
-        return True
+            return True
 
     ##########################################################################
     def calc_ac(self):

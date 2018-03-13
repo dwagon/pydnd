@@ -6,7 +6,7 @@ from .models import Equipment
 class EquipmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Equipment
-        fields = ('id', 'name', 'category', 'cost', 'weight')
+        fields = ('id', 'name', 'cost', 'weight')
 
 
 # EOF
