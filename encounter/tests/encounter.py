@@ -36,7 +36,7 @@ class test_Encounter(TestCase):
     ##########################################################################
     def test_place_single_pc(self):
         """ Test placing a single character that it goes in the middle """
-        e = Encounter.create(world=self.w, size_x=20, size_y=20)
+        e = Encounter(world=self.w, size_x=20, size_y=20)
         e.save()
         self.makeFighter()
         e.place_pcs()
@@ -48,7 +48,7 @@ class test_Encounter(TestCase):
 
     ##########################################################################
     def test_objtype(self):
-        e = Encounter.create(world=self.w)
+        e = Encounter(world=self.w)
         e.save()
         c = Cleric(world=self.w, name='Clarence')
         c.save()
@@ -64,7 +64,7 @@ class test_Encounter(TestCase):
         for i in range(10):
             f = Fighter(world=self.w, name='F{}'.format(i))
             f.save()
-        e = Encounter.create(world=self.w, size_x=20, size_y=20, place_pcs=False)
+        e = Encounter(world=self.w, size_x=20, size_y=20)
         e.save()
         e.place_pcs()
         used_locs = set()
@@ -77,7 +77,7 @@ class test_Encounter(TestCase):
     ##########################################################################
     def test_place_monsters(self):
         """ Test Monster placement in arena """
-        e = Encounter.create(world=self.w, size_x=10, size_y=10)
+        e = Encounter(world=self.w, size_x=10, size_y=10)
         e.save()
         e.add_monster_type('Orc', 25)
         e.place_monsters()
@@ -91,7 +91,7 @@ class test_Encounter(TestCase):
 
     ##########################################################################
     def test_set_location(self):
-        e = Encounter.create(world=self.w, size_x=10, size_y=10)
+        e = Encounter(world=self.w, size_x=10, size_y=10)
         e.save()
         self.makeFighter()
         e.set_location(self.fighter, 3, 7)
@@ -102,7 +102,7 @@ class test_Encounter(TestCase):
 
     ##########################################################################
     def test_neighbours(self):
-        e = Encounter.create(world=self.w, size_x=10, size_y=10)
+        e = Encounter(world=self.w, size_x=10, size_y=10)
         e.save()
         self.makeFighter()
         self.makeThief()
@@ -118,7 +118,7 @@ class test_Encounter(TestCase):
     ##########################################################################
     def test_enemy_neighbours(self):
         """ Test 'enemy_neighbours' function """
-        e = Encounter.create(world=self.w, size_x=10, size_y=10)
+        e = Encounter(world=self.w, size_x=10, size_y=10)
         e.save()
         self.makeFighter()
         self.makeThief()
@@ -136,7 +136,7 @@ class test_Encounter(TestCase):
     ##########################################################################
     def test_enemy_in_reach(self):
         """ Test 'enemy_in_reach' function """
-        e = Encounter.create(world=self.w, size_x=10, size_y=10)
+        e = Encounter(world=self.w, size_x=10, size_y=10)
         e.save()
         self.makeFighter()
         self.makeThief()
@@ -155,7 +155,7 @@ class test_Encounter(TestCase):
     ##########################################################################
     def test_nearest_enemy(self):
         """ Test 'nearest_enemy' function """
-        e = Encounter.create(world=self.w, size_x=10, size_y=10)
+        e = Encounter(world=self.w, size_x=10, size_y=10)
         e.save()
         self.makeFighter()
         self.makeThief()
