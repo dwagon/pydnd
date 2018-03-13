@@ -21,8 +21,8 @@ class Encounter(models.Model):
     turn = models.IntegerField(default=0)
     phase = models.IntegerField(default=-1)
     world = models.ForeignKey('world.World', on_delete=models.CASCADE)
-    size_x = models.IntegerField(default=0)
-    size_y = models.IntegerField(default=0)
+    size_x = models.IntegerField(default=50)
+    size_y = models.IntegerField(default=50)
 
     ##########################################################################
     def start(self):
@@ -171,7 +171,7 @@ class Encounter(models.Model):
             surv.earnXp(xp / len(survivors))
 
     ##########################################################################
-    def combat_turn(self):
+    def start_turn(self):
         self.turn += 1
         self.phase = 0
         [_.start_turn() for _ in self.monsters.all() if _.status == status.OK]
@@ -180,8 +180,9 @@ class Encounter(models.Model):
 
     ##########################################################################
     def combat_phase(self):
+        # TODO - Should iterate across creatures in initiative order instead
         if self.phase < 0 or self.phase > 20:
-            self.combat_turn()
+            self.start_turn()
         self.phase += 1
         self.save()
         all_pcs = self.world.all_pcs()
@@ -192,8 +193,7 @@ class Encounter(models.Model):
         pc_targets = [_ for _ in all_pcs if _.status == status.OK]
         if not pc_targets:
             return False
-        [self.obj_action(_) for _ in all_pcs if _.status == status.OK and self.phase >= _.initiative]
-        [self.obj_action(_) for _ in all_monsters if _.status == status.OK and self.phase >= _.initiative]
+        # TODO - actions
 
         return True
 

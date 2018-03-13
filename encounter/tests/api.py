@@ -72,8 +72,6 @@ class test_Encounter_API(TestCase):
         result = resp.json()
         enc_id = result['id']
 
-        num_monsters = 3
-
         # Create the monsters
         resp = self.client.post(reverse('encounter-monster-detail', kwargs={'pk': enc_id, 'monster': self.elf.id}), data=data, follow=True, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
@@ -91,7 +89,7 @@ class test_Encounter_API(TestCase):
         mresp = self.client.get(reverse('encounter-monster-list', kwargs={'pk': enc_id}), follow=True, format='json')
         self.assertEqual(mresp.status_code, status.HTTP_200_OK)
         monsters = mresp.json()
-        self.assertEqual(len(monsters), num_monsters - 1)
+        self.assertEqual(len(monsters), 0)
 
     ##########################################################################
     def test_listing_monsters(self):
@@ -103,10 +101,10 @@ class test_Encounter_API(TestCase):
 
         m = Monster.objects.get(name='Elf')
 
-        resp = self.client.post(reverse('encounter-monster-detail', kwargs={'pk': enc_id, 'monster': m.id}), data={}, follow=True, format='json')
+        resp = self.client.post(reverse('encounter-monster-detail', kwargs={'pk': enc_id, 'monster': m.id}), data={'number': 5}, follow=True, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         result = resp.json()
-        self.assertEqual(result[0]['name'], 'Elf0')
+        self.assertEqual(result[0]['name'][0:3], 'Elf')
         self.assertEqual(result[0]['status'], 'OK')
         self.assertGreaterEqual(result[0]['hp'], 8)
         self.assertLessEqual(result[0]['hp'], 24)
@@ -176,7 +174,7 @@ class test_Encounter_API(TestCase):
         result = resp.json()
         enc_id = result['id']
 
-        c = self.client.post(reverse('character-list'), data={'world': self.w.id, 'charclass': 'M', 'name': 'Mike'}, follow=True, format='json')
+        c = self.client.post(reverse('character-list'), data={'world': self.w.id, 'charclass': 'WZ', 'name': 'Mike'}, follow=True, format='json')
         self.assertEqual(c.status_code, status.HTTP_201_CREATED)
 
         resp = self.client.post(reverse('encounter-character-place', kwargs={'pk': enc_id}), follow=True, format='json')
@@ -193,7 +191,7 @@ class test_Encounter_API(TestCase):
         ls.save()
 
         # Create a PC
-        c = self.client.post(reverse('character-list'), data={'world': self.w.id, 'charclass': 'F', 'name': 'Figlet'}, follow=True, format='json')
+        c = self.client.post(reverse('character-list'), data={'world': self.w.id, 'charclass': 'FG', 'name': 'Figlet'}, follow=True, format='json')
         self.assertEqual(c.status_code, status.HTTP_201_CREATED)
         char = c.json()['id']
 

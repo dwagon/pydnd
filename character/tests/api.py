@@ -11,7 +11,7 @@ import json
 class test_api(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.w = World()
+        self.w = World(name='test_api')
         self.w.save()
 
     ##########################################################################
@@ -20,7 +20,7 @@ class test_api(TestCase):
 
     ##########################################################################
     def test_create(self):
-        data = {'world': self.w.id, 'charclass': 'F', 'name': 'Zebedee', 'stat_cha': 2}
+        data = {'world': self.w.id, 'charclass': 'FG', 'name': 'Zebedee', 'stat_cha': 2}
         resp = self.client.post(reverse('character-list'), data=data, follow=True, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         data = json.loads(resp.content)
@@ -29,12 +29,12 @@ class test_api(TestCase):
         self.assertEqual(c.name, 'Zebedee')
         self.assertEqual(data['name'], 'Zebedee')
         self.assertEqual(c.stat_cha, 2)
-        self.assertEqual(c.charclass, 'F')
+        self.assertEqual(c.charclass, 'FG')
         self.assertNotEqual(c.status, 'XX')
 
     ##########################################################################
     def test_delete(self):
-        data = {'world': self.w.id, 'charclass': 'F', 'name': 'Florence'}
+        data = {'world': self.w.id, 'charclass': 'FG', 'name': 'Florence'}
         resp = self.client.post(reverse('character-list'), data=data, follow=True, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         flo = json.loads(resp.content)
