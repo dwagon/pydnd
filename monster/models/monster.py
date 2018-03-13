@@ -1,5 +1,4 @@
 from django.db import models
-from utils import roll
 from constants import alignment_choices, size_choices
 
 
@@ -27,26 +26,34 @@ class Monster(models.Model):
         return self.name
 
     ##########################################################################
+    def inrange(self, victim, reach):
+        # TODO
+        return True
+
+    ##########################################################################
     def attack(self, victim):
         """ Attack something else """
-        dmgs = 0
-# TODO
-#        for _ in range(0, self.numattacks):
-#            if self.hit(victim):
-#                dmg = roll(self.damage)
-#                victim.hurt(dmg)
-#                dmgs += dmg
+        dmgs = []
+        attacks = self.attacks.all()
+        for att in attacks:
+            if self.inrange(victim, att.reach):
+                dmg = self.attack_with(victim, att)
+                if dmg:
+                    dmgs.append(dmg)
+            elif self.inrange(victim, att.long_range):
+                dmg = self.attack_with(victim, att)
+                if dmg:
+                    dmgs.append(dmg)
+            else:
+                print("Not in range")
+                return None
         return dmgs
 
     ##########################################################################
-    def hit(self, victim):
-        """ Try and hit something """
-# TODO
-#        hitroll = roll('d20')
-#        to_hit = self.thaco - victim.ac
-#        if hitroll >= to_hit:
-#            return True
-#        else:
-#            return False
+    def attack_with(self, victim, weapon):
+        if weapon.hit(victim.ac):
+            return weapon.dmg()
+        return None
+
 
 # EOF

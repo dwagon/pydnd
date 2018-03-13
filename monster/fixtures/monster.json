@@ -6,9 +6,15 @@
             "name": "Orc", "align": "CE", "size": "M", "ac": 13, "hitdie": "2d8 + 6", "speed": 30, "stat_str": 16, "stat_dex": 12, "stat_con": 16, "stat_int": 7, "stat_wis": 11, "stat_cha": 10, "dmg_vuln": "", "dmg_immun": "", "cond_immun": "", "challenge": "1/2"}
     },
     {
-        "model": "monster.monsterattacks",
+        "model": "monster.monsterattack",
         "pk": 1,
         "fields": {
             "monster": 1, "name": "greataxe", "desc": "Melee Weapon Attack", "to_hit": 5, "reach": 5, "damage": "1d12+3", "damage_cat": "S", "normal_range": 0, "long_range": 0}
+    },
+    {
+        "model": "monster.monsterattack",
+        "pk": 2,
+        "fields": {
+            "monster": 1, "name": "javelin", "desc": "Melee or Ranged Weapon Attack", "to_hit": 5, "reach": 5, "damage": "1d6+3", "damage_cat": "S", "normal_range": 30, "long_range": 120}
     }
 ]

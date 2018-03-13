@@ -14,8 +14,8 @@ class EquipState(models.Model):
     character = models.ForeignKey('Character', on_delete=models.CASCADE)
     content_object = GenericForeignKey(ct_field='content_type', fk_field='object_id')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    # object_id = models.PositiveIntegerField()
-    object_id = models.CharField(max_length=255)
+    object_id = models.PositiveIntegerField()
+    # object_id = models.CharField(max_length=255)
 
     ready = models.BooleanField(default=False)
 
