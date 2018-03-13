@@ -106,7 +106,10 @@ class test_Encounter_API(TestCase):
         resp = self.client.post(reverse('encounter-monster-detail', kwargs={'pk': enc_id, 'monster': m.id}), data={}, follow=True, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         result = resp.json()
-        self.assertEqual(len(result), 5)
+        self.assertEqual(result[0]['name'], 'Elf0')
+        self.assertEqual(result[0]['status'], 'OK')
+        self.assertGreaterEqual(result[0]['hp'], 8)
+        self.assertLessEqual(result[0]['hp'], 24)
 
         resp = self.client.get(reverse('encounter-monster-list', kwargs={'pk': enc_id}), follow=True, format='json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
