@@ -25,19 +25,13 @@ class Encounter(models.Model):
     size_y = models.IntegerField(default=0)
 
     ##########################################################################
-    @classmethod
-    def create(cls, *args, **kwargs):
-        if 'place_pcs' in kwargs:
-            place_pcs = kwargs['place_pcs']
-            del kwargs['place_pcs']
-        else:
-            place_pcs = True
-
-        enc = cls(*args, **kwargs)
-        enc.save()
-        if place_pcs:
-            enc.place_pcs()
-        return enc
+    def start(self):
+        tmp = []
+        for m in self.monsters.all():
+            tmp.append((m.initiative(), m))
+        for p in self.pcs.all():
+            tmp.append((p.initiative(), p))
+        self.initiative = [_[1] for _ in sorted(tmp)]
 
     ##########################################################################
     def add_monster_type(self, monstername, number):

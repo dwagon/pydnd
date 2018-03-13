@@ -128,7 +128,6 @@ class Character(models.Model):
     hp = models.IntegerField(default=0)
     max_hp = models.IntegerField(default=0)
     ac = models.IntegerField(default=10)
-    initiative = models.IntegerField(default=0)
     dmg = models.IntegerField(default=1)
     encumbrance = models.IntegerField(default=0)
     speed = models.IntegerField(default=30)
@@ -384,16 +383,12 @@ class Character(models.Model):
 
     ##########################################################################
     def start_turn(self):
-        self.generate_initiative()
-        self.attacks = 1
         self.moves = self.speed
         self.save()
 
     ##########################################################################
-    def generate_initiative(self):
-        init = roll('d10') + self.stat_bonus(self.stat_dex)
-        self.initiative = init
-        self.save()
+    def initiative(self):
+        init = roll('d20') + self.stat_bonus(self.stat_dex)
         return init
 
     ##########################################################################

@@ -14,8 +14,6 @@ class MonsterState(models.Model):
     x = models.IntegerField(default=-1)
     y = models.IntegerField(default=-1)
     moves = models.IntegerField(default=-1)
-    initiative = models.IntegerField(default=-1)
-    attacks = models.IntegerField(default=-1)
 
     animate = True
 

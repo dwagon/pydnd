@@ -61,8 +61,6 @@ class Migration(migrations.Migration):
                 ('x', models.IntegerField(default=-1)),
                 ('y', models.IntegerField(default=-1)),
                 ('moves', models.IntegerField(default=-1)),
-                ('initiative', models.IntegerField(default=-1)),
-                ('attacks', models.IntegerField(default=-1)),
                 ('encounter', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='monsters', to='encounter.Encounter')),
                 ('monster', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='monster.Monster')),
             ],

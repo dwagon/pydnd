@@ -69,6 +69,15 @@ class MonsterViewSet(viewsets.ModelViewSet):
 
 ##############################################################################
 @api_view(['POST'])
+def start_encounter(request, **kwargs):
+    """ Start the encounter"""
+    enc = Encounter.objects.get(pk=kwargs['pk'])
+    enc.start()
+    return Response({}, status=status.HTTP_200_OK)
+
+
+##############################################################################
+@api_view(['POST'])
 def place_monster(request, **kwargs):
     """ Place the monsters around the arena """
     enc = Encounter.objects.get(pk=kwargs['pk'])
