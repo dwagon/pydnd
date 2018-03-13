@@ -76,7 +76,7 @@ class MonsterState(models.Model):
     def attack(self, victim):
         """ Attack something else """
         dmgs = []
-        dist = self.victim.encounter.distance(self, victim)
+        dist = self.encounter.distance(self, victim)
         for att in self.attacks.all():
             if att.in_range(dist):
                 dmg = self.attack_with(victim, att)
