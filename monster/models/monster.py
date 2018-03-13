@@ -25,35 +25,4 @@ class Monster(models.Model):
     def __str__(self):
         return self.name
 
-    ##########################################################################
-    def inrange(self, victim, reach):
-        # TODO
-        return True
-
-    ##########################################################################
-    def attack(self, victim):
-        """ Attack something else """
-        dmgs = []
-        attacks = self.attacks.all()
-        for att in attacks:
-            if self.inrange(victim, att.reach):
-                dmg = self.attack_with(victim, att)
-                if dmg:
-                    dmgs.append(dmg)
-            elif self.inrange(victim, att.long_range):
-                dmg = self.attack_with(victim, att)
-                if dmg:
-                    dmgs.append(dmg)
-            else:
-                print("Not in range")
-                return None
-        return dmgs
-
-    ##########################################################################
-    def attack_with(self, victim, weapon):
-        if weapon.hit(victim.ac):
-            return weapon.dmg()
-        return None
-
-
 # EOF

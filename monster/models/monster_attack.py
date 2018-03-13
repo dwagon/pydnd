@@ -16,6 +16,14 @@ class MonsterAttack(models.Model):
     long_range = models.IntegerField(default=0)
 
     ##########################################################################
+    def in_range(self, distance):
+        if distance < self.reach:
+            return True
+        if distance < self.long_range:
+            return True
+        return False
+
+    ##########################################################################
     def __str__(self):
         return "{} {} ({})".format(self.monster.name, self.name, self.desc)
 

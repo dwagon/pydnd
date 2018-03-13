@@ -48,20 +48,52 @@ class MonsterState(models.Model):
         return getattr(self.monster, name)
 
     ##########################################################################
-    def get_reach(self):
-        return self.reach
-
-    ##########################################################################
     def start_turn(self):
-        self.generate_initiative()
         self.moves = self.speed
         self.save()
 
     ##########################################################################
-    def generate_initiative(self):
-        init = roll('d10')
-        self.initiative = init
-        self.save()
+    def in_range(self, dist):
+        attacks = self.attacks.all()
+        for att in attacks:
+            if att.in_range(dist):
+                return True
+        return False
+
+    ##########################################################################
+    def take_action(self, encounter):
+        """ Default monster action - need to override later """
+        targ = encounter.nearest_enemy(self)
+        if targ:
+            dist = encounter.distance(self, targ)
+            if targ.in_range(dist):
+                dmgs = self.attack(targ)
+                targ.hurt(dmgs)
+                return
+        self.move(encounter, targ)
+
+    ##########################################################################
+    def attack(self, victim):
+        """ Attack something else """
+        dmgs = []
+        dist = self.victim.encounter.distance(self, victim)
+        for att in self.attacks.all():
+            if att.in_range(dist):
+                dmg = self.attack_with(victim, att)
+                if dmg:
+                    dmgs.append(dmg)
+                break
+        return dmgs
+
+    ##########################################################################
+    def initiative(self):
+        init = roll('d20') + self.stat_bonus(self.stat_dex)
         return init
+
+    ##########################################################################
+    def attack_with(self, victim, weapon):
+        if weapon.hit(victim.ac):
+            return weapon.dmg()
+        return None
 
 # EOF
