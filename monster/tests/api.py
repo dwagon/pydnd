@@ -29,12 +29,12 @@ class test_MonsterAPI(TestCase):
         self.assertEqual(len(result), 2)
 
     def test_search(self):
-        resp = self.client.get(reverse('monster-list') + '?name=rat', follow=True, format='json')
+        resp = self.client.get(reverse('monster-list') + '?name=Rat', follow=True, format='json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         result = resp.json()
         self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]['name'], 'rat')
-        self.assertEqual(result[0]['damage'], '1d10')
+        self.assertEqual(result[0]['name'], 'Rat')
+        self.assertEqual(result[0]['align'], 'U')
 
 
 # EOF
