@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'character',
     'equipment',
     'message',
-    'monster'
+    'monster',
+    'pydnd'
 ]
 
 MIDDLEWARE = [

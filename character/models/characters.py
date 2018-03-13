@@ -1,12 +1,11 @@
 from . import Spell
-from . import tables
-from constants import alignment_choices
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from gm2m import GM2MField
 from utils import roll
 import status
+from pydnd.models import Creature
 
 
 ##############################################################################
@@ -56,7 +55,7 @@ def Cleric(**kwargs):
 
 
 ##############################################################################
-class Character(models.Model):
+class Character(Creature):
     # Character Class Choices
     BARBARIAN = 'BB'
     BARD = 'BD'
@@ -118,32 +117,21 @@ class Character(models.Model):
 
     world = models.ForeignKey('world.World', on_delete=models.CASCADE)
 
-    name = models.CharField(max_length=200)
     charclass = models.CharField(max_length=5, choices=charclass_choices)
     race = models.CharField(max_length=3, choices=race_choices, default=HUMAN)
     subrace = models.CharField(max_length=3, choices=race_choices, default=NONE)
     gender = models.CharField(max_length=1, choices=gender_choices, default=UNKNOWN)
     hp = models.IntegerField(default=0)
     max_hp = models.IntegerField(default=0)
-    ac = models.IntegerField(default=10)
     dmg = models.IntegerField(default=1)
     encumbrance = models.IntegerField(default=0)
-    speed = models.IntegerField(default=30)
     xp = models.IntegerField(default=0)
-    align = models.CharField(max_length=2, choices=alignment_choices, default='N')
     level = models.IntegerField(default=1)
     status = models.CharField(max_length=2, choices=status.status_choices, default=status.UNDEF)
     proficiency = models.IntegerField(default=-1)
 
     x = models.IntegerField(default=-1)
     y = models.IntegerField(default=-1)
-
-    stat_str = models.IntegerField(default=-1)
-    stat_int = models.IntegerField(default=-1)
-    stat_wis = models.IntegerField(default=-1)
-    stat_dex = models.IntegerField(default=-1)
-    stat_con = models.IntegerField(default=-1)
-    stat_cha = models.IntegerField(default=-1)
 
     plat = models.IntegerField(default=0)
     gold = models.IntegerField(default=0)
@@ -153,8 +141,6 @@ class Character(models.Model):
     gear = GM2MField(through='EquipState')
     spells = models.ManyToManyField('Spell', blank=True, through=SpellState)
     moves = models.IntegerField(default=-1)
-    initiative = models.IntegerField(default=-1)
-    attacks = models.IntegerField(default=-1)
 
     animate = True
 
@@ -318,11 +304,6 @@ class Character(models.Model):
             return dmg, weap.damage_cat
         else:
             return 0, None
-
-    ##########################################################################
-    def stat_bonus(self, stat):
-        mod = tables.stat_mods[stat]['mod']
-        return mod
 
     ##########################################################################
     def heal(self, dmg):
