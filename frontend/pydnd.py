@@ -87,27 +87,27 @@ def get_world():
 def make_fighter(world_id, name):
     data = {
         "world": world_id,
-        "charclass": 'F',
+        "charclass": 'FG',
         "stat_str": 18,
         "name": name
         }
     resp = rpost('/character/', data)
-    ls = get_weapon('Long Sword')
+    ls = get_weapon('Longsword')
     rget('/character/{}/equip/'.format(resp['id']))
     rpost('/character/{}/equip/{}'.format(resp['id'], ls['id']), data={'ready': True})
     return resp
 
 
 ##############################################################################
-def make_thief(world_id, name):
+def make_rogue(world_id, name):
     data = {
         "world": world_id,
-        "charclass": 'T',
+        "charclass": 'RO',
         "stat_dex": 18,
         "name": name
         }
     resp = rpost('/character/', data)
-    lb = get_weapon('Long Bow')
+    lb = get_weapon('Long bow')
     rpost('/character/{}/equip/{}'.format(resp['id'], lb['id']), data={'ready': True})
     return resp
 
@@ -130,6 +130,11 @@ def add_monsters(enc_id, monname, number=None):
 ##############################################################################
 def place_monsters(enc_id):
     rpost('/encounter/{}/place_monsters/'.format(enc_id), data={})
+
+
+##############################################################################
+def start_encounter(enc_id):
+    rpost('/encounter/{}/start_encounter/'.format(enc_id), data={})
 
 
 ##############################################################################
@@ -207,13 +212,14 @@ def main():
     delete_all_chars()
     world_id = get_world()
     print("world_id={}".format(world_id))
-    make_thief(world_id, "Tom")
+    make_rogue(world_id, "Tom")
     make_fighter(world_id, "Fez")
     encounter_id = make_encounter(world_id, 15, 15)
     print("encounter_id={}".format(encounter_id))
     place_pcs(encounter_id)
     add_monsters(encounter_id, 'Orc', number=4)
     place_monsters(encounter_id)
+    start_encounter(encounter_id)
 
     while True:
         finished = combat_phase(encounter_id)
