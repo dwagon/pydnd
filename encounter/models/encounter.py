@@ -34,7 +34,11 @@ class Encounter(models.Model):
         self.initiative = [_[1] for _ in sorted(tmp)]
 
     ##########################################################################
-    def add_monster_type(self, monstername, number):
+    def all_monsters(self):
+        return MonsterState.objects.filter(encounter=self)
+
+    ##########################################################################
+    def add_monster_type(self, monstername, number=1):
         m = Monster.objects.get(name=monstername)
         for _ in range(number):
             ms = MonsterState(encounter=self, monster=m)
