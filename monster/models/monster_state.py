@@ -1,19 +1,14 @@
 from django.db import models
 from utils import roll
+from pydnd.models import CreatureState
 import status
 
 
 ##############################################################################
-class MonsterState(models.Model):
+class MonsterState(CreatureState):
     name = models.CharField(max_length=200, default="", blank=True)
     encounter = models.ForeignKey('encounter.Encounter', on_delete=models.CASCADE, related_name='monsters')
     monster = models.ForeignKey('Monster', on_delete=models.CASCADE)
-    hp = models.IntegerField(default=-1)
-    max_hp = models.IntegerField(default=-1)
-    status = models.CharField(max_length=2, choices=status.status_choices, default=status.UNDEF)
-    x = models.IntegerField(default=-1)
-    y = models.IntegerField(default=-1)
-    moves = models.IntegerField(default=-1)
 
     animate = True
 
@@ -66,7 +61,7 @@ class MonsterState(models.Model):
         targ = encounter.nearest_enemy(self)
         if targ:
             dist = encounter.distance(self, targ)
-            if targ.in_range(dist):
+            if self.in_range(dist):
                 dmgs = self.attack(targ)
                 targ.hurt(dmgs)
                 return

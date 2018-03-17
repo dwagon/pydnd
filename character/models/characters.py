@@ -4,8 +4,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from gm2m import GM2MField
 from utils import roll
+from pydnd.models import Creature, CreatureState
 import status
-from pydnd.models import Creature
 
 
 ##############################################################################
@@ -55,7 +55,7 @@ def Cleric(**kwargs):
 
 
 ##############################################################################
-class Character(Creature):
+class Character(Creature, CreatureState):
     # Character Class Choices
     BARBARIAN = 'BB'
     BARD = 'BD'
@@ -115,23 +115,17 @@ class Character(Creature):
     FRIEND = 'F'
     NONE = 'N'
 
-    world = models.ForeignKey('world.World', on_delete=models.CASCADE)
+    world = models.ForeignKey('world.World', on_delete=models.CASCADE, related_name='pcs')
 
     charclass = models.CharField(max_length=5, choices=charclass_choices)
     race = models.CharField(max_length=3, choices=race_choices, default=HUMAN)
     subrace = models.CharField(max_length=3, choices=race_choices, default=NONE)
     gender = models.CharField(max_length=1, choices=gender_choices, default=UNKNOWN)
-    hp = models.IntegerField(default=0)
-    max_hp = models.IntegerField(default=0)
     dmg = models.IntegerField(default=1)
     encumbrance = models.IntegerField(default=0)
     xp = models.IntegerField(default=0)
     level = models.IntegerField(default=1)
-    status = models.CharField(max_length=2, choices=status.status_choices, default=status.UNDEF)
     proficiency = models.IntegerField(default=-1)
-
-    x = models.IntegerField(default=-1)
-    y = models.IntegerField(default=-1)
 
     plat = models.IntegerField(default=0)
     gold = models.IntegerField(default=0)
@@ -140,7 +134,6 @@ class Character(Creature):
 
     gear = GM2MField(through='EquipState')
     spells = models.ManyToManyField('Spell', blank=True, through=SpellState)
-    moves = models.IntegerField(default=-1)
 
     animate = True
 
