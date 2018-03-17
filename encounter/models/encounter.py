@@ -29,9 +29,12 @@ class Encounter(models.Model):
         tmp = []
         for m in self.monsters.all():
             tmp.append((m.initiative(), m))
-        for p in self.pcs.all():
+        for p in self.world.pcs.all():
             tmp.append((p.initiative(), p))
-        self.initiative = [_[1] for _ in sorted(tmp)]
+        for num, obj in enumerate([_[1] for _ in sorted(tmp, key=lambda x: x[0])]):
+            obj.initseq = num
+            obj.save()
+        self.start_turn()
 
     ##########################################################################
     def all_monsters(self):
@@ -180,22 +183,22 @@ class Encounter(models.Model):
 
     ##########################################################################
     def combat_phase(self):
-        # TODO - Should iterate across creatures in initiative order instead
-        if self.phase < 0 or self.phase > 20:
-            self.start_turn()
-        self.phase += 1
-        self.save()
-        all_pcs = self.world.all_pcs()
-        all_monsters = self.monsters.all()
-        m_targets = [_ for _ in all_monsters if _.status == status.OK]
-        if not m_targets:
-            return False
-        pc_targets = [_ for _ in all_pcs if _.status == status.OK]
-        if not pc_targets:
-            return False
-        # TODO - actions
+        mon = MonsterState.objects.filter(initseq=self.phase, encounter=self)
+        if mon:
+            mon[0].take_action(encounter=self)
+            self.phase += 1
+            self.save()
+            return True
 
-        return True
+        pc = Character.objects.filter(initseq=self.phase, world=self.world)
+        if pc:
+            pc[0].take_action()
+            self.phase += 1
+            self.save()
+            return True
+
+        self.start_turn()
+        return False
 
     ##########################################################################
     def M(self, msg):
