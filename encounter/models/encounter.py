@@ -185,20 +185,19 @@ class Encounter(models.Model):
     def combat_phase(self):
         mon = MonsterState.objects.filter(initseq=self.phase, encounter=self)
         if mon:
-            mon[0].take_action(encounter=self)
+            mon[0].take_action()
             self.phase += 1
             self.save()
-            return True
+            return mon[0]
 
         pc = Character.objects.filter(initseq=self.phase, world=self.world)
         if pc:
             pc[0].take_action()
             self.phase += 1
             self.save()
-            return True
+            return pc[0]
 
         self.start_turn()
-        return False
 
     ##########################################################################
     def M(self, msg):

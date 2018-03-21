@@ -195,7 +195,7 @@ def delete_world(world_id, chars=[]):
 ##############################################################################
 def combat_phase(enc_id):
     ans = rpost('/encounter/{}/combat_phase/'.format(enc_id), data={})
-    return ans['finished']
+    return ans
 
 
 ##############################################################################
@@ -222,7 +222,7 @@ def main():
     start_encounter(encounter_id)
 
     while True:
-        finished = combat_phase(encounter_id)
+        who = combat_phase(encounter_id)
         arena = get_arena(encounter_id)
         for y in range(15):
             for x in range(15):
@@ -243,8 +243,7 @@ def main():
         print("monsters")
         for mo in mons:
             print("  {}".format(mo))
-        if finished:
-            break
+        print("Who: {}".format(who))
         msgs = get_messages(encounter_id, delete=True)
         for m in msgs:
             print("{}".format(m))

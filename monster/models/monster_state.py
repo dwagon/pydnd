@@ -56,16 +56,16 @@ class MonsterState(CreatureState):
         return False
 
     ##########################################################################
-    def take_action(self, encounter):
+    def take_action(self):
         """ Default monster action - need to override later """
-        targ = encounter.nearest_enemy(self)
+        targ = self.encounter.nearest_enemy(self)
         if targ:
-            dist = encounter.distance(self, targ)
+            dist = self.encounter.distance(self, targ)
             if self.in_range(dist):
                 dmgs = self.attack(targ)
                 targ.hurt(dmgs)
                 return
-        self.move(encounter, targ)
+        self.move(targ)
 
     ##########################################################################
     def attack(self, victim):
@@ -77,6 +77,9 @@ class MonsterState(CreatureState):
                 dmg = self.attack_with(victim, att)
                 if dmg:
                     dmgs.append(dmg)
+                    self.encounter.M("{} hit {} with {} for {}".format(self.name, victim.name, att.desc, dmgs))
+                else:
+                    self.encounter.M("{} missed {} with {}".format(self.name, victim.name, att.desc))
                 break
         return dmgs
 

@@ -360,6 +360,10 @@ class Character(Creature, CreatureState):
         self.save()
 
     ##########################################################################
+    def take_action(self):
+        pass
+
+    ##########################################################################
     def initiative(self):
         init = roll('d20') + self.stat_bonus(self.stat_dex)
         return init

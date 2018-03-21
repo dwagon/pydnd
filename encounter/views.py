@@ -2,6 +2,7 @@ from .models import Encounter
 from .serializers import EncounterSerializer, LocationSerializer
 from monster.models import MonsterState, Monster
 from monster.serializers import MonsterStateSerializer
+from character.serializers import CharacterSerializer
 from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework import status
@@ -99,8 +100,13 @@ def place_pcs(request, **kwargs):
 @api_view(['POST'])
 def combat_phase(request, **kwargs):
     enc = Encounter.objects.get(pk=kwargs['pk'])
-    keep_going = enc.combat_phase()
+    who = enc.combat_phase()
+    if isinstance(who, MonsterState):
+        serializer = MonsterStateSerializer(who)
+    else:
+        serializer = CharacterSerializer(who)
 
-    return Response({"finished": not keep_going}, status=status.HTTP_200_OK)
+    data = serializer.data
+    return Response(data, status=status.HTTP_200_OK)
 
 # EOF
