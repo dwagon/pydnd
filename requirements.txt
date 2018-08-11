@@ -7,3 +7,4 @@ python_coveralls
 pygame
 requests
 drf-nested-routers
+django-gm2m

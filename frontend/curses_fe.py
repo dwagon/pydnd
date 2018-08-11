@@ -39,17 +39,15 @@ class Screen(object):
     def init_game(self):
         pydnd.initiate_session()
         world_id = pydnd.get_world()
+        pydnd.delete_all_chars()
         self.add_msg('Making Chars', refresh=True)
-        pydnd.make_thief(world_id, "Tom")
+        pydnd.make_rogue(world_id, "Tom")
         pydnd.make_fighter(world_id, "Fin")
         self.add_msg('Making Encounter', refresh=True)
         encounter_id = pydnd.make_encounter(world_id, self.arena_x, self.arena_y)
-        self.add_msg('Placing PCs', refresh=True)
-        pydnd.place_pcs(encounter_id)
         self.add_msg('Adding Monsters', refresh=True)
-        pydnd.add_monsters(encounter_id, 'Orc', number=15)
-        self.add_msg('Placing Monsters', refresh=True)
-        pydnd.place_monsters(encounter_id)
+        pydnd.add_monsters(encounter_id, 'Orc', number=3)
+        pydnd.start_encounter(encounter_id)
         return encounter_id
 
     #########################################################################
@@ -70,15 +68,52 @@ class Screen(object):
         self.message_win.refresh()
 
     #########################################################################
+    def display_monster_details(self, who):
+        self.detail_win.erase()
+        self.detail_win.border()
+        self.detail_win.addstr(1, 1, "Name: {}".format(who['name']))
+        self.detail_win.addstr(2, 1, "Status: {}".format(who['status']))
+        self.detail_win.addstr(3, 1, "HP: {}/{}".format(who['hp'], who['max_hp']))
+        self.detail_win.refresh()
+
+    #########################################################################
+    def display_character_details(self, who):
+        self.detail_win.erase()
+        self.detail_win.border()
+        self.detail_win.addstr(1, 1, "Name: {}".format(who['name']))
+        self.detail_win.addstr(2, 1, "Status: {}".format(who['status']))
+        self.detail_win.addstr(3, 1, "HP: {}/{}".format(who['hp'], who['max_hp']))
+        self.detail_win.refresh()
+
+    #########################################################################
+    def character_action(self, who):
+        key = self.screen.getch()
+        char = who['id']
+        if key == ord('h'):
+            pydnd.move(char, direction='W')
+        elif key == ord('j'):
+            pydnd.move(char, direction='S')
+        elif key == ord('k'):
+            pydnd.move(char, direction='N')
+        elif key == ord('l'):
+            pydnd.move(char, direction='E')
+        else:
+            self.add_msg("Unknown keypress >{}<".format(key))
+
+    #########################################################################
     def loop(self):
         while True:
             self.draw_map(self.map_win, self.encounter_id)
-            finished = pydnd.combat_phase(self.encounter_id)
+            who = pydnd.combat_phase(self.encounter_id)
             self.display_messages()
+            if who:
+                if 'monster' in who:
+                    self.display_monster_details(who)
+                if 'charclass' in who:
+                    self.display_character_details(who)
+                    self.character_action(who)
             self.screen.refresh()
             self.screen.getch()
-            if finished:
-                break
 
     ##########################################################################
     def draw_map(self, win, eid):

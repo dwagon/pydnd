@@ -6,6 +6,7 @@ from gm2m import GM2MField
 from utils import roll
 from pydnd.models import Creature, CreatureState
 import status
+import sys
 
 
 ##############################################################################
@@ -194,7 +195,10 @@ class Character(Creature, CreatureState):
     ##########################################################################
     def calc_hp(self):
         """ Calculate the HP for a level - try and make it not suck too much """
-        hp = max(roll(self.hitdie()), roll(self.hitdie()))
+        if self.level == 1:
+            hp = int(self.hitdie().replace('d', ''))
+        else:
+            hp = max(roll(self.hitdie()), roll(self.hitdie()))
         hp += self.stat_bonus(self.stat_con)
         hp = max(1, hp)
         return hp
@@ -350,9 +354,27 @@ class Character(Creature, CreatureState):
         pass
 
     ##########################################################################
-    def move(self, dirn):
-        # self.world.move(self, dirn)
-        pass
+    def move(self, direct):
+        assert direct in 'NSEW'
+        if direct == 'N':
+            newx = self.x - 1
+            newy = self.y
+        elif direct == 'S':
+            newx = self.x + 1
+            newy = self.y
+        elif direct == 'E':
+            newx = self.x
+            newy = self.y + 1
+        elif direct == 'W':
+            newx = self.x
+            newy = self.y - 1
+        t = self.world[(newx, newy)]
+        if t is None:
+            enc = Encounter.objects.filter(world=self.world)[0]
+            enc.change_loc(self.x, self.y, newx, newy)
+            self.x = newx
+            self.y = newy
+            self.save()
 
     ##########################################################################
     def start_turn(self):
@@ -371,7 +393,7 @@ class Character(Creature, CreatureState):
     ##########################################################################
     def hitdie(self):
         hd_map = {
-                self.ROGUE: 'd6',
+                self.ROGUE: 'd8',
                 self.FIGHTER: 'd10',
                 self.WIZARD: 'd6',
                 self.CLERIC: 'd8',

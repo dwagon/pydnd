@@ -77,11 +77,15 @@ class MonsterState(CreatureState):
                 dmg = self.attack_with(victim, att)
                 if dmg:
                     dmgs.append(dmg)
-                    self.encounter.M("{} hit {} with {} for {}".format(self.name, victim.name, att.desc, dmgs))
+                    self.encounter.M("{} hit {} with {} for {} damage".format(self.name, victim.name, att.name, dmg[0]))
                 else:
-                    self.encounter.M("{} missed {} with {}".format(self.name, victim.name, att.desc))
+                    self.encounter.M("{} missed {} with {}".format(self.name, victim.name, att.name))
                 break
         return dmgs
+
+    ##########################################################################
+    def move(self, direct):
+        pass    # TODO
 
     ##########################################################################
     def initiative(self):

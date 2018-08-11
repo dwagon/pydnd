@@ -12,6 +12,8 @@ retries = 5
 
 ##############################################################################
 def rmethod(url, method, data={}):
+    f = open('/tmp/s.err', 'a')
+    f.write("url={} method={} data={}\n".format(url, method.__name__, data))
     for i in range(retries):
         try:
             if method.__name__ == 'delete':
@@ -37,7 +39,7 @@ def rmethod(url, method, data={}):
 
 
 ##############################################################################
-def rpost(url, data):
+def rpost(url, data={}):
     return rmethod(url, sess.post, data)
 
 
@@ -61,6 +63,20 @@ def get_character(name=''):
 ##############################################################################
 def get_monsters(enc_id):
     data = rget('/monster/state/?encounter={}'.format(enc_id))
+    if data:
+        return data
+
+
+##############################################################################
+def get_monster_details(enc_id, msid):
+    data = rget('/monster/state/{}'.format(msid))
+    if data:
+        return data
+
+
+##############################################################################
+def get_character_details(enc_id, chid):
+    data = rget('/character/{}'.format(chid))
     if data:
         return data
 
@@ -113,6 +129,16 @@ def make_rogue(world_id, name):
 
 
 ##############################################################################
+def move(char, direction):
+    return char_action(char, 'move', data={'direction': direction})
+
+
+##############################################################################
+def char_action(char, action, data):
+    return rpost('/character/{}/action/{}/'.format(char, action), data)
+
+
+##############################################################################
 def make_encounter(world_id, size_x, size_y):
     data = {'world': world_id, 'size_x': size_x, 'size_y': size_y, 'turn': 0}
     resp = rpost('/encounter/', data)
@@ -125,11 +151,6 @@ def add_monsters(enc_id, monname, number=None):
     data = {'number': number}
     resp = rpost('/encounter/{}/monster/{}'.format(enc_id, m[0]['id']), data)
     return resp
-
-
-##############################################################################
-def place_monsters(enc_id):
-    rpost('/encounter/{}/place_monsters/'.format(enc_id), data={})
 
 
 ##############################################################################
@@ -167,11 +188,6 @@ def delete_all_chars():
     ans = rget('/character/')
     for ch in ans:
         ans = delete_char(ch)
-
-
-##############################################################################
-def place_pcs(enc_id):
-    rpost('/encounter/{}/place_pcs/'.format(enc_id), data={})
 
 
 ##############################################################################
@@ -216,9 +232,7 @@ def main():
     make_fighter(world_id, "Fez")
     encounter_id = make_encounter(world_id, 15, 15)
     print("encounter_id={}".format(encounter_id))
-    place_pcs(encounter_id)
     add_monsters(encounter_id, 'Orc', number=4)
-    place_monsters(encounter_id)
     start_encounter(encounter_id)
 
     while True:

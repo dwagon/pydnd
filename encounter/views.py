@@ -2,6 +2,7 @@ from .models import Encounter
 from .serializers import EncounterSerializer, LocationSerializer
 from monster.models import MonsterState, Monster
 from monster.serializers import MonsterStateSerializer
+from character.models import Character
 from character.serializers import CharacterSerializer
 from rest_framework import generics
 from rest_framework import viewsets
@@ -79,32 +80,17 @@ def start_encounter(request, **kwargs):
 
 ##############################################################################
 @api_view(['POST'])
-def place_monster(request, **kwargs):
-    """ Place the monsters around the arena """
-    enc = Encounter.objects.get(pk=kwargs['pk'])
-    enc.place_monsters()
-    monsters = enc.monsters.all()
-    serializer = MonsterStateSerializer(monsters, many=True)
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-##############################################################################
-@api_view(['POST'])
-def place_pcs(request, **kwargs):
-    enc = Encounter.objects.get(pk=kwargs['pk'])
-    enc.place_pcs()
-    return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
-
-
-##############################################################################
-@api_view(['POST'])
 def combat_phase(request, **kwargs):
     enc = Encounter.objects.get(pk=kwargs['pk'])
     who = enc.combat_phase()
     if isinstance(who, MonsterState):
         serializer = MonsterStateSerializer(who)
-    else:
+    elif isinstance(who, Character):
         serializer = CharacterSerializer(who)
+    elif who is None:
+        return Response({}, status=status.HTTP_200_OK)
+    else:
+        assert False, "who is {}".format(type(who))
 
     data = serializer.data
     return Response(data, status=status.HTTP_200_OK)

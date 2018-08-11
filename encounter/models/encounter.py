@@ -26,6 +26,8 @@ class Encounter(models.Model):
 
     ##########################################################################
     def start(self):
+        self.place_pcs()
+        self.place_monsters()
         tmp = []
         for m in self.monsters.all():
             tmp.append((m.initiative(), m))
@@ -210,55 +212,6 @@ class Encounter(models.Model):
         self.M("{} has died".format(obj.name))
         loc = self.locations.get(x=obj.x, y=obj.y)
         loc.delete()
-
-    ##########################################################################
-    def obj_action(self, obj):
-        """ Move towards an enemy until one is range and then attack them """
-        reach = obj.get_reach()
-        if reach:
-            targ_list = self.enemy_in_reach(obj, reach)
-        else:
-            targ_list = self.enemy_neighbours(obj)
-
-        if not targ_list and obj.moves > 0:
-            ne = self.nearest_enemy(obj)
-            if ne:
-                dirn = self.dir_to_move(obj)
-                self.move(obj, dirn)
-                obj.moves -= 1
-                obj.save()
-
-        if obj.attacks > 0 and targ_list:
-            obj.attacks -= 1
-            targ = random.choice(targ_list)
-            dmg = obj.attack(targ)
-            if dmg:
-                if hasattr(obj, 'equipped_weapon') and obj.equipped_weapon():
-                    weap = "with {} ".format(obj.equipped_weapon().name)
-                else:
-                    weap = ""
-                self.M("{} hit {} {}for {} -> {}".format(obj.name, targ.name, weap, dmg, targ.get_status_display()))
-                if targ.status == status.DEAD:
-                    self.obj_dead(targ)
-            else:
-                self.M("{} missed {}".format(obj.name, targ.name))
-            obj.save()
-
-    ##########################################################################
-    def dir_to_move(self, obj):
-        ne = self.nearest_enemy(obj)
-        if not ne:
-            return
-        if pow(ne.x - obj.x, 2) > pow(ne.y - obj.y, 2):
-            if ne.x > obj.x:
-                return 'S'
-            if ne.x < obj.x:
-                return 'N'
-        else:
-            if ne.y > obj.y:
-                return 'E'
-            if ne.y < obj.y:
-                return 'W'
 
     ##########################################################################
     def make_map(self):
