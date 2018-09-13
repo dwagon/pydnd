@@ -29,11 +29,6 @@ class MonsterStateList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         queryset = MonsterState.objects.all()
-
-        enc = self.request.query_params.get('encounter', None)
-        if enc is not None:
-            queryset = queryset.filter(encounter=enc)
-
         return queryset
 
 

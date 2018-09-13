@@ -370,8 +370,7 @@ class Character(Creature, CreatureState):
             newy = self.y - 1
         t = self.world[(newx, newy)]
         if t is None:
-            enc = Encounter.objects.filter(world=self.world)[0]
-            enc.change_loc(self.x, self.y, newx, newy)
+            # TODO
             self.x = newx
             self.y = newy
             self.save()

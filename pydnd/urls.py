@@ -8,7 +8,6 @@ urlpatterns = [
     url(r'^$', views.api_root),
     url(r'^admin/', admin.site.urls),
     url(r'^world/', include('world.urls')),
-    url(r'^encounter/', include('encounter.urls')),
     url(r'^monster/', include('monster.urls')),
     url(r'^equipment/', include('equipment.urls')),
     url(r'^character/', include('character.urls')),

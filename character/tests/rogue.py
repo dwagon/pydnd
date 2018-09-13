@@ -2,7 +2,6 @@ from django.test import TestCase
 
 from character.models import Rogue
 from equipment.models import Equipment, Weapon, Armour
-from encounter.models import Encounter
 from monster.models import Monster, MonsterState
 from world.models import World
 import status
@@ -38,13 +37,13 @@ class test_Rogue(TestCase):
         self.leather.delete()
         self.helmet.delete()
         self.th.delete()
-        self.w.delete()
         self.o.delete()
+        self.w.delete()
 
     def test_hp(self):
-        self.assertEqual(self.th.hitdie(), 'd6')
+        self.assertEqual(self.th.hitdie(), 'd8')
         self.assertGreaterEqual(self.th.hp, 1)
-        self.assertLessEqual(self.th.hp, 6)
+        self.assertLessEqual(self.th.hp, 8)
 
     def test_encumb(self):
         self.assertEqual(self.th.encumbrance, 0)
@@ -56,15 +55,13 @@ class test_Rogue(TestCase):
 
     def test_ranged(self):
         """ Test ranged combat """
-        e = Encounter(world=self.w)
-        e.save()
         self.th.equip(self.bow, ready=True)
         self.assertEqual(self.th.get_reach(), (5, 10))
         bow = self.th.equipped_weapon()[0]
         o = Monster.objects.get(name='Orc')
         o.ac = 1        # Ensure hit
         o.save()
-        oi = MonsterState(encounter=e, monster=o)
+        oi = MonsterState(monster=o, world=self.w)
         oi.save()
         dmg, dmgcat = self.th.ranged_attack(weap=bow, victim=oi)
         o.ac = 13       # Restore

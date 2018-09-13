@@ -1,6 +1,5 @@
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from encounter.models import Encounter
 import os
 import json
 
@@ -52,8 +51,8 @@ def tile(request, tilename):
 @csrf_exempt
 def g_encounter(request):
     if request.method == "POST":
-        e = Encounter(size_x=20, size_y=20)
-        e.save()
+        # e = Encounter(size_x=20, size_y=20)
+        # e.save()
         e.make_map()
         mp = {'map': e.map_repr()}
         return JsonResponse(mp)

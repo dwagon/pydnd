@@ -11,6 +11,7 @@ class CreatureState(models.Model):
     y = models.IntegerField(default=-1)
     initseq = models.IntegerField(default=-1)
     moves = models.IntegerField(default=-1)
+    world = models.ForeignKey('world.World', on_delete=models.CASCADE)
 
     class Meta(object):
         abstract = True

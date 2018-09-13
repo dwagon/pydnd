@@ -3,7 +3,6 @@ from django.test import TestCase
 from character.models import Fighter
 from equipment.models import Equipment, Weapon, Armour
 from monster.models import Monster, MonsterState
-from encounter.models import Encounter
 from world.models import World
 
 
@@ -83,9 +82,7 @@ class test_Fighter(TestCase):
         o = Monster.objects.get(name='Orc')
         o.ac = 1        # Ensure hit
         o.save()
-        e = Encounter(world=self.w)
-        e.save()
-        oi = MonsterState(encounter=e, monster=o)
+        oi = MonsterState(monster=o, world=self.w)
         oi.save()
         rc = self.fg.attack(oi)
         self.assertTrue(rc)
@@ -97,9 +94,7 @@ class test_Fighter(TestCase):
         o = Monster.objects.get(name='Orc')
         o.ac = 30   # Ensure miss
         o.save()
-        e = Encounter(world=self.w)
-        e.save()
-        oi = MonsterState(encounter=e, monster=o)
+        oi = MonsterState(monster=o, world=self.w)
         oi.save()
         rc = self.fg.attack(oi)
         self.assertFalse(rc)
@@ -116,9 +111,7 @@ class test_Fighter(TestCase):
         o = Monster.objects.get(name='Orc')
         o.ac = 1
         o.save()    # Ensure hit
-        e = Encounter(world=self.w)
-        e.save()
-        oi = MonsterState(encounter=e, monster=o)
+        oi = MonsterState(monster=o, world=self.w)
         oi.save()
         dmg = fg.attack(oi)
         self.assertEqual(dmg, [(1 + 4, 'P')])

@@ -1,7 +1,6 @@
 from django.test import TestCase
 from monster.models import Monster, MonsterAttack
 from equipment.models import Armour
-from encounter.models import Encounter
 from character.models import Wizard
 from world.models import World
 
@@ -14,12 +13,9 @@ class test_Monster(TestCase):
         self.orc.save()
         self.greataxe = MonsterAttack(monster=self.orc, name="greataxe", desc="Sharp", to_hit=5, reach=5, damage="1d12+3", damage_cat="S", normal_range=0, long_range=0)
         self.greataxe.save()
-        self.enc = Encounter(world=self.w)
-        self.enc.save()
 
     def tearDown(self):
         self.orc.delete()
-        self.enc.delete()
         self.w.delete()
 
     def test_speed(self):
@@ -31,8 +27,8 @@ class test_Monster(TestCase):
         wiz = Wizard(world=self.w, name='victim', max_hp=10, hp=10)
         wiz.save()
         wiz.equip(arm, ready=True)
-        self.enc.add_monster_type('Orc')
-        this_orc = self.enc.all_monsters()[0]
+        self.w.add_monster_type('Orc')
+        this_orc = self.w.all_monsters()[0]
         dmg = this_orc.attack(wiz)
         self.assertEqual(len(dmg), 1)
         self.assertEqual(dmg[0][1], 'S')
@@ -49,8 +45,8 @@ class test_Monster(TestCase):
         c.equip(e, ready=True)
         c.ac = -30    # Guarantee miss
         c.save()
-        self.enc.add_monster_type('Orc')
-        this_orc = self.enc.all_monsters()[0]
+        self.w.add_monster_type('Orc')
+        this_orc = self.w.all_monsters()[0]
         hit = this_orc.attack(c)
         self.assertFalse(hit)
 

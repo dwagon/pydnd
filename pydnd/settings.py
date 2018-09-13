@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'gm2m',
     'rest_framework',
     'world',
-    'encounter',
     'character',
     'equipment',
     'message',

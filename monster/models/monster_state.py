@@ -7,7 +7,6 @@ import status
 ##############################################################################
 class MonsterState(CreatureState):
     name = models.CharField(max_length=200, default="", blank=True)
-    encounter = models.ForeignKey('encounter.Encounter', on_delete=models.CASCADE, related_name='monsters')
     monster = models.ForeignKey('Monster', on_delete=models.CASCADE)
 
     animate = True
@@ -58,9 +57,9 @@ class MonsterState(CreatureState):
     ##########################################################################
     def take_action(self):
         """ Default monster action - need to override later """
-        targ = self.encounter.nearest_enemy(self)
+        targ = self.world.nearest_enemy(self)
         if targ:
-            dist = self.encounter.distance(self, targ)
+            dist = self.world.distance(self, targ)
             if self.in_range(dist):
                 dmgs = self.attack(targ)
                 targ.hurt(dmgs)
@@ -71,15 +70,15 @@ class MonsterState(CreatureState):
     def attack(self, victim):
         """ Attack something else """
         dmgs = []
-        dist = self.encounter.distance(self, victim)
+        dist = self.world.distance(self, victim)
         for att in self.attacks.all():
             if att.in_range(dist):
                 dmg = self.attack_with(victim, att)
                 if dmg:
                     dmgs.append(dmg)
-                    self.encounter.M("{} hit {} with {} for {} damage".format(self.name, victim.name, att.name, dmg[0]))
+                    self.world.M("{} hit {} with {} for {} damage".format(self.name, victim.name, att.name, dmg[0]))
                 else:
-                    self.encounter.M("{} missed {} with {}".format(self.name, victim.name, att.name))
+                    self.world.M("{} missed {} with {}".format(self.name, victim.name, att.name))
                 break
         return dmgs
 
